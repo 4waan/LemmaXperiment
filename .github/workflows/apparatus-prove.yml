@@ -9,7 +9,7 @@ on:
     inputs:
       block:
         description: mainnet block number (small)
-        default: "18884864"
+        default: "20600066"
         required: true
       proof_mode:
         description: compressed or groth16
@@ -23,6 +23,7 @@ jobs:
     env:
       RPC_1: ${{ secrets.RPC_1 }}
       SP1_PROVER: cpu
+      SP1_LOG: debug
       # SP1 6.8.0 CPU prover defaults target large machines (2^24-cycle shards,
       # 4 concurrent core workers, 8 recursion workers). On a 16 GB runner that
       # is killed within a minute. These settings trade time for memory. They

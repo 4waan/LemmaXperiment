@@ -51,13 +51,17 @@ async fn main() -> eyre::Result<()> {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "info");
     }
+    // Upstream pins sp1_prover to warn, which hides shard progress. SP1_LOG
+    // (e.g. "debug") overrides that one directive so long CPU proofs can be
+    // followed from the job log.
+    let sp1_level = std::env::var("SP1_LOG").unwrap_or_else(|_| "warn".to_string());
     tracing_subscriber::registry()
         .with(fmt::layer())
         .with(
             EnvFilter::from_default_env()
                 .add_directive("sp1_core_machine=warn".parse().unwrap())
                 .add_directive("sp1_core_executor::executor=warn".parse().unwrap())
-                .add_directive("sp1_prover=warn".parse().unwrap()),
+                .add_directive(format!("sp1_prover={sp1_level}").parse().unwrap()),
         )
         .init();
 

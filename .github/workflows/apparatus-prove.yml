@@ -23,13 +23,36 @@ jobs:
     env:
       RPC_1: ${{ secrets.RPC_1 }}
       SP1_PROVER: cpu
+      # SP1 6.8.0 CPU prover defaults target large machines (2^24-cycle shards,
+      # 4 concurrent core workers, 8 recursion workers). On a 16 GB runner that
+      # is killed within a minute. These settings trade time for memory. They
+      # change how the proof is produced, not what is proven: same guest, same
+      # vkey, same verifier.
+      SHARD_SIZE: "1048576"
+      ELEMENT_THRESHOLD: "67108864"
+      TRACE_CHUNK_SLOTS: "2"
+      SP1_WORKER_NUM_CORE_WORKERS: "1"
+      SP1_WORKER_CORE_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_SETUP_WORKERS: "1"
+      SP1_WORKER_SETUP_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_SPLICING_WORKERS: "1"
+      SP1_WORKER_SPLICING_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_RECURSION_EXECUTOR_WORKERS: "1"
+      SP1_WORKER_RECURSION_EXECUTOR_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_RECURSION_PROVER_WORKERS: "1"
+      SP1_WORKER_RECURSION_PROVER_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_PREPARE_REDUCE_WORKERS: "1"
+      SP1_WORKER_PREPARE_REDUCE_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_DEFERRED_WORKERS: "1"
+      SP1_WORKER_DEFERRED_BUFFER_SIZE: "1"
     steps:
       - uses: actions/checkout@v4
 
-      - name: Free disk
+      - name: Free disk and add swap
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          df -h / | tail -1; free -g | head -2
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo fallocate -l 16G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile >/dev/null && sudo swapon /swapfile
+          df -h / | tail -1; free -g | head -3
 
       - name: Fetch binaries from the latest successful build
         env:
@@ -49,11 +72,14 @@ jobs:
       - name: Prove
         run: |
           mkdir -p run cache
+          ( while true; do echo "$(date -u +%T) $(free -m | awk '/Mem/{print "mem_used_mb="$3} /Swap/{print "swap_used_mb="$3}' | xargs)"; sleep 30; done ) > run/memory.log 2>&1 &
+          sampler=$!
           start=$(date +%s)
           dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \
             --cache-dir cache --prove --proof-mode ${{ inputs.proof_mode }} \
             --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
           end=$(date +%s)
+          kill $sampler 2>/dev/null || true
           {
             echo "block: ${{ inputs.block }}"
             echo "mode: prove ${{ inputs.proof_mode }}"
@@ -61,6 +87,9 @@ jobs:
             echo "wall_seconds: $((end - start))"
             echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB (shared GitHub runner, not a benchmark)"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+            echo "peak_mem_used_mb: $(awk -F'mem_used_mb=' '{split($2,a," "); if(a[1]>m)m=a[1]} END{print m}' run/memory.log)"
+            echo "peak_swap_used_mb: $(awk -F'swap_used_mb=' '{split($2,a," "); if(a[1]>m)m=a[1]} END{print m}' run/memory.log)"
+            echo "prover_env: SHARD_SIZE=$SHARD_SIZE ELEMENT_THRESHOLD=$ELEMENT_THRESHOLD one worker per stage"
           } | tee run/run.txt
           cat run/out/*.proving.json
 

@@ -1,0 +1,76 @@
+{
+  "demandId": null,
+  "specificationVersion": "0.1-draft",
+  "specificationHash": null,
+
+  "buyer": null,
+  "assignedCreatorPayee": null,
+  "evaluatorSigner": null,
+
+  "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen end-to-end latency target.",
+
+  "baselineCommit": null,
+  "dependencyLockHash": null,
+  "toolchainManifestHash": null,
+  "integrationTarget": {
+    "pipeline": "RSP/SP1",
+    "rspCommit": null,
+    "sp1Version": null,
+    "supportedFork": null,
+    "proofMode": null,
+    "hardware": null
+  },
+
+  "workloadRelation": null,
+  "allowedSourcePaths": [],
+  "integrationInterface": null,
+
+  "publicDevelopmentCorpusHash": null,
+  "publicDevelopmentBlocks": [],
+  "sealedHoldoutCommitment": null,
+  "evaluationPolicyHash": null,
+  "correctnessPolicyHash": null,
+  "formalScopePolicyHash": null,
+
+  "acceptanceCriteria": {
+    "preserveResultsAndSecurity": true,
+    "leanTheoremRequired": true,
+    "latencyTarget": {
+      "metric": "median complete-job preparation+proving+wrapping latency",
+      "minimumImprovementPercent": 5,
+      "pairedIntervalConfidence": 0.95,
+      "intervalMustExcludeZero": true
+    },
+    "maximumRegressionPercentPerBlock": 10,
+    "costReportRequired": true
+  },
+
+  "resourceLimits": {
+    "evaluatorTimeoutSeconds": null,
+    "peakMemoryBytes": null
+  },
+
+  "creationBounty": {
+    "amount": null,
+    "asset": "testnet ETH",
+    "chain": "Arbitrum Sepolia",
+    "label": "sponsored demand, testnet"
+  },
+  "usageFeePolicy": {
+    "contributorFee": null,
+    "workerCompensation": null
+  },
+  "licenseRequirements": null,
+
+  "agentBudget": {
+    "model": null,
+    "tokenLimit": null,
+    "wallTimeSeconds": null
+  },
+  "computeBudget": null,
+  "localAttemptLimit": 3,
+  "holdoutSubmissionLimit": 1,
+
+  "submitBy": null,
+  "evaluateBy": null
+}

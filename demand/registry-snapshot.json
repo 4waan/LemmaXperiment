@@ -1,0 +1,17 @@
+{
+  "snapshotVersion": "0.1-draft",
+  "snapshotHash": null,
+  "takenAt": null,
+  "entries": [],
+  "controls": {
+    "existingCapabilityControl": {
+      "description": "A seeded entry that already satisfies a separate control request. Agent should route to reuse, not creation.",
+      "entryId": null,
+      "labeledAsSeeded": true
+    },
+    "noViableOpportunityControl": {
+      "description": "A control request whose required change lies outside allowedSourcePaths. Agent should decline with evidence.",
+      "requestId": null
+    }
+  }
+}

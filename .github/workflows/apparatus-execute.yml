@@ -1,0 +1,69 @@
+name: apparatus-execute
+
+# Executes one mainnet block in the SP1 executor (no proof). Produces cycles,
+# prover gas (PGU), per-phase report.csv and the prover-ready stdin.
+
+on:
+  workflow_dispatch:
+    inputs:
+      block:
+        description: mainnet block number
+        default: "18884864"
+        required: true
+      state_backend:
+        description: proofs or execution-witness
+        default: proofs
+        required: true
+
+jobs:
+  execute:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      RPC_1: ${{ secrets.RPC_1 }}
+      SP1_PROVER: cpu
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch binaries from the latest successful build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          commit=$(jq -r .rsp.commit apparatus/pins.json)
+          run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
+          [ -n "$run_id" ] || { echo "no successful apparatus-build run"; exit 1; }
+          gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit" -D dist
+          chmod +x dist/rsp dist/lemma-prove
+          cat dist/build-record.txt
+
+      - name: Witness cache
+        uses: actions/cache@v4
+        with:
+          path: cache
+          key: witness-${{ inputs.block }}-${{ inputs.state_backend }}
+
+      - name: Execute
+        run: |
+          mkdir -p run cache
+          start=$(date +%s)
+          dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \
+            --cache-dir cache --state-backend ${{ inputs.state_backend }} \
+            --stdin-dir run/stdin --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
+          end=$(date +%s)
+          {
+            echo "block: ${{ inputs.block }}"
+            echo "state_backend: ${{ inputs.state_backend }}"
+            echo "mode: execute"
+            echo "wall_seconds: $((end - start))"
+            echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
+            echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+            for f in cache/*; do echo "witness: $(basename "$f") sha256=$(sha256sum "$f" | cut -d' ' -f1)"; done
+          } | tee run/run.txt
+          echo "== report.csv"; cat run/report.csv
+          echo "== execution.json"; cat run/out/*.execution.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: execute-${{ inputs.block }}-${{ inputs.state_backend }}-${{ github.run_id }}
+          path: run/
+          retention-days: 90

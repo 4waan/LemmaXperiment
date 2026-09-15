@@ -1,0 +1,72 @@
+name: apparatus-prove
+
+# CPU-proves one small mainnet block. Hours, not minutes; the 6 hour job cap
+# is the hard limit, so keep blocks under a few million gas. Proving wall
+# time here is recorded but is never a benchmark.
+
+on:
+  workflow_dispatch:
+    inputs:
+      block:
+        description: mainnet block number (small)
+        default: "18884864"
+        required: true
+      proof_mode:
+        description: compressed or groth16
+        default: compressed
+        required: true
+
+jobs:
+  prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    env:
+      RPC_1: ${{ secrets.RPC_1 }}
+      SP1_PROVER: cpu
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h / | tail -1; free -g | head -2
+
+      - name: Fetch binaries from the latest successful build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          commit=$(jq -r .rsp.commit apparatus/pins.json)
+          run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
+          gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit" -D dist
+          chmod +x dist/rsp dist/lemma-prove
+
+      - name: Witness cache
+        uses: actions/cache@v4
+        with:
+          path: cache
+          key: witness-${{ inputs.block }}-proofs
+
+      - name: Prove
+        run: |
+          mkdir -p run cache
+          start=$(date +%s)
+          dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \
+            --cache-dir cache --prove --proof-mode ${{ inputs.proof_mode }} \
+            --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
+          end=$(date +%s)
+          {
+            echo "block: ${{ inputs.block }}"
+            echo "mode: prove ${{ inputs.proof_mode }}"
+            echo "sp1_prover: cpu"
+            echo "wall_seconds: $((end - start))"
+            echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB (shared GitHub runner, not a benchmark)"
+            echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+          } | tee run/run.txt
+          cat run/out/*.proving.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: prove-${{ inputs.block }}-${{ inputs.proof_mode }}-${{ github.run_id }}
+          path: run/
+          retention-days: 90

@@ -1,0 +1,84 @@
+{
+  "pinnedAt": "2026-09-15",
+  "status": "proposed pin, not yet reproduced",
+  "rsp": {
+    "repo": "https://github.com/succinctlabs/rsp",
+    "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
+    "tag": "reth-2.2.0-sp1-6.8.0",
+    "rustChannel": "1.94.0",
+    "hostBinary": "bin/host",
+    "clientProgram": "bin/client-eth",
+    "proofModeWhenProve": "Compressed",
+    "stateBackends": [
+      "proofs",
+      "execution-witness"
+    ],
+    "defaultStateBackend": "proofs",
+    "existingCapabilities": [
+      "arena feature: alternative arena-based MPT backend (unaudited), host and guest"
+    ],
+    "wrapper": "apparatus/prover (lemma-prove), injected as workspace member bin/lemma-prove at build"
+  },
+  "sp1": {
+    "sdkVersion": "6.8.0",
+    "cargoProveToolchain": "6.8.0",
+    "proverBackendCandidates": [
+      "network",
+      "cuda",
+      "cpu"
+    ],
+    "proverBackend": "cpu on GitHub-hosted x86_64 runner",
+    "note": "See SETUP_PLAN.md revision 4.",
+    "fallback": "network if credits appear; cuda if a GPU appears",
+    "circuitVersion": "v6.1.0"
+  },
+  "upstreamDeps": {
+    "reth": "v2.2.0 (git tag)",
+    "revm": "38.0.0",
+    "reth-trie": "v2.2.0 (git tag)",
+    "alloy-primitives": "1.5.6",
+    "alloy-provider": "2.0.4"
+  },
+  "fixtures": {
+    "rspTests": {
+      "repo": "https://github.com/succinctlabs/rsp-tests",
+      "commit": "de85442e7a4d198ac11b50b6cef4a22c15033a6a",
+      "offlineRpc": "http://localhost:9545/main/evm/1",
+      "cachedMainnetBlocks": [
+        18884864,
+        20600000
+      ]
+    },
+    "developmentBlocks": [
+      18884864,
+      20600000,
+      null
+    ],
+    "holdoutSelectionRule": "ten consecutive supported mainnet blocks, start chosen by committed salt, disjoint from development blocks; requires archive RPC",
+    "archiveRpcProvider": "Alchemy (verified eth_getProof on Cancun-era blocks)",
+    "blockGasUsed": {
+      "18884864": 4266500,
+      "20600000": 14916853,
+      "20600066": 958960
+    },
+    "reuseBlockCandidate": 20600066
+  },
+  "hardware": {
+    "executionHost": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, x86_64 (shared; wall time not a benchmark)",
+    "provingHost": "same runner, SP1 cpu prover, 6 hour job cap",
+    "note": "evaluator separation by workflow file hash and job logs, not by machine"
+  },
+  "verifier": {
+    "chain": "Arbitrum Sepolia",
+    "chainId": 421614,
+    "sp1VerifierGateway": "0x397A5f7f3dBd538f23DE225B51f532c34448dA9B",
+    "sp1VerifierVersion": "v6.1.0",
+    "sp1VerifierGatewayProofSystem": "groth16",
+    "latestListedGroth16Verifier": {
+      "version": "6.1.0",
+      "address": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2"
+    },
+    "note": "SDK 6.8.0 circuit v6.1.0 matches the deployed V6_1_0 verifier; gateway routes by selector",
+    "groth16Verifier": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2"
+  }
+}

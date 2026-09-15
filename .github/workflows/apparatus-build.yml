@@ -1,0 +1,88 @@
+name: apparatus-build
+
+# Builds the pinned RSP host and the lemma-prove wrapper once, and keeps the
+# binaries as artifacts so execute/prove jobs never rebuild.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - apparatus/pins.json
+      - apparatus/prover/**
+      - .github/workflows/apparatus-build.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk (runner ships with ~14 GB free)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          df -h / | tail -1
+
+      - name: Read pins
+        id: pins
+        run: |
+          echo "rsp_commit=$(jq -r .rsp.commit apparatus/pins.json)" >> "$GITHUB_OUTPUT"
+          echo "sp1_ver=$(jq -r .sp1.cargoProveToolchain apparatus/pins.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Clone RSP at pin
+        run: |
+          git clone https://github.com/succinctlabs/rsp rsp
+          git -C rsp checkout -q ${{ steps.pins.outputs.rsp_commit }}
+          git -C rsp rev-parse HEAD
+
+      - name: Install SP1 toolchain
+        run: |
+          curl -L https://sp1up.succinct.xyz | bash
+          echo "$HOME/.sp1/bin" >> "$GITHUB_PATH"
+          "$HOME/.sp1/bin/sp1up" -v v${{ steps.pins.outputs.sp1_ver }}
+          "$HOME/.sp1/bin/cargo-prove" prove --version
+
+      - name: Inject lemma-prove into the workspace
+        run: |
+          mkdir -p rsp/bin/lemma-prove/src
+          cp apparatus/prover/Cargo.toml apparatus/prover/build.rs rsp/bin/lemma-prove/
+          cp apparatus/prover/src/*.rs rsp/bin/lemma-prove/src/
+          cp rsp/bin/host/src/cli.rs rsp/bin/host/src/execute.rs rsp/bin/lemma-prove/src/
+          sed -i 's|    "bin/host",|    "bin/host",\n    "bin/lemma-prove",|' rsp/Cargo.toml
+          git -C rsp diff --stat
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rsp
+          cache-on-failure: true
+
+      - name: Build
+        working-directory: rsp
+        run: cargo build --release -p rsp -p lemma-prove
+
+      - name: Build record
+        run: |
+          mkdir -p dist
+          cp rsp/target/release/rsp rsp/target/release/lemma-prove dist/
+          {
+            echo "built_at: $(date -u +%FT%TZ)"
+            echo "runner: ${{ runner.os }} ${{ runner.arch }} $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
+            echo "rsp_commit: $(git -C rsp rev-parse HEAD)"
+            echo "workspace_edit: added member bin/lemma-prove (see apparatus/prover)"
+            echo "cargo_prove: $(cargo prove --version 2>&1 | head -1)"
+            echo "rustc: $(cd rsp && rustc --version)"
+            echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
+            echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+          } | tee dist/build-record.txt
+          df -h / | tail -1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rsp-host-${{ steps.pins.outputs.rsp_commit }}
+          path: dist/
+          retention-days: 90
+          if-no-files-found: error

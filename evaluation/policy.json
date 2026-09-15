@@ -1,0 +1,63 @@
+{
+  "policyVersion": "0.1-draft",
+  "policyHash": null,
+  "evaluatorImageHash": null,
+  "reproduction": {
+    "networkAccess": "none",
+    "buildTimeoutSeconds": null,
+    "buildMemoryBytes": null
+  },
+  "correctness": {
+    "oracle": "independent implementation or fixture oracle not sharing the changed algorithm",
+    "requiredCases": [
+      "inline nodes",
+      "hashed nodes",
+      "malformed RLP",
+      "absent keys",
+      "incorrect roots",
+      "missing witnesses",
+      "forged handles",
+      "capacity boundaries",
+      "trie updates"
+    ],
+    "anyUnexplainedMismatchBlocks": true
+  },
+  "formal": {
+    "leanToolchain": null,
+    "allowedAxioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "sorryAllowed": false,
+    "reviewerRequired": true
+  },
+  "performance": {
+    "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode",
+    "metricIsDeterministic": true,
+    "holdoutBlocks": 10,
+    "executionsPerVariantPerBlock": 2,
+    "plannedExecutions": 40,
+    "plannedRealProofs": 3,
+    "minimumMedianPguImprovementPercent": 5,
+    "bootstrapConfidence": 0.95,
+    "maximumRegressionPercentPerBlock": 10,
+    "secondaryReported": [
+      "total cycles",
+      "per-phase cycles from report.csv",
+      "host preparation wall time",
+      "network proof latency and PROVE cost for the three real proofs"
+    ],
+    "wallClockProvingIsGate": false,
+    "disclosedLimitation": "PGU models proving cost; it is not measured proving latency on fixed hardware.",
+    "executionHost": null,
+    "randomizedOrder": true,
+    "freshCachesPerJob": true
+  },
+  "verdicts": [
+    "Pass",
+    "Fail",
+    "Inconclusive"
+  ],
+  "oneHoldoutEvaluationPerDemand": true
+}

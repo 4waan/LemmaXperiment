@@ -57,7 +57,7 @@ jobs:
             echo "wall_seconds: $((end - start))"
             echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
-            find cache -type f -exec sh -c 'echo "witness: $1 sha256=$(sha256sum "$1" | cut -d" " -f1)"' _ {} ;
+            find cache -type f -exec sh -c 'for f; do echo "witness: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee run/run.txt
           echo "== report.csv"; cat run/report.csv
           echo "== execution.json"; cat run/out/*.execution.json

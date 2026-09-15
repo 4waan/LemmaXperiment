@@ -58,10 +58,10 @@ jobs:
           sed -i 's|    "bin/host",|    "bin/host",\n    "bin/lemma-prove",|' rsp/Cargo.toml
           git -C rsp diff --stat
 
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rsp
-          cache-on-failure: true
+      # No Rust cache on purpose: sp1-core-executor-runner's build script
+      # writes a native binary into its registry source dir, and a restored
+      # target/ marks that script fresh while the source dir is re-extracted
+      # empty. The build runs once per pin, so caching buys little.
 
       - name: Build
         working-directory: rsp

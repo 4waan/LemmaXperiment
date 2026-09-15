@@ -13,7 +13,7 @@ if [ "${SKIP_GPU:-0}" = 1 ]; then echo "SKIP_GPU=1: execution-only host"; else n
 
 echo "== packages"
 sudo apt-get update -qq
-sudo apt-get install -y -qq build-essential pkg-config libssl-dev clang cmake git curl jq python3 >/dev/null
+sudo apt-get install -y -qq build-essential pkg-config libssl-dev clang cmake git curl jq python3 protobuf-compiler >/dev/null
 
 echo "== docker + nvidia toolkit (needed for Groth16 wrapper and cuda prover)"
 if [ "${SKIP_GPU:-0}" = 1 ]; then echo "skipped"; elif ! command -v docker >/dev/null; then

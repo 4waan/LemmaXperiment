@@ -39,6 +39,9 @@ jobs:
           git -C rsp checkout -q ${{ steps.pins.outputs.rsp_commit }}
           git -C rsp rev-parse HEAD
 
+      - name: Install build deps
+        run: sudo apt-get install -y -qq protobuf-compiler libssl-dev pkg-config clang >/dev/null
+
       - name: Install SP1 toolchain
         run: |
           curl -L https://sp1up.succinct.xyz | bash

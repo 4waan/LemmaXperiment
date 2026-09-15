@@ -1,0 +1,9 @@
+block: 18884864
+state_backend: proofs
+mode: execute
+wall_seconds: 160
+runner: 4 vcpu 15 GB
+lemma_prove_sha256: 45c85e55d8b57112211b76b1d04d54fba6f40441e59bc5ad048a40a55767be07
+witness: input sha256=
+note: witness hash line empty in this run (cache is a directory tree; fixed in the workflow afterwards)
+stdin_bin: 18884864.bin 1706998 bytes, kept in the GitHub artifact, not committed

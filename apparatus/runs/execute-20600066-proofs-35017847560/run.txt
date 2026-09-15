@@ -1,0 +1,7 @@
+block: 20600066
+state_backend: proofs
+mode: execute
+wall_seconds: 108
+runner: 4 vcpu 15 GB
+lemma_prove_sha256: 56d13f67fe1619254598dfdc86890b6cff97f13dce079e0e7cbe4c9e6126a77a
+witness: cache/input/1/20600066.bin sha256=ea1f2b5b11638292c0d82d4f851aa6cf18bacdff4937e9f9a88dd49589aa1a0d

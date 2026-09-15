@@ -1,0 +1,63 @@
+[2m2026-09-15T20:09:11.344980Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-15T20:10:31.603423Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m fetching the current block and the previous block
+[2m2026-09-15T20:10:31.970614Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m setting up the database for the block executor
+[2m2026-09-15T20:10:31.970636Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m executing the block with rpc db: block_number=20600066, transaction_count=27
+[2m2026-09-15T20:10:43.936081Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m validating the block post execution
+[2m2026-09-15T20:10:43.936176Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m accumulating the logs bloom
+[2m2026-09-15T20:10:43.936224Z[0m [32m INFO[0m [2mrsp_rpc_db::basic[0m[2m:[0m fetching storage proofs
+[2m2026-09-15T20:10:57.436457Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m verifying the state root
+[2m2026-09-15T20:10:57.437782Z[0m [32m INFO[0m [2mrsp_rpc_db::basic[0m[2m:[0m fetching 1 ancestor headers
+[2m2026-09-15T20:10:57.475297Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m successfully executed block: block_number=20600066, block_hash=0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a, state_root=0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6
+[2m2026-09-15T20:10:57.475748Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m successfully generated client input
+[2m2026-09-15T20:10:57.933541Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Saved stdin to run/stdin/20600066.bin
+[2m2026-09-15T20:10:59.025495Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Execution successful [3mexecuted_block_hash[0m[2m=[0m0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a [3mduration[0m[2m=[0m1.091904675s
+
+Execution report:
+gas: 28810531
+opcode counts (22629796 total instructions):
+    4616837 addi
+    2399073 lbu
+    2308992 ld
+    2188487 sd
+    1445189 sll
+    1296463 or
+    1252140 sb
+    1051214 beq
+    1004429 and
+     903448 add
+     841852 bne
+     675020 srl
+     624574 jalr
+     400467 auipc
+     310118 bltu
+     286332 sub
+     249044 lui
+     193526 bgeu
+     185300 xor
+     149337 jal
+      81589 mul
+      37286 sltu
+      26503 ecall
+      24057 sw
+      18420 addw
+      17311 sh
+      13554 mulhu
+       9424 srlw
+       6756 lw
+       2935 bge
+       2677 lb
+       2523 lwu
+       2313 blt
+        770 sra
+        604 lh
+        426 slt
+        420 lhu
+        328 divu
+         58 sllw
+syscall counts (26202 total syscall instructions):
+    14336 secp256k1_double
+     7115 secp256k1_add
+     4725 keccak_permute
+       13 sha_compress
+       13 sha_extend
+

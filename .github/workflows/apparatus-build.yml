@@ -2,6 +2,13 @@ name: apparatus-build
 
 # Builds the pinned RSP host and the lemma-prove wrapper once, and keeps the
 # binaries as artifacts so execute/prove jobs never rebuild.
+#
+# Two variants, same sources and same guest ELF:
+#   standard        the pinned default; the only build used for proofs and
+#                   for any timing that counts
+#   cycle-tracking  bin/host's `cycle-tracking` feature (sp1-sdk/profiling):
+#                   the SP1 executor keeps the guest's cycle-tracker labels,
+#                   so report.csv gets per-phase cycles. Diagnostics only.
 
 on:
   workflow_dispatch:
@@ -13,9 +20,18 @@ on:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [standard, cycle-tracking]
+    name: build (${{ matrix.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
+      VARIANT: ${{ matrix.variant }}
+      # `pkg/feature` form so the flag is explicit per package: rsp is bin/host.
+      CARGO_FEATURES: ${{ matrix.variant == 'cycle-tracking' && '--features rsp/cycle-tracking,lemma-prove/cycle-tracking' || '' }}
+      ARTIFACT_SUFFIX: ${{ matrix.variant == 'cycle-tracking' && '-cycle-tracking' || '' }}
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       CARGO_INCREMENTAL: "0"
     steps:
@@ -65,7 +81,7 @@ jobs:
 
       - name: Build
         working-directory: rsp
-        run: cargo build --release -p rsp -p lemma-prove
+        run: cargo build --release -p rsp -p lemma-prove $CARGO_FEATURES
 
       - name: Build record
         run: |
@@ -73,6 +89,8 @@ jobs:
           cp rsp/target/release/rsp rsp/target/release/lemma-prove rsp/target/release/lemma-wrap dist/
           {
             echo "built_at: $(date -u +%FT%TZ)"
+            echo "variant: $VARIANT"
+            echo "cargo_features: ${CARGO_FEATURES:-(none)}"
             echo "runner: ${{ runner.os }} ${{ runner.arch }} $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
             echo "rsp_commit: $(git -C rsp rev-parse HEAD)"
             echo "workspace_edit: added member bin/lemma-prove (see apparatus/prover)"
@@ -81,12 +99,14 @@ jobs:
             echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
             echo "lemma_wrap_sha256: $(sha256sum dist/lemma-wrap | cut -d' ' -f1)"
+            # The guest ELF sp1-build produced for bin/client; both variants must agree.
+            find rsp -path '*/elf-compilation/*' -type f -name rsp-client -exec sh -c 'for f; do echo "guest_elf: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee dist/build-record.txt
           df -h / | tail -1
 
       - uses: actions/upload-artifact@v4
         with:
-          name: rsp-host-${{ steps.pins.outputs.rsp_commit }}
+          name: rsp-host-${{ steps.pins.outputs.rsp_commit }}${{ env.ARTIFACT_SUFFIX }}
           path: dist/
           retention-days: 90
           if-no-files-found: error

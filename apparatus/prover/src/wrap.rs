@@ -74,10 +74,8 @@ async fn main() -> eyre::Result<()> {
     let pk = client.setup(Elf::from(elf.as_slice())).await.map_err(|e| eyre::eyre!("{e}"))?;
     let vk = pk.verifying_key().clone();
     let t = Instant::now();
-    let (public_values, report) = client
-        .execute(Elf::from(elf.as_slice()), stdin)
-        .await
-        .map_err(|e| eyre::eyre!("{e}"))?;
+    let (public_values, report) =
+        client.execute(Elf::from(elf.as_slice()), stdin).await.map_err(|e| eyre::eyre!("{e}"))?;
     tracing::info!(
         cycles = report.total_instruction_count(),
         secs = t.elapsed().as_secs_f64(),

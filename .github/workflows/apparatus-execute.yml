@@ -1,7 +1,9 @@
 name: apparatus-execute
 
 # Executes one mainnet block in the SP1 executor (no proof). Produces cycles,
-# prover gas (PGU), per-phase report.csv and the prover-ready stdin.
+# prover gas (PGU), report.csv and the prover-ready stdin. With
+# variant=cycle-tracking the report also carries per-phase cycles (the
+# standard build leaves those columns at 0); totals must agree across variants.
 
 on:
   workflow_dispatch:
@@ -14,14 +16,20 @@ on:
         description: proofs or execution-witness
         default: proofs
         required: true
+      variant:
+        description: standard or cycle-tracking (which apparatus-build artifact to run)
+        default: standard
+        required: true
 
 jobs:
   execute:
+    name: execute ${{ inputs.block }} (${{ inputs.state_backend }}, ${{ inputs.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       RPC_1: ${{ secrets.RPC_1 }}
       SP1_PROVER: cpu
+      ARTIFACT_SUFFIX: ${{ inputs.variant == 'cycle-tracking' && '-cycle-tracking' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +40,7 @@ jobs:
           commit=$(jq -r .rsp.commit apparatus/pins.json)
           run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
           [ -n "$run_id" ] || { echo "no successful apparatus-build run"; exit 1; }
-          gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit" -D dist
+          gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit$ARTIFACT_SUFFIX" -D dist
           chmod +x dist/rsp dist/lemma-prove
           cat dist/build-record.txt
 
@@ -53,7 +61,9 @@ jobs:
           {
             echo "block: ${{ inputs.block }}"
             echo "state_backend: ${{ inputs.state_backend }}"
+            echo "variant: ${{ inputs.variant }}"
             echo "mode: execute"
+            echo "vkey: $(cat run/out/vkey.txt)"
             echo "wall_seconds: $((end - start))"
             echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
@@ -64,6 +74,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: execute-${{ inputs.block }}-${{ inputs.state_backend }}-${{ github.run_id }}
+          name: execute-${{ inputs.block }}-${{ inputs.state_backend }}${{ env.ARTIFACT_SUFFIX }}-${{ github.run_id }}
           path: run/
           retention-days: 90

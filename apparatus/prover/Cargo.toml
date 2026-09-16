@@ -49,6 +49,15 @@ slop-algebra = "=6.8.0"
 slop-bn254 = "=6.8.0"
 hex = "0.4"
 
+[features]
+# Mirrors bin/host at the pin. `sp1-sdk/profiling` makes the SP1 executor parse
+# the guest's `cycle-tracker-report-*` lines into ExecutionReport.cycle_tracker,
+# which is where the per-phase CSV columns come from; without it they read 0.
+# It also switches SP1 from the native x86_64 executor to the portable
+# interpreter, so execution is slower. Diagnostics only: never used for
+# proving or for holdout timing.
+cycle-tracking = ["sp1-sdk/profiling"]
+
 [[bin]]
 name = "lemma-prove"
 path = "src/main.rs"

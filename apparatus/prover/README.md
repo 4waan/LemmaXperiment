@@ -13,11 +13,34 @@ and builds. The build record lists the workspace edit and both binary hashes.
 Outputs per block under `--out-dir`:
 
 ```text
-{block}.execution.json   cycles, syscalls, prover gas, execution seconds
+vkey.txt                 program key of the embedded guest, every mode
+{block}.execution.json   cycles, syscalls, prover gas, execution seconds,
+                         build variant, per-phase cycle_tracker map
 {block}.proving.json     vkey, proof length, proving seconds   (with --prove)
 {block}.proof.bin        bincode SP1 proof                     (with --prove)
 {block}.vk.bin / .txt    verifying key, bincode and bytes32    (with --prove)
 ```
+
+## Build variants
+
+`apparatus-build.yml` builds the crate twice from the same sources:
+
+| variant | cargo features | SP1 executor | use |
+| --- | --- | --- | --- |
+| `standard` | none | native (x86_64 linux) | proofs, PGU, every timing that counts |
+| `cycle-tracking` | `rsp/cycle-tracking,lemma-prove/cycle-tracking` (= `sp1-sdk/profiling`) | portable interpreter | per-phase cycle attribution only |
+
+The guest ELF is identical in both (the feature is host-side; `build.rs`
+forwards nothing to the guest), so `vkey.txt` must match across variants and
+so must `total_instruction_count` and `prover_gas`. What differs: SP1 6.8.0
+only parses the guest's `cycle-tracker-report-*` lines under its `profiling`
+feature (`sp1-core-executor/src/minimal/write.rs`), and that feature also
+selects the portable executor over the native one (`sp1-core-executor/src/build.rs`
+`detect_executor`). So the standard build leaves the six per-phase columns of
+`report.csv` at 0, and the cycle-tracking build fills them at the cost of a
+slower execute. The cycle-tracking build is never used with `--prove` and its
+wall-clock is not a measurement. `execution.json` also carries `validate
+header`, which the upstream CSV omits.
 
 ## lemma-wrap
 

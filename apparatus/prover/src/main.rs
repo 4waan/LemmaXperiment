@@ -13,7 +13,7 @@ use rsp_host_executor::{
 };
 use rsp_provider::create_provider;
 use save::SaveArtifacts;
-use sp1_sdk::{env::EnvProver, include_elf, SP1ProofMode};
+use sp1_sdk::{env::EnvProver, include_elf, HashableKey, SP1ProofMode};
 use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt,
 };
@@ -103,6 +103,13 @@ async fn main() -> eyre::Result<()> {
         config,
     )
     .await?;
+
+    // The program key is derived from the embedded guest ELF, so recording it
+    // in every mode (not only with --prove) lets two host builds show they
+    // carry the same guest.
+    let vkey = executor.vk().bytes32();
+    std::fs::write(args.out_dir.join("vkey.txt"), &vkey)?;
+    tracing::info!(variant = save::VARIANT, executor = save::EXECUTOR, %vkey, "lemma-prove");
 
     executor.execute(block_number).await?;
     Ok(())

@@ -13,7 +13,8 @@
   "expectedBuild": "ok: the witness builds and passes the state-root and storage-root checks of the guest; reject: any error or panic while building or checking; ok-or-reject: either, and the queries then apply only if it built",
   "query expect": "present (account with the given fields), absent (no account), value (storage value, 0x0 when unset), reject (error or panic; an absent or zero answer is a failure). In an ok-or-reject case a query may also reject",
   "updates": "accounts: hashedAddress to account or null (delete); storages: hashedAddress to {wiped, slots: hashedSlot to value, 0x0 deletes}; expectedStateRoot and expectedStorageRoots after applying the batch; expect=reject means the update must error, panic, or produce a state root different from expectedStateRoot",
-  "order": "cases are run in file order in one process; a08 follows a01 on purpose"
+  "order": "cases are run in file order in one process; a08 follows a01 on purpose",
+  "witnessDomain": "the pipeline's witnesses carry the complete path of every revealed account; the guest's storage-root check reads every revealed account, so cases with an incomplete account path (a05, u03b, u08) are ok-or-reject"
  },
  "caseCount": 31,
  "cases": [
@@ -634,8 +635,14 @@
     {
      "kind": "account",
      "hashedAddress": "0x3746236c3cfc6d8f875fc623413ba1fa63bc7cf4da7488e714f4cbb871c9c452",
+     "expect": "absent",
+     "note": "absent key under the resolved extension: its branch is in the witness"
+    },
+    {
+     "kind": "account",
+     "hashedAddress": "0xda34c2027e86b83a3d3c2b0999baced78f748390253a0d044096f8cf274a3e36",
      "expect": "reject",
-     "note": "absent key whose path is not in the witness"
+     "note": "absent key whose root slot is an unresolved digest"
     }
    ]
   },
@@ -1020,12 +1027,12 @@
   {
    "id": "a05-truncated-path",
    "family": "missing-witness",
-   "description": "one account path stops before its leaf; the leaf digest stays unresolved",
+   "description": "one account path stops before its leaf; the leaf digest stays unresolved. The guest's storage-root check reads every revealed account, so a builder may reject the witness outright; if it builds, the truncated account must reject and the others must read",
    "tags": [
     "missing-witness"
    ],
    "stateRoot": "0xa8b00f00d62de1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7",
-   "expectedBuild": "ok",
+   "expectedBuild": "ok-or-reject",
    "proofs": [
     {
      "address": "0x7db91fe955061385cd39d3ef034fae3ed8b96fec",
@@ -7019,14 +7026,14 @@
   {
    "id": "u03b-delete-collapse-unresolved-sibling",
    "family": "update",
-   "description": "same deletion, but the sibling leaf is only a digest; the collapsed node cannot be rebuilt, so the update must reject or yield a root that fails the check",
+   "description": "same deletion, but the sibling leaf is only a digest; the witness may be rejected at build (the guest reads every revealed account), and if it builds the update must reject or yield a root that fails the check",
    "tags": [
     "update",
     "delete",
     "missing-witness"
    ],
    "stateRoot": "0xa8b00f00d62de1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7",
-   "expectedBuild": "ok",
+   "expectedBuild": "ok-or-reject",
    "proofs": [
     {
      "address": "0x7db91fe955061385cd39d3ef034fae3ed8b96fec",
@@ -9007,13 +9014,13 @@
   {
    "id": "u08-update-unresolved-path",
    "family": "update",
-   "description": "S4's account path is only the root; rewriting S4 must reject (or miss the expected root)",
+   "description": "S4's account path is only the root; the witness may be rejected at build, and if it builds rewriting S4 must reject (or miss the expected root)",
    "tags": [
     "update",
     "missing-witness"
    ],
    "stateRoot": "0x65cd4ac342c04001e9c198d45787838f1d683660ff8d05d6c3dbb7658a38a730",
-   "expectedBuild": "ok",
+   "expectedBuild": "ok-or-reject",
    "proofs": [
     {
      "address": "0x6ef348c2263df28652bdaae4654baf83a96f70a2",

@@ -413,7 +413,8 @@ case("a02-partial-witness", "missing-witness",
      [q_account(keccak(a), "present", account_fields(state_a.get(keccak(a)))) for a in partial]
      + [q_account(keccak(absent_root_slot), "absent", note="exclusion path present")]
      + [q_account(keccak(a), "reject", note="path not in witness") for a in addrs_a[4:]]
-     + [q_account(keccak(absent_branch_under_ext), "reject", note="absent key whose path is not in the witness")],
+     + [q_account(keccak(absent_branch_under_ext), "absent", note="absent key under the resolved extension: its branch is in the witness"),
+        q_account(keccak(absent_leaf_mismatch), "reject", note="absent key whose root slot is an unresolved digest")],
      tags=["missing-witness", "absent"])
 
 # A-3 wrong declared root
@@ -441,11 +442,13 @@ for e in proofs:
     if e["address"] == hx(victim):
         e["accountProof"] = e["accountProof"][:-1]
         e["accountPathEnds"] = "truncated-before-leaf"
-case("a05-truncated-path", "missing-witness", "one account path stops before its leaf; the leaf digest stays unresolved",
+case("a05-truncated-path", "missing-witness",
+     "one account path stops before its leaf; the leaf digest stays unresolved. The guest's storage-root check reads every revealed account, "
+     "so a builder may reject the witness outright; if it builds, the truncated account must reject and the others must read",
      state_a.root, proofs,
      [q_account(keccak(victim), "reject", note="leaf not in witness")]
      + [q_account(keccak(a), "present", account_fields(state_a.get(keccak(a)))) for a in addrs_a[1:4]],
-     tags=["missing-witness"])
+     build="ok-or-reject", tags=["missing-witness"])
 
 # A-6 forged leaf, parent unchanged (hash chain broken)
 leaf = rlp.decode(p[-1])
@@ -835,8 +838,11 @@ for e in proofs:
     if e["address"] == hx(addrs_a[0]):
         e["accountProof"] = e["accountProof"][:-1]
         e["accountPathEnds"] = "truncated-before-leaf"
-case("u03b-delete-collapse-unresolved-sibling", "update", "same deletion, but the sibling leaf is only a digest; the collapsed node cannot be rebuilt, so the update must reject or yield a root that fails the check",
-     state_a.root, proofs, [], updates={"accounts": {hx(keccak(addrs_a[1])): None}, "storages": {}, "expectedStateRoot": u["expectedStateRoot"], "expectedStorageRoots": {}, "expect": "reject"},
+case("u03b-delete-collapse-unresolved-sibling", "update",
+     "same deletion, but the sibling leaf is only a digest; the witness may be rejected at build (the guest reads every revealed account), "
+     "and if it builds the update must reject or yield a root that fails the check",
+     state_a.root, proofs, [], build="ok-or-reject",
+     updates={"accounts": {hx(keccak(addrs_a[1])): None}, "storages": {}, "expectedStateRoot": u["expectedStateRoot"], "expectedStorageRoots": {}, "expect": "reject"},
      tags=["update", "delete", "missing-witness"])
 
 # U-4 storage writes across the three shaped tries
@@ -875,8 +881,9 @@ proofs[3]["accountProof"] = proofs[3]["accountProof"][:1]
 proofs[3]["accountPathEnds"] = "truncated-after-root"
 u = finish(upd({hx(hb[3]): {"nonce": 99, "balance": "0x1", "codeHash": None}}))
 u["expect"] = "reject"
-case("u08-update-unresolved-path", "update", "S4's account path is only the root; rewriting S4 must reject (or miss the expected root)",
-     state_b.root, proofs, [], updates=u, tags=["update", "missing-witness"])
+case("u08-update-unresolved-path", "update",
+     "S4's account path is only the root; the witness may be rejected at build, and if it builds rewriting S4 must reject (or miss the expected root)",
+     state_b.root, proofs, [], build="ok-or-reject", updates=u, tags=["update", "missing-witness"])
 
 # U-9 shared identical storage: S4 changes, S5 must not
 u = finish(upd({hx(hb[3]): {"nonce": 13, "balance": hex(4 * 10**17), "codeHash": hx(keccak(bytes([0x60, 3])))}},
@@ -912,6 +919,7 @@ out = {
         "query expect": "present (account with the given fields), absent (no account), value (storage value, 0x0 when unset), reject (error or panic; an absent or zero answer is a failure). In an ok-or-reject case a query may also reject",
         "updates": "accounts: hashedAddress to account or null (delete); storages: hashedAddress to {wiped, slots: hashedSlot to value, 0x0 deletes}; expectedStateRoot and expectedStorageRoots after applying the batch; expect=reject means the update must error, panic, or produce a state root different from expectedStateRoot",
         "order": "cases are run in file order in one process; a08 follows a01 on purpose",
+        "witnessDomain": "the pipeline's witnesses carry the complete path of every revealed account; the guest's storage-root check reads every revealed account, so cases with an incomplete account path (a05, u03b, u08) are ok-or-reject",
     },
     "caseCount": len(cases),
     "cases": cases,

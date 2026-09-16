@@ -38,6 +38,11 @@ struct Args {
     /// Where to write the JSON results.
     #[clap(long, default_value = "fixture-results.json")]
     out: PathBuf,
+    /// KEY=VALUE set in the process environment before any case runs, for a
+    /// candidate whose resource cap or mode is configured that way (the
+    /// capacity-boundary family runs the whole file once per setting).
+    #[clap(long = "env")]
+    envs: Vec<String>,
 }
 
 // ------------------------------------------------------------- fixture file --
@@ -447,6 +452,10 @@ fn main() -> eyre::Result<()> {
     let args = Args::parse();
     let text = fs::read_to_string(&args.fixtures)?;
     let fixtures: Fixtures = serde_json::from_str(&text)?;
+    for kv in &args.envs {
+        let (k, v) = kv.split_once('=').ok_or_else(|| eyre::eyre!("--env expects KEY=VALUE, got {kv}"))?;
+        std::env::set_var(k, v);
+    }
     install_panic_hook();
 
     let start = Instant::now();
@@ -489,6 +498,9 @@ fn main() -> eyre::Result<()> {
         results,
     };
     fs::write(&args.out, serde_json::to_string_pretty(&out)?)?;
+    for (family, c) in &out.by_family {
+        println!("  {family:16} {}/{} cases, {} queries, {} updates", c.passed, c.cases, c.queries, c.updates);
+    }
     println!("{} cases, {} passed, {} failed, backend {} -> {}", out.cases, passed, failed, args.backend, args.out.display());
     if failed > 0 {
         std::process::exit(1);

@@ -1,0 +1,11 @@
+{
+  "block": 18884864,
+  "cycle_tracker": {},
+  "execution_seconds": 2.993726396,
+  "executor": "sp1 default (native on x86_64 linux)",
+  "invocation_tracker": {},
+  "prover_gas": 85914898,
+  "total_instruction_count": 65554082,
+  "total_syscall_count": 42529,
+  "variant": "arena"
+}

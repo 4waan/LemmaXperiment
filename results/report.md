@@ -100,6 +100,27 @@ No executability pre-check of the sealed blocks (it would print them in
 public logs); witnesses are produced at evaluation time and any failure is
 retained.
 
+## Apparatus step 5: evaluator image, metrics, formal scope, limits
+
+`evaluation/policy.json` 1.0 frozen 2026-09-16; keccak256 hashes in
+`demand/spec.json` (policy `b369e567…`, correctness `a591d7a7…`, formal
+`840e425e…`), image tree hash `b0cee076…` over 25 files, guarded by the
+`evaluation-policy` workflow. Metric: PGU per holdout block, median paired
+improvement of at least 5% with a percentile bootstrap interval above zero
+and no block regressing more than 10%; the saving per block is the smaller
+of the saving against upstream A and against the upstream arena backend C.
+Formal: Lean `leanprover/lean4:v4.34.0`, three standard axioms only,
+`leanchecker` re-check, human reviewer; the procedure passed on the smoke
+project (run 35122594002). Limits: 2 h per execution, 4 h per build,
+16 GB, 5.9 h per proof.
+
+Measured: the arena backend, upstream and unaudited, cuts PGU by 20.8% to
+28.5% on the three development blocks (`apparatus/INTERFACES.md` section
+8), so it is the counterfactual and the bar for a candidate. Replaying a
+saved stdin reproduces cycles and PGU exactly for both variants; the
+evaluation uses one RPC run plus one replay per block and variant (60
+executions planned). Peak resident set 7.5 to 8.8 GB on every run.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)

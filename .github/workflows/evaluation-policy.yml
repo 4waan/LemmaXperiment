@@ -1,0 +1,41 @@
+name: evaluation-policy
+
+# Guards the frozen evaluator hashes: recomputes the evaluator image tree hash
+# and the policy hashes (evaluation/freeze.py --check) so any edit to a file
+# the image lists, or to policy.json, fails until the freeze is redone with a
+# new policy version. Also runs the acceptance script's self-test.
+
+on:
+  push:
+    paths:
+      - .github/workflows/**
+      - apparatus/prover/**
+      - evaluation/**
+      - demand/spec.json
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet "eth-hash[pycryptodome]==0.8.0" "pycryptodome==3.23.0"
+      - name: Frozen hashes
+        run: python3 evaluation/freeze.py --check
+      - name: Acceptance rule self-test
+        run: python3 evaluation/analysis/paired.py --self-test
+      - name: Policy consistency
+        run: |
+          set -e
+          v=$(jq -r .policyVersion evaluation/policy.json)
+          echo "policyVersion $v"
+          jq -e '.evaluatorImage.hash != null and .formal.leanToolchain != null' evaluation/policy.json >/dev/null
+          [ "$(jq -r .rsp.commit apparatus/pins.json)" = "$(jq -r .evaluatorImage.rspCommit evaluation/policy.json)" ]
+          [ "$(jq -r .formal.leanToolchain evaluation/policy.json)" = "$(cat evaluation/formal-smoke/lean-toolchain)" ]
+          [ "$(jq -r .performance.holdout.commitment evaluation/policy.json)" = "$(jq -r .sealed.commitment evaluation/holdout/commitment.json)" ]
+          [ "$(jq -r .sealedHoldoutCommitment demand/spec.json)" = "$(jq -r .sealed.commitment evaluation/holdout/commitment.json)" ]
+          echo "consistent"

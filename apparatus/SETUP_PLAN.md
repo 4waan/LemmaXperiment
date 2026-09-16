@@ -17,7 +17,8 @@ laptop keeps orchestration, contracts, Lean and the report.
 | Laptop | contracts (Foundry), Lean, agent runner orchestration, demand and evaluation authoring, results |
 | GPU box, "prover host" | RSP build, block execution, Compressed proving, Groth16 wrapping, the evaluator image, the reuse job |
 | Alchemy | archive RPC for mainnet (witness fetch), Arbitrum Sepolia RPC |
-| Arbitrum Sepolia | CreationBounty, ModuleRegistry, UsageEscrow, SP1 verifier gateway |
+| Robinhood Chain testnet (46630) | CreationBounty, ModuleRegistry, UsageEscrow, our SP1VerifierGroth16 v6.1.0 (revision 5, 16 September: moved from Arbitrum Sepolia; see ROBINHOOD_CHAIN_PROD.md) |
+| Arbitrum Sepolia | SP1 verifier gateway, read-only cross-check of proof bytes only |
 
 ## Prover backend decision
 
@@ -78,6 +79,11 @@ Hackathon-grade isolation, disclosed in the report:
 A second box for the evaluator is better and can be added if budget allows.
 
 ## On-chain pieces (Arbitrum Sepolia, chain 421614)
+
+Revision 5 (16 September): the addresses below are the read-only cross-check.
+Settlement contracts and our own verifier deploy on Robinhood Chain testnet
+(chain 46630), recorded in `demand/spec.json` `settlement` and `pins.json`
+`robinhood` once deployed.
 
 SP1 verifier gateway (Groth16): `0x397A5f7f3dBd538f23DE225B51f532c34448dA9B`
 Latest listed Groth16 verifier: V6.1.0 at `0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2`

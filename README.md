@@ -16,7 +16,7 @@ is an optional candidate protocol the agent may or may not select.
 | `candidate/` | creator agent | module code, adapter, tests, build recipe, asset manifest |
 | `formal/` | creator agent | Lean model, theorem, axiom report, model-to-code map |
 | `evaluation/` | evaluator | frozen policy, evaluator image hash, signed reports |
-| `contracts/` | operator | CreationBounty, ModuleRegistry, UsageEscrow (Arbitrum Sepolia) |
+| `contracts/` | operator | CreationBounty, ModuleRegistry, UsageEscrow (Robinhood Chain testnet, chain 46630) |
 | `reuse/` | clean worker | fresh-job integration of the accepted version and its proof |
 | `results/` | operator | final outcome, cost accounting, intervention log |
 
@@ -34,7 +34,7 @@ separate environment; only their commitment is recorded here.
 ## Fixed decisions carried over from the plan
 
 - Integration target: pinned RSP/SP1 pipeline. Exact commits pinned in `demand/spec.json` during setup.
-- Settlement: Solidity on Arbitrum Sepolia, testnet ETH, labeled as such.
+- Settlement: Solidity on Robinhood Chain testnet (chain 46630), testnet ETH, labeled as such. Arbitrum Sepolia is a read-only cross-check of proof bytes only (`demand/spec.json` `settlement.crossCheck`).
 - Formal evidence: Lean 4 model-level theorem plus independently checked Rust behavior.
 - One creator agent, one evaluator with a separate signing identity.
 - Three local candidate revisions, then one holdout submission.

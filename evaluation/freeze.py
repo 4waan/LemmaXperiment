@@ -40,6 +40,9 @@ def tree_hash(files):
 
 check = "--check" in sys.argv
 policy = json.load(open(POLICY))
+pins = json.load(open(os.path.join(ROOT, "apparatus", "pins.json")))
+if pins["rsp"]["commit"] != policy["evaluatorImage"]["rspCommit"]:
+    raise SystemExit(f"apparatus/pins.json rsp.commit {pins['rsp']['commit']} differs from evaluatorImage.rspCommit")
 image_hash, lines = tree_hash(policy["evaluatorImage"]["files"])
 spec_text = open(SPEC).read()
 spec = json.loads(spec_text)

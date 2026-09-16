@@ -1,0 +1,17 @@
+block: 18884864
+state_backend: proofs
+variant: arena
+input_source: rpc
+replay_run: 
+build_run: 35120130617
+mode: execute
+vkey: 0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4
+wall_seconds: 141
+peak_rss_kb: 7577256
+runner: 4 vcpu 15 GB ubuntu24 20260907.300.1
+lemma_prove_sha256: 68dbb045557773843041387c9fb50b9850d0549fbe6fc31aee72915079cee47e
+stdin_sha256: 172c8a7d71ebcf4f4b723eabfde712914307e5075d074ba5c31cf6a9358c60e1
+stdin_bytes: 2191246
+client_input_sha256: 2d486875005b8f2ee96785c86e448ea022b8c31f778aa6349c19abd94fd98f59
+client_input_bytes: 864110
+witness: cache/input/1/18884864.bin sha256=2d486875005b8f2ee96785c86e448ea022b8c31f778aa6349c19abd94fd98f59

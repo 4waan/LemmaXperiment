@@ -1,0 +1,55 @@
+[2m2026-09-16T16:36:01.780774Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-16T16:37:39.962222Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m lemma-prove [3mvariant[0m[2m=[0m"arena" [3mexecutor[0m[2m=[0m"sp1 default (native on x86_64 linux)" [3mvkey[0m[2m=[0m0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4
+[2m2026-09-16T16:37:39.963530Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m replaying saved stdin [3mpath[0m[2m=[0mrun/stdin/20600066.bin
+[2m2026-09-16T16:37:40.965681Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Execution successful [3mexecuted_block_hash[0m[2m=[0m0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a [3mduration[0m[2m=[0m1.002088805s
+
+Execution report:
+gas: 20605312
+opcode counts (14026811 total instructions):
+    3181731 addi
+    1883080 lbu
+    1370958 ld
+    1305547 sd
+     995034 bne
+     938249 sll
+     859363 or
+     484861 sb
+     451516 beq
+     432888 add
+     391264 and
+     332511 jalr
+     257876 bltu
+     199987 srl
+     170482 auipc
+     135161 sub
+     125659 bgeu
+     114981 xor
+      72663 jal
+      53201 lui
+      40556 sw
+      36390 sltu
+      31298 lw
+      28302 mul
+      26543 ecall
+      26260 addw
+      18911 lb
+      18514 blt
+      13922 mulhu
+      13504 lwu
+       9541 srlw
+       1779 sh
+       1655 bge
+        837 sra
+        542 lh
+        436 lhu
+        426 slt
+        298 divu
+         58 sllw
+         27 sraw
+syscall counts (26240 total syscall instructions):
+    14336 secp256k1_double
+     7115 secp256k1_add
+     4763 keccak_permute
+       13 sha_compress
+       13 sha_extend
+

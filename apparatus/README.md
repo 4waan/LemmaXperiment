@@ -1,11 +1,13 @@
 # apparatus/
 
-Owner: operator. EXPERIMENT.md section 4, steps 1 to 4: reproduce a real
+Owner: operator. EXPERIMENT.md section 4, steps 1 to 5: reproduce a real
 baseline block proof and pin source, dependencies, toolchain, proof mode and
 hardware; identify the permitted witness-processing interfaces without
 implementing anything; prepare three public development blocks and
 independent correctness fixtures; freeze and commit the holdout selection
-(the sealed material itself belongs to the evaluator, `evaluation/holdout/`).
+(the sealed material itself belongs to the evaluator, `evaluation/holdout/`);
+freeze the evaluator image, metrics, formal scope, limits and thresholds
+(`evaluation/policy.json` 1.0) and measure the existing capability.
 
 Nothing downstream can start until this stage produces a verified proof of a
 real block with the pinned configuration. If it cannot, record the blocker in
@@ -19,7 +21,7 @@ real block with the pinned configuration. If it cannot, record the blocker in
 | `INTERFACES.md` | step 2: where witness processing happens in the pinned RSP, the `StateTries` seam, the two host backends, what is frozen, proposed `allowedSourcePaths`, measured cycle share per phase |
 | `FAILURES.md` | every failed run with cause and fix |
 | `SETUP_PLAN.md` | how the compute problem was worked around, revision by revision |
-| `prover/` | `lemma-prove` and `lemma-wrap`, the thin wrappers the workflows run; two build variants |
+| `prover/` | `lemma-prove` and `lemma-wrap`, the thin wrappers the workflows run; three build variants (standard, cycle-tracking, arena) and stdin replay |
 | `environment.md` | what the operator machine is and what it cannot do |
 | `preflight.sh` | read-only checks: tools, disk, RPC, prover credentials |
 | `setup.sh` | installs the SP1 toolchain, clones RSP at the pin, builds the host |
@@ -162,5 +164,37 @@ Gate to step 5 (evaluator image, metrics, formal scope, limits):
   re-checkable by the evaluator with `sha256sum`).
 - The exclusion set in `RULE.md` covers every block listed in
   `pins.json` `fixtures.blockGasUsed` and the development corpus.
+
+Status: **closed 2026-09-16**.
+
+## Step 5: evaluator image, metrics, formal scope, limits
+
+Deliverable: `evaluation/policy.json` version 1.0, hashed into
+`demand/spec.json` (`evaluationPolicyHash` `b369e567…`,
+`correctnessPolicyHash` `a591d7a7…`, `formalScopePolicyHash` `840e425e…`,
+keccak256 over canonical JSON; `evaluation/freeze.py --check` and the
+`evaluation-policy` workflow guard them). What was wired and measured:
+
+| piece | where | evidence |
+| --- | --- | --- |
+| evaluator image | `policy.json` `evaluatorImage`: 25 files tree-hashed (`b0cee076…`), binaries by sha256, runner statement | builds 35120130617 and 35122594072 byte-identical for all three variants |
+| candidate build | `apparatus-build.yml` `overlay_ref` + `variant`; `evaluation/overlay.py` enforces `allowedSourcePaths`; `build_run` on execute | overlay tool tested on a synthetic overlay with one denied path |
+| counterfactual C | `arena` variant of `lemma-prove` (upstream feature, forwarded to the guest) | 20.8% to 28.5% PGU below A on the corpus (`INTERFACES.md` section 8, `demand/registry-snapshot.json`) |
+| determinism | `lemma-prove --stdin-file`, `apparatus-execute` `input_source=replay` | identical cycles and PGU on replay for arena and standard (runs 35122892653, 35124461684) |
+| metric and rule | `policy.json` `performance`; `evaluation/analysis/paired.py` | self-test: ten blocks, two regressions still pass, three fail; 4.9% median fails |
+| formal scope | `policy.json` `formal`; `evaluation-formal.yml`; `evaluation/analysis/axioms.py`; `evaluation/formal-smoke` | run 35122594002 pass; local negative test rejects sorryAx and native_decide |
+| limits | `policy.json` `performance.limits`, `reproduction`; `demand/spec.json` `resourceLimits` | build 21 min; execute 82 to 549 s; peak RSS 7.5 to 8.8 GB on every run |
+| registry snapshot | `demand/registry-snapshot.json` | arena entry with measurements, control requests A1 (reuse) and A3 (decline) |
+
+Gate to step 6 (cost estimate, agent and evaluation budgets):
+
+- `evaluation-policy` passes on `main` (hashes match, self-test runs,
+  policy consistent with pins, smoke toolchain and holdout commitment).
+- `demand/spec.json` carries the three policy hashes, `baselineCommit`,
+  `dependencyLockHash`, `toolchainManifestHash`, `resourceLimits` and
+  `candidateBundle`; remaining nulls are budgets, deadlines, parties and
+  the settlement addresses.
+- The counterfactual is registered with measured numbers and both control
+  requests are written.
 
 Status: **closed 2026-09-16**.

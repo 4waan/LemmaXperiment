@@ -1,17 +1,14 @@
 {
   "demandId": null,
-  "specificationVersion": "0.1-draft",
+  "specificationVersion": "0.3-draft",
   "specificationHash": null,
-
   "buyer": null,
   "assignedCreatorPayee": null,
   "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
-
-  "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen end-to-end latency target.",
-
-  "baselineCommit": null,
-  "dependencyLockHash": null,
-  "toolchainManifestHash": null,
+  "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen prover-gas (PGU) acceptance gate on the sealed holdout set. Latency and cost are measured and reported separately; neither is a gate.",
+  "baselineCommit": "2013b56184f9770bd12d1027495eebd1a0b81745",
+  "dependencyLockHash": "c71a7deb85028393f6a1a5f0479e6e6196f02984cbab0841573d14b2a4ca11e2",
+  "toolchainManifestHash": "089c520c372367733bd660f94dd3c14c837532a2f11b1e43c358ad5a296d69b1",
   "integrationTarget": {
     "pipeline": "RSP/SP1",
     "rspCommit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -23,8 +20,7 @@
     "hardware": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, SP1 cpu prover; see apparatus/pins.json",
     "stateBackend": "proofs (eth_getProof); execution-witness is unavailable on the pinned RPC provider"
   },
-
-  "workloadRelation": null,
+  "workloadRelation": "Ethereum mainnet block execution proofs (RSP guest, one block per proof) in the supported Cancun-era range; the public development corpus and the sealed holdout are drawn from that range, the holdout as ten consecutive blocks (evaluation/holdout/RULE.md); the counterfactual is the registered upstream arena backend (demand/registry-snapshot.json)",
   "allowedSourcePaths": [
     "crates/mpt/**",
     "crates/<new-module-crate>/**",
@@ -37,47 +33,96 @@
     "crates/executor/host/src/full_executor.rs (build_stdin only, lines 66-75 at the pin)",
     "crates/executor/host/Cargo.toml",
     "bin/host/Cargo.toml",
-    "bin/host/build.rs"
+    "bin/host/build.rs",
+    "Cargo.toml (workspace members and workspace.dependencies entries for a new crate only, reviewed)",
+    "Cargo.lock (the resulting lock, reviewed against the manifest's dependencyVersions)"
   ],
   "integrationInterface": "Implement rsp_mpt::StateTries (crates/mpt/src/lib.rs:442 at the pin) for the new representation and wire its construction exactly as the upstream `arena` feature is wired (guest: io.rs, executor.rs, bin/client; host: host_executor.rs encoding from EthereumState, full_executor.rs stdin), behind one cargo feature declared on bin/host and bin/client and forwarded to the guest by bin/host/build.rs. The unchanged lemma-prove wrapper built with that feature is the integration; the evaluator derives the guest key from its own build. See apparatus/INTERFACES.md sections 2, 5 and 6.",
-
   "publicDevelopmentCorpusHash": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
-  "publicDevelopmentBlocks": [20600066, 18884864, 23945771],
+  "publicDevelopmentBlocks": [
+    20600066,
+    18884864,
+    23945771
+  ],
   "sealedHoldoutCommitment": "e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
-  "evaluationPolicyHash": null,
-  "correctnessPolicyHash": null,
-  "formalScopePolicyHash": null,
-
+  "freshReuseInput": {
+    "block": 20600928,
+    "file": "reuse/input.json",
+    "sha256": "6b082a004a53244a87fc2c344670194046a72442add7829cb242bdeadbc687e2",
+    "note": "recorded before any execution; disjoint from development by membership and from holdout set 1 by the frozen exclusion margin (reuse/input.py)"
+  },
+  "evaluationPolicyHash": "b369e5679a4edfe13c8837b8ea0c53d1e182ed602a54160230db7fb113f78d0b",
+  "correctnessPolicyHash": "a591d7a7ba722741721d345bdd24fe3cfff18baf3aa29fc6f37858fc62da2821",
+  "formalScopePolicyHash": "840e425e653b48705be28d17e030f5a951e58896eafed7a5a45c57a5f7d052f7",
   "acceptanceCriteria": {
     "preserveResultsAndSecurity": true,
     "leanTheoremRequired": true,
-    "latencyTarget": {
-      "metric": "median complete-job preparation+proving+wrapping latency",
-      "minimumImprovementPercent": 5,
-      "pairedIntervalConfidence": 0.95,
-      "intervalMustExcludeZero": true
+    "performanceGate": {
+      "metric": "prover gas units (PGU) per holdout block from SP1 execute mode, per evaluation/policy.json performance",
+      "statistic": "median over paired holdout blocks of the per-block PGU improvement percent, 100 * (baseline - candidate) / baseline",
+      "minimumMedianImprovementPercent": 5,
+      "bootstrapConfidence": 0.95,
+      "intervalLowerBoundMustExceedZero": true,
+      "maximumRegressionPercentPerBlock": 10,
+      "definedIn": "evaluation/policy.json performance.acceptance; the policy text is authoritative for the computation"
     },
-    "maximumRegressionPercentPerBlock": 10,
-    "costReportRequired": true
+    "reportedNotGated": [
+      "median complete-job preparation+proving+wrapping wall time on the shared runner (the 0.1-draft latencyTarget, kept as an outcome)",
+      "network proof latency and PROVE cost for the real proofs",
+      "procurement economics: fee, search, download, checking, integration, compute and allocated settlement, cold and warm access separately"
+    ],
+    "costReportRequired": true,
+    "note": "0.1-draft gated on latency while the evaluator policy gated on PGU. 0.2-draft makes PGU the single technical gate (BUILD_CASE_MAP.md F0 item 2). A PGU pass is a technical result; it is not a latency or dollar claim."
   },
-
   "resourceLimits": {
-    "evaluatorTimeoutSeconds": null,
-    "peakMemoryBytes": null
+    "evaluatorTimeoutSeconds": 7200,
+    "peakMemoryBytes": 17179869184,
+    "buildTimeoutSeconds": 14400,
+    "provingTimeoutSeconds": 21300,
+    "note": "per execution job, per build and per proof on the 16 GB runner (evaluation/policy.json performance.limits); measured peak resident set 7.5 to 8.8 GB for every execute run of the corpus"
   },
-
+  "candidateBundle": {
+    "layout": "one commit of this repository holding candidate/ (module, adapter, tests, build recipe, manifest.json) and formal/; RSP changes as an overlay under candidate/rsp/ mirroring the pinned tree, applied by evaluation/overlay.py within allowedSourcePaths",
+    "featureName": "the candidate declares one cargo feature on bin/host and bin/client (forwarded to the guest by bin/host/build.rs) and names it in manifest.json; apparatus-build.yml builds variant=<that name> with overlay_ref=<that commit>",
+    "artifactDigest": "sha256 tree hash over candidate/ and formal/ at that commit (sorted `<path> <sha256>` lines), submitted onchain and recomputed by the evaluator"
+  },
   "creationBounty": {
     "amount": null,
     "asset": "testnet ETH",
-    "chain": "Arbitrum Sepolia",
+    "chain": "Robinhood Chain testnet",
+    "chainId": 46630,
     "label": "sponsored demand, testnet"
+  },
+  "settlement": {
+    "chainId": 46630,
+    "chain": "Robinhood Chain testnet (Arbitrum Nitro)",
+    "rpc": "https://rpc.testnet.chain.robinhood.com",
+    "explorer": "https://explorer.testnet.chain.robinhood.com",
+    "contracts": {
+      "CreationBounty": null,
+      "ModuleRegistry": null,
+      "UsageEscrow": null
+    },
+    "sp1Verifier": {
+      "contract": "SP1VerifierGroth16",
+      "version": "v6.1.0",
+      "address": null,
+      "verifierHash": null,
+      "note": "sp1-contracts ships no deployment for 46630; we deploy and source-verify it (ROBINHOOD_CHAIN_PROD.md section 2)"
+    },
+    "guestPublicValuesBind": "settlementChainId = 46630 and the UsageEscrow address, so a proof for one venue cannot settle on another (I-V1)",
+    "crossCheck": {
+      "chainId": 421614,
+      "chain": "Arbitrum Sepolia",
+      "sp1VerifierGateway": "0x397A5f7f3dBd538f23DE225B51f532c34448dA9B",
+      "role": "read-only verification of the same (vkey, publicValues, proof) triple; never a settlement venue and never funded"
+    }
   },
   "usageFeePolicy": {
     "contributorFee": null,
     "workerCompensation": null
   },
   "licenseRequirements": null,
-
   "agentBudget": {
     "model": null,
     "tokenLimit": null,
@@ -86,7 +131,31 @@
   "computeBudget": null,
   "localAttemptLimit": 3,
   "holdoutSubmissionLimit": 1,
-
   "submitBy": null,
-  "evaluateBy": null
+  "evaluateBy": null,
+  "revisionHistory": [
+    {
+      "version": "0.1-draft",
+      "date": "2026-09-16",
+      "note": "step 3 fields: integration target, allowed paths, development corpus"
+    },
+    {
+      "version": "0.2-draft",
+      "date": "2026-09-16",
+      "changes": [
+        "acceptance: PGU gate replaces the latency target; latency and cost reported, not gated",
+        "settlement: Robinhood Chain testnet 46630 for every funded transaction; Arbitrum Sepolia gateway kept as read-only cross-check",
+        "freshReuseInput: block 20600928 recorded in reuse/input.json (20600066 is a development block)"
+      ]
+    },
+    {
+      "version": "0.3-draft",
+      "date": "2026-09-16",
+      "changes": [
+        "step 5: baselineCommit, dependencyLockHash (build 35122594072 Cargo.lock), toolchainManifestHash (evaluation/toolchain.json), workloadRelation, resourceLimits, candidateBundle",
+        "allowedSourcePaths: workspace Cargo.toml and Cargo.lock admitted for reviewed additions only",
+        "evaluationPolicyHash, correctnessPolicyHash, formalScopePolicyHash from evaluation/policy.json 1.0 (evaluation/freeze.py)"
+      ]
+    }
+  ]
 }

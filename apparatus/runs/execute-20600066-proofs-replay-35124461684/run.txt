@@ -1,0 +1,14 @@
+block: 20600066
+state_backend: proofs
+variant: standard
+input_source: replay
+replay_run: 35124206362
+build_run: 35120130617
+mode: execute
+vkey: 0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+wall_seconds: 82
+peak_rss_kb: 7541856
+runner: 4 vcpu 15 GB ubuntu24 20260907.300.1
+lemma_prove_sha256: 43d0a468836c10e187ddc19552d7ac568bc6818181a674a18f7eab32b83cf5da
+stdin_sha256: a2b24778e321cb697e675a2320fffe38811e37fa08dff0cfed6509cdd0a62df1
+stdin_bytes: 437277

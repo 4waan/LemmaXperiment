@@ -1,6 +1,6 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era); step 4 closed 2026-09-16: holdout set 1 sealed (evaluation/holdout/commitment.json), precommit run 35106575645 before beacon block 25990577",
+  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era); step 4 closed 2026-09-16: holdout set 1 sealed (evaluation/holdout/commitment.json), precommit run 35106575645 before beacon block 25990577; step 5 closed 2026-09-16: evaluation policy 1.0 frozen (image, metrics with the arena counterfactual, formal scope, limits), arena build variant measured on the corpus, stdin replay determinism shown",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -39,7 +39,9 @@
     "circuitVersion": "v6.1.0",
     "hostBuildVariants": {
       "standard": "no features; SP1 native x86_64 executor; the only build used for proofs, PGU and timing",
-      "cycle-tracking": "rsp/cycle-tracking + lemma-prove/cycle-tracking (= sp1-sdk/profiling); SP1 portable interpreter; per-phase cycle labels only"
+      "cycle-tracking": "rsp/cycle-tracking + lemma-prove/cycle-tracking (= sp1-sdk/profiling); SP1 portable interpreter; per-phase cycle labels only",
+      "arena": "rsp/arena + lemma-prove/arena (forwarded to the guest by build.rs): the upstream arena MPT backend in host and guest, different guest ELF and vkey; the registered existing capability and the evaluation counterfactual C",
+      "stdinReplay": "lemma-prove --stdin-file (step 5): executes a saved stdin through the executor's validation path; byte-identical input gives identical cycles and PGU (runs 35122638658/35122892653 arena, 35124206362/35124461684 standard)"
     }
   },
   "upstreamDeps": {
@@ -193,13 +195,22 @@
         "bpo1": 23975778,
         "bpo2": 24179383
       }
+    },
+    "registrySnapshot": {
+      "file": "demand/registry-snapshot.json",
+      "arenaEntry": "rsp-arena-backend with the measurements above",
+      "controls": [
+        "control-A1 (reuse)",
+        "control-A3 (decline)"
+      ]
     }
   },
   "hardware": {
     "executionHost": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, x86_64 (shared; wall time not a benchmark)",
     "provingHost": "same runner, SP1 cpu prover, 6 hour job cap",
     "note": "evaluator separation by workflow file hash and job logs, not by machine",
-    "runnerThroughput": "about 26 core shards per hour, about 5.5M cycles per hour end to end; blocks up to about 30M cycles fit the 6 hour cap"
+    "runnerThroughput": "about 26 core shards per hour, about 5.5M cycles per hour end to end; blocks up to about 30M cycles fit the 6 hour cap",
+    "peakRssKb": "7.5 GB to 8.8 GB for every execute run measured in step 5 (GNU time maximum resident set; dominated by SP1 setup, not by block size)"
   },
   "verifier": {
     "chain": "Arbitrum Sepolia",
@@ -213,7 +224,31 @@
     },
     "note": "gateway routes selector 0x4388a21c to the v6.1.0 verifier; verifyProof passed, negative controls revert ProofInvalid",
     "groth16Verifier": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2",
-    "gatewayRouteConfirmed": true
+    "gatewayRouteConfirmed": true,
+    "role": "read-only cross-check of proof bytes; not the settlement venue since 16 September 2026"
+  },
+  "robinhood": {
+    "role": "settlement venue for every funded transaction (ROBINHOOD_CHAIN_PROD.md, demand/spec.json settlement)",
+    "chain": "Robinhood Chain testnet",
+    "chainId": 46630,
+    "rpc": "https://rpc.testnet.chain.robinhood.com",
+    "rpcAlternate": "https://robinhood-sepolia-rpc.publicnode.com",
+    "explorer": "https://explorer.testnet.chain.robinhood.com",
+    "sequencerFeed": "wss://feed.testnet.chain.robinhood.com",
+    "nitro": "v3.12.0-rc.2 (checked 15 September 2026)",
+    "sp1VerifierGroth16": {
+      "version": "v6.1.0",
+      "address": null,
+      "verifierHash": null,
+      "deployedAtBlock": null,
+      "sourceVerified": null
+    },
+    "contracts": {
+      "CreationBounty": null,
+      "ModuleRegistry": null,
+      "UsageEscrow": null
+    },
+    "deploymentEvidence": "deployments/46630-lemma.json (I-V5)"
   },
   "baseline": {
     "block": 20600066,
@@ -266,7 +301,22 @@
       "untracked": 1852763,
       "nested precompile-ecrecover": 38126
     },
-    "cycleJitter": "same client input, four host runs: 22629796 / 22629474 / 22628475 / 22629229 cycles and 28810531 / 28810305 / 28809494 PGU (run 35078583453 added); cause is HashMap serialization order when the host writes the stdin, which also applies when the client input comes from the cache or the corpus, see INTERFACES.md section 7; in the cycle-tracking build only the `deserialize inputs` phase and the untracked remainder move between runs of the same client input (6876142 vs 6876414 cycles in runs 35060320613 and 35081874073), every other phase is identical"
+    "cycleJitter": "same client input, four host runs: 22629796 / 22629474 / 22628475 / 22629229 cycles and 28810531 / 28810305 / 28809494 PGU (run 35078583453 added); cause is HashMap serialization order when the host writes the stdin, which also applies when the client input comes from the cache or the corpus, see INTERFACES.md section 7; in the cycle-tracking build only the `deserialize inputs` phase and the untracked remainder move between runs of the same client input (6876142 vs 6876414 cycles in runs 35060320613 and 35081874073), every other phase is identical",
+    "buildRunStep5": {
+      "run": 35120130617,
+      "note": "wrapper gained --stdin-file and the arena feature, so the host binaries changed; the standard and cycle-tracking guest ELF is unchanged (db0e3298) and so is the vkey",
+      "standard": {
+        "lemmaProveSha256": "43d0a468836c10e187ddc19552d7ac568bc6818181a674a18f7eab32b83cf5da"
+      },
+      "cycle-tracking": {
+        "lemmaProveSha256": "49f83bc5f68efe9fd8a5f3c7da349684882fa9214e581fb7c1ed728b5881dce0"
+      },
+      "arena": {
+        "lemmaProveSha256": "68dbb045557773843041387c9fb50b9850d0549fbe6fc31aee72915079cee47e",
+        "guestElfSha256": "9f4ebe673e904980fce13d6f264640829d521cc04cd31dbab4e027ef39f06bc3",
+        "vkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4"
+      }
+    }
   },
   "developmentProfiles": {
     "18884864": {
@@ -291,6 +341,19 @@
         "run": 35078589781,
         "totalCycles": 89571800,
         "note": "same client input as the cycle-tracking run (sha256 e49a1e2b), 666 cycles apart: the host re-serializes the cached input into the stdin, so HashMap order still moves"
+      },
+      "arenaRun": {
+        "run": 35123183579,
+        "totalCycles": 65554082,
+        "proverGas": 85914898,
+        "stdinSha256": "172c8a7d71ebcf4f4b723eabfde712914307e5075d074ba5c31cf6a9358c60e1",
+        "stdinBytes": 2191246,
+        "peakRssKb": 7577256,
+        "hostWallSeconds": 141,
+        "pguImprovementVsStandardPercent": 20.8,
+        "cyclesImprovementPercent": 26.8,
+        "variant": "arena",
+        "vkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4"
       }
     },
     "23945771": {
@@ -304,7 +367,20 @@
       "hostWallSeconds": 512,
       "clientInputSha256": "690dbddc4d9a09e3bb88b96b71d55f079c75dbd7e244a8f438753e9e5da64b8f",
       "clientInputBytes": 6785629,
-      "note": "execute only; Osaka era; development block 3"
+      "note": "execute only; Osaka era; development block 3",
+      "arenaRun": {
+        "run": 35123522987,
+        "totalCycles": 268473400,
+        "proverGas": 355748135,
+        "stdinSha256": "6da5b5fe8bc048351d5252fd32b513c33e9e3883802df5420ec0ce74c3479704",
+        "stdinBytes": 9264564,
+        "peakRssKb": 8757568,
+        "hostWallSeconds": 317,
+        "pguImprovementVsStandardPercent": 26.0,
+        "cyclesImprovementPercent": 30.9,
+        "variant": "arena",
+        "vkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4"
+      }
     },
     "22441128": {
       "run": 35078553836,
@@ -331,6 +407,30 @@
       "clientInputSha256": "dda5fb040e04b0ef435400bf8ba3f10cf9f4327e3d070ada7e43644228a2cd90",
       "clientInputBytes": 1219812,
       "note": "execute only; BPO2-era fork-support check, not in the corpus"
+    },
+    "20600066": {
+      "arenaRun": {
+        "run": 35122638658,
+        "replayRun": 35122892653,
+        "totalCycles": 14026811,
+        "proverGas": 20605312,
+        "stdinSha256": "7e8d323ac81340752263c8c8f3663cce62e0b7d59d7d0d8eff552f993fd57432",
+        "stdinBytes": 617483,
+        "peakRssKb": 7624820,
+        "hostWallSeconds": 101,
+        "pguImprovementVsStandardPercent": 28.5,
+        "cyclesImprovementPercent": 38.0,
+        "variant": "arena",
+        "vkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4"
+      },
+      "standardFixtureRunStep5": {
+        "run": 35124206362,
+        "totalCycles": 22629794,
+        "proverGas": 28810752,
+        "stdinSha256": "a2b24778e321cb697e675a2320fffe38811e37fa08dff0cfed6509cdd0a62df1",
+        "peakRssKb": 7534740,
+        "note": "new wrapper binary, same client input ea1f2b5b; cycles within the known jitter of the earlier runs"
+      }
     }
   }
 }

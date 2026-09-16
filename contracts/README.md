@@ -1,6 +1,8 @@
 # contracts/
 
-Owner: operator. Solidity, Foundry. Target: Arbitrum Sepolia, testnet ETH.
+Owner: operator. Solidity, Foundry. Target: Robinhood Chain testnet, chain 46630, testnet ETH
+(`demand/spec.json` `settlement`). Arbitrum Sepolia is never a settlement venue;
+its SP1 gateway is used read-only to cross-check proof bytes.
 Three logical components; one deployment is acceptable for the prototype.
 
 ## CreationBounty
@@ -38,8 +40,12 @@ input/block commitments, computed result, success flag.
 
 ## Setup dependency
 
-Confirm or deploy a pinned SP1 verifier on Arbitrum Sepolia before building
-UsageEscrow. Record the address and version in `demand/spec.json`.
+Deploy `SP1VerifierGroth16` v6.1.0 from `sp1-contracts` on Robinhood Chain
+testnet before building UsageEscrow (no upstream deployment exists for 46630).
+Source-verify it on the explorer and record address, version and
+`VERIFIER_HASH()` in `demand/spec.json` `settlement.sp1Verifier` and
+`apparatus/pins.json`. Cross-check the same proof triple read-only against the
+Arbitrum Sepolia gateway.
 
 ## Planned layout
 

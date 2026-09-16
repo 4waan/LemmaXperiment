@@ -1,0 +1,80 @@
+{
+ "schema": "lemma-reuse-input/1",
+ "chainId": 1,
+ "purpose": "fresh input for the paid reuse job (reuse/README.md); recorded before any execution or proof of it",
+ "recordedAt": "2026-09-16T14:28:33Z",
+ "selection": {
+  "rule": "lowest gasUsed in [20600067, 20601066], lowest number on ties",
+  "scanned": 1000,
+  "candidatesByGasUsed": [
+   {
+    "number": 20600928,
+    "gasUsed": 803522
+   },
+   {
+    "number": 20600218,
+    "gasUsed": 1006099
+   },
+   {
+    "number": 20600419,
+    "gasUsed": 1158110
+   },
+   {
+    "number": 20601065,
+    "gasUsed": 1203044
+   },
+   {
+    "number": 20600502,
+    "gasUsed": 1220904
+   }
+  ],
+  "disjointFromDevelopment": {
+   "blocks": [
+    20600066,
+    18884864,
+    23945771
+   ],
+   "reason": "not a member"
+  },
+  "disjointFromHoldoutSet1": {
+   "rule": "evaluation/holdout/RULE.md section 1",
+   "reason": "RULE.md rejects any holdout window containing a block within 1000 of an executed block; 20600928 is 862 blocks above executed block 20600066, so no accepted window can contain it",
+   "sealedMaterialRead": false
+  },
+  "supportedRange": {
+   "from": 19426587,
+   "to": 22431083,
+   "fork": "cancun"
+  },
+  "caveat": "state is about three hours after the baseline block; a PGU comparison on this block is a continued-savings check on the same era, not a generalization result. The holdout set carries the performance claim"
+ },
+ "block": {
+  "number": 20600928,
+  "hash": "0xfa936078806b990b3538c78a8c3f180592f9cc7dd07dd311e7934a7297f94f80",
+  "parentHash": "0x645ba4720bd428b34600f26e6505dd28cba8eaf3eea381271992304d5513ee14",
+  "stateRoot": "0x43cc401ab1109e5c4bb3f752551e4f7248431da0586cefb0abda1d20894df03d",
+  "transactionsRoot": "0xd8b211feb170fd445d91e3508549c88a320df0df852d046993a23f3e50145895",
+  "receiptsRoot": "0x0780c5ba5948ad1ba1d0f2501d2ffe10ee7523c9d2f0bd46446362dc04644afe",
+  "withdrawalsRoot": "0x3d223b0d9a66edf5ef4b9e205a604720728bc0fb86724d5bb2eba633c2f21ca4",
+  "timestamp": 1724532359,
+  "gasUsed": 803522,
+  "gasLimit": 30000000,
+  "baseFeePerGas": 642765560,
+  "blobGasUsed": 0,
+  "excessBlobGas": 0,
+  "txCount": 7,
+  "parentStateRoot": "0xa009ac9e5dea16d9d33a8b05505e3096aa09b43d7866e095fbac0fd86345252d",
+  "fork": "cancun"
+ },
+ "headerCheckedAgainst": [
+  "ethereum-rpc.publicnode.com",
+  "eth.drpc.org"
+ ],
+ "expected": {
+  "blockHash": "0xfa936078806b990b3538c78a8c3f180592f9cc7dd07dd311e7934a7297f94f80",
+  "stateRoot": "0x43cc401ab1109e5c4bb3f752551e4f7248431da0586cefb0abda1d20894df03d",
+  "totalCycles": null,
+  "proverGas": null,
+  "note": "cycles and prover gas are filled by the clean worker's run record, never before it"
+ }
+}

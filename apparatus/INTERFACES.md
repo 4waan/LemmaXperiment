@@ -315,3 +315,49 @@ both diagnostic-only: `--opcode-tracking` (an EVM inspector; the upstream
 docs warn it inflates cycle counts substantially) and the SP1 profiler that
 the same `profiling` feature enables (`TRACE_FILE`, `TRACE_SAMPLE_RATE`;
 Gecko format), which this apparatus has not exercised.
+
+## 8. The arena backend measured, and byte-identical replays (step 5)
+
+The upstream `arena` feature (section 4) is the registered existing
+capability and the evaluation's counterfactual C. Step 5 built it as a third
+`lemma-prove` variant (`apparatus/prover/README.md`) and executed the three
+development blocks from RPC; the wrapper also gained `--stdin-file`, which
+re-executes a saved stdin through the executor's own validation path.
+
+| block | A cycles | C cycles | cycles saved | A PGU | C PGU | PGU saved | runs (C, A) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 20600066 | 22,629,229 | 14,026,811 | 38.0% | 28,810,101 | 20,605,312 | 28.5% | 35122638658, 35078583453 |
+| 18884864 | 89,571,800 | 65,554,082 | 26.8% | 108,529,342 | 85,914,898 | 20.8% | 35123183579, 35078589781 |
+| 23945771 | 388,441,163 | 268,473,400 | 30.9% | 480,498,762 | 355,748,135 | 26.0% | 35123522987, 35078560969 |
+
+Read against section 7: on block 20600066 the pointer path spends 12.3M
+cycles (54%) in `deserialize inputs` and `initialize witness db`; the arena
+guest removes 8.6M cycles in total, so most of that witness cost, not all
+of it, and `compute state root` and the trie reads inside `block execution`
+still run on the arena tries. The arena guest is a different program: vkey
+`0x00139a3e…`, ELF sha256 `9f4ebe67…` (build 35120130617, reproduced
+byte-identical in 35122594072). Peak resident set of every execute run was
+7.5 to 8.8 GB regardless of block size (GNU time), dominated by SP1 setup.
+
+Two limits of the arena backend at the pin, both recorded in the registry
+snapshot: its host writes the input cache without the witness
+(`parent_state` is `serde(skip)` under the feature), so it cannot execute
+from the committed corpus inputs and never shares the actions cache; and
+its guest key differs, so a job bound to the baseline key cannot switch.
+
+Replays settle the jitter question of section 7. Executing the same stdin
+bytes reproduces cycles and PGU exactly: arena 20600066 (stdin
+`7e8d323a…`, runs 35122638658 and 35122892653) 14,026,811 cycles and
+20,605,312 PGU both times; standard 20600066 (stdin `a2b24778…`, runs
+35124206362 and 35124461684) 22,629,794 cycles and 28,810,752 PGU both
+times. The evaluation therefore records one RPC-backed run per block and
+variant and one replay of its stdin (`evaluation/policy.json`
+`performance.inputs`), which makes the two executions of every pair
+identical by construction and keeps the ~0.01% host-order jitter out of the
+paired comparison.
+
+For the demand this changes the bar, and the policy says so
+(`performance.counterfactualRule`): a candidate's saving is measured against
+A and against C, and the smaller number is the one gated. A module that
+merely reproduces the arena's zero-copy witness would show 20% to 28%
+against A and nothing against C.

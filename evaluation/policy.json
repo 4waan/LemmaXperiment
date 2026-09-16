@@ -11,8 +11,8 @@
     "canonicalJson": "ROBINHOOD_CHAIN_PROD.md section 3.2: keccak256 for values that go onchain, sha256 for files that stay offchain; the holdout commitment is the sha256 of the sealed manifest bytes, stored onchain verbatim as bytes32"
   },
   "evaluatorImage": {
-    "hash": null,
-    "definition": "The evaluator is a set of workflow files and scripts in this repository run on GitHub-hosted runners, plus binaries built from the pinned RSP commit by those workflows. The image hash covers the files; the binaries are content-addressed by sha256 in apparatus/pins.json and every run record (run.txt, build-record.txt). The OS image is GitHub's rolling ubuntu-24.04 and is recorded per job (ImageOS, ImageVersion) rather than pinned.",
+    "hash": "b0cee076baf541ca5ecb7c96c1455da3887dd6dacd0ed3bd5ce33ef882a13222",
+    "definition": "The evaluator is a set of workflow files and scripts in this repository run on GitHub-hosted runners, plus binaries built from the pinned RSP commit by those workflows. The image hash covers the files; the binaries are content-addressed by sha256 in apparatus/pins.json and every run record (run.txt, build-record.txt). The OS image is GitHub's rolling ubuntu-24.04 and is recorded per job (ImageOS, ImageVersion) rather than pinned. apparatus/pins.json is the operator's growing record and is not part of the image; its rsp.commit must equal evaluatorImage.rspCommit, which freeze.py --check verifies.",
     "files": [
       ".github/workflows/apparatus-build.yml",
       ".github/workflows/apparatus-execute.yml",
@@ -21,7 +21,6 @@
       ".github/workflows/apparatus-wrap.yml",
       ".github/workflows/evaluation-formal.yml",
       ".github/workflows/holdout-commitment.yml",
-      "apparatus/pins.json",
       "apparatus/prover/Cargo.toml",
       "apparatus/prover/build.rs",
       "apparatus/prover/src/main.rs",
@@ -32,25 +31,29 @@
       "evaluation/fixtures/development-corpus.json",
       "evaluation/fixtures/trie/fixtures.json",
       "evaluation/fixtures/trie/gen.py",
+      "evaluation/freeze.py",
       "evaluation/harness/Cargo.toml",
       "evaluation/harness/src/main.rs",
       "evaluation/holdout/RULE.md",
-      "evaluation/holdout/holdout.py",
       "evaluation/holdout/commitment.json",
-      "evaluation/overlay.py"
+      "evaluation/holdout/holdout.py",
+      "evaluation/overlay.py",
+      "evaluation/toolchain.json"
     ],
     "binaries": {
       "guestElfSha256": "db0e3298c8a9078c1e0c3e3c7a2d13898282e6326f53290845623e7751ac6a17",
       "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba",
-      "lemmaProveStandardSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
-      "lemmaProveCycleTrackingSha256": "264a88cedd5eb5c30f67864d524eb652b450053d88e2dbe352d021d497d8b098",
-      "lemmaProveArenaSha256": null,
-      "arenaGuestElfSha256": null,
-      "arenaVkey": null,
-      "reproduced": "standard and cycle-tracking hashes identical across builds 35058733285, 35060847955, 35081854796, 35109750714 and 35109751028; the arena hashes come from the step 5 build (apparatus/pins.json sp1.hostBuildVariants)"
+      "lemmaProveStandardSha256": "43d0a468836c10e187ddc19552d7ac568bc6818181a674a18f7eab32b83cf5da",
+      "lemmaProveCycleTrackingSha256": "49f83bc5f68efe9fd8a5f3c7da349684882fa9214e581fb7c1ed728b5881dce0",
+      "lemmaProveArenaSha256": "68dbb045557773843041387c9fb50b9850d0549fbe6fc31aee72915079cee47e",
+      "arenaGuestElfSha256": "9f4ebe673e904980fce13d6f264640829d521cc04cd31dbab4e027ef39f06bc3",
+      "arenaVkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4",
+      "cargoLockSha256": "c71a7deb85028393f6a1a5f0479e6e6196f02984cbab0841573d14b2a4ca11e2",
+      "reproduced": "all three wrapper binaries and both guest ELFs byte-identical across builds 35120130617 and 35122594072 (apparatus/prover at commit 5ec4df3); the pre-step-5 wrapper (155ca79e standard, 264a88ce cycle-tracking) carried the same guest ELF and vkey across five builds"
     },
     "runner": "GitHub-hosted ubuntu-24.04, x86_64, 4 vCPU, 16 GB RAM, 14 GB free disk; no GPU; SP1 cpu prover",
-    "provenance": "Every run keeps the exact command, binary hashes, stdin sha256 and runner image in its artifact (run.txt) and the operator copies it under apparatus/runs/<id>/; workflow run ids are cited in the report"
+    "provenance": "Every run keeps the exact command, binary hashes, stdin sha256 and runner image in its artifact (run.txt) and the operator copies it under apparatus/runs/<id>/; workflow run ids are cited in the report",
+    "rspCommit": "2013b56184f9770bd12d1027495eebd1a0b81745"
   },
   "reproduction": {
     "candidateBundle": "one commit of this repository holding candidate/ (module, adapter, tests, build recipe, manifest.json) and formal/; the RSP changes travel as an overlay under candidate/rsp/ mirroring the pinned tree",
@@ -61,7 +64,7 @@
     "networkAccess": "hosted runners have unrestricted egress and no policy can enforce a filter there; mitigation: the build fetches only what Cargo.lock names, build scripts inside the overlay are read by the evaluator before the build runs, and the run record lists every overlay file with its sha256",
     "buildTimeoutSeconds": 14400,
     "buildMemoryBytes": 17179869184,
-    "measuredBaselineBuildSeconds": 1230
+    "measuredBaselineBuildSeconds": 1260
   },
   "correctness": {
     "oracle": "independent implementation or fixture oracle not sharing the changed algorithm",
@@ -111,7 +114,7 @@
     "sorryAllowed": false,
     "forbidden": "any other axiom in #print axioms (sorryAx, native_decide's auxiliary axioms, user axiom declarations); opaque, unsafe or implemented_by declarations in the model; a theorem whose hypotheses include the conclusion",
     "checks": "evaluation-formal.yml runs evaluation/analysis/axioms.py: lean-toolchain equals leanToolchain, lake build, #print axioms for every theorem in formal/theorems.json against allowedAxioms, leanchecker --fresh on every listed module, and a source scan for sorry, admit, native_decide, axiom, implemented_by, unsafe, opaque",
-    "smokeProject": "evaluation/formal-smoke (the procedure demonstrated on a cache-refinement theorem of the expected shape; run 35120xxxxxx)",
+    "smokeProject": "evaluation/formal-smoke: the procedure demonstrated on a cache-refinement theorem of the expected shape (run 35122594002: toolchain installed from the pin, build, no axioms, leanchecker pass); the same script rejects sorryAx and native_decide's auxiliary axiom in a local negative test",
     "theoremScope": "a model-level refinement theorem over the changed operation (TRIE_MODULE_PROTOCOL.md section 6 for a trie candidate): for a fixed witness and a stated invariant, the optimized resolution returns the same accepted results and rejections as the unoptimized model; the invariant holds for the empty state and is preserved by every insertion; the authenticator and decoder are abstract and deterministic; hash-keyed reuse names its no-collision or exact-byte assumption explicitly",
     "modelToCode": "formal/model-to-code.md maps every Lean definition to the Rust items it models and states the gap; the theorem covers the model, the Rust behavior is covered by the correctness gate, and no claim of a verified prover, verified compiler or complete Ethereum semantics is made (ROBINHOOD_CHAIN_PROD.md I-X3)",
     "reviewerRequired": true,

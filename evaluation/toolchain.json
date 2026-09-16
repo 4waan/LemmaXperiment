@@ -1,0 +1,32 @@
+{
+  "schema": "lemma-toolchain-manifest/1",
+  "purpose": "Every toolchain the evaluator and the creator build with. sha256 of this file is toolchainManifestHash in demand/spec.json.",
+  "rust": {
+    "channel": "1.94.0",
+    "source": "rust-toolchain.toml at the pinned RSP commit; the workflows never override it"
+  },
+  "sp1": {
+    "sdk": "6.8.0",
+    "cargoProveToolchain": "6.8.0 (sp1up -v v6.8.0)",
+    "circuit": "v6.1.0",
+    "gnarkImage": "ghcr.io/succinctlabs/sp1-gnark:v6.1.0 (Groth16 wrap only)"
+  },
+  "lean": {
+    "toolchain": "leanprover/lean4:v4.34.0",
+    "kernelChecker": "leanchecker bundled with that toolchain",
+    "elanInstall": "https://elan.lean-lang.org/elan-init.sh with --default-toolchain none; the project's lean-toolchain selects the version and must equal this one"
+  },
+  "python": {
+    "version": "3.12 (actions/setup-python)",
+    "oracle": {
+      "trie": "4.0.0",
+      "rlp": "5.0.0",
+      "eth-hash": "0.8.0 with pycryptodome 3.23.0"
+    },
+    "analysis": "stdlib only for paired.py and axioms.py; freeze.py needs eth-hash for keccak256"
+  },
+  "runner": {
+    "image": "GitHub-hosted ubuntu-24.04 (rolling; ImageOS and ImageVersion recorded per job)",
+    "aptPackages": ["protobuf-compiler", "libssl-dev", "pkg-config", "clang", "time"]
+  }
+}

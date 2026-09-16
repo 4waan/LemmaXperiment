@@ -62,6 +62,26 @@ Witness-only phases: 70.2% and 52.8%. Cycle totals jitter by about 0.01%
 across host runs of the same client input (stdin map order); noted in
 `evaluation/policy.json`.
 
+## Apparatus step 3: development blocks and fixtures
+
+Development corpus (`evaluation/fixtures/development-corpus.json`, sha256
+`0797e833…`): 20600066 (Cancun, 0.96M gas), 18884864 (Shanghai, 4.3M gas),
+23945771 (Osaka, 28.2M gas, 388.4M cycles). Client inputs committed and
+executed offline.
+
+Trie fixtures: 31 cases from a py-trie oracle (120 lookups, 11 update
+batches; inline and hashed nodes with the 31/32-byte boundary, malformed
+and noncanonical RLP, absent keys at every divergence point, wrong roots,
+missing nodes, forged nodes, updates with branch collapse and boundary
+crossings). Upstream pointer backend 31/31, upstream arena backend 31/31
+(run 35081286192).
+
+Fork support: Prague and Osaka rules execute. The pinned host rejects any
+block with an EIP-7702 authorization of a nonexistent authority (host loads
+every address as existing, revm refunds 12,500 gas the chain does not;
+`apparatus/FAILURES.md` #10, upstream succinctlabs/rsp#181). Holdout
+blocks are drawn from the Cancun era, 19426587 to 22431083.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)

@@ -123,6 +123,20 @@ code. For this experiment the backend is fixed to `proofs`: the evaluator can
 only run that one, and switching backends between A and B would compare
 witnesses, not modules.
 
+One property of the `proofs` backend found in step 3 (2026-09-16): its
+`Database` impl returns `Some(AccountInfo)` for every address
+(`basic.rs:171-180`), never `None`, so revm loads a nonexistent account as an
+existing empty one. Since revm 38's EIP-7702 handler refunds the 12,500 gas
+unless the account is empty *and* was loaded as not existing, the host
+computes less gas than the chain for any type 4 transaction whose authority
+did not exist at the parent block, fails its own post-execution validation
+("block gas used mismatch") and writes no client input. The guest's
+`TrieDB::basic_ref` (`io.rs`) returns `None` for absent accounts and is not
+affected, but never runs. `apparatus/FAILURES.md` #10 has the per-transaction
+evidence; the supported block range is the Cancun era (`pins.json`
+`fixtures.forkSupport`). This is a host limitation of the pinned baseline,
+not part of the seam.
+
 The line in EXPERIMENT.md that the reference witness builder already
 deduplicates accessed nodes is visible in both builders: one node store keyed
 by `MptNodeReference` per trie (`mpt.rs:1170-1180`, `execution_witness.rs:21-30`).

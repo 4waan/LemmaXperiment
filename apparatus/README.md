@@ -1,9 +1,10 @@
 # apparatus/
 
-Owner: operator. EXPERIMENT.md section 4, steps 1 and 2: reproduce a real
+Owner: operator. EXPERIMENT.md section 4, steps 1 to 3: reproduce a real
 baseline block proof and pin source, dependencies, toolchain, proof mode and
-hardware; then identify the permitted witness-processing interfaces without
-implementing anything.
+hardware; identify the permitted witness-processing interfaces without
+implementing anything; prepare three public development blocks and
+independent correctness fixtures.
 
 Nothing downstream can start until this stage produces a verified proof of a
 real block with the pinned configuration. If it cannot, record the blocker in
@@ -22,7 +23,8 @@ real block with the pinned configuration. If it cannot, record the blocker in
 | `preflight.sh` | read-only checks: tools, disk, RPC, prover credentials |
 | `setup.sh` | installs the SP1 toolchain, clones RSP at the pin, builds the host |
 | `baseline.sh` | executes, then optionally proves, one block and records the report |
-| `runs/` | one directory per baseline run: command, env, report.csv, timings |
+| `fork_windows.py` | step 3: one fork-support check block per era by a fixed rule (window, lower median gasUsed) |
+| `runs/` | one directory per run: command, env, report.csv, timings; `fixtures-<id>/` for harness runs |
 
 ## Procedure
 
@@ -79,3 +81,45 @@ Gate to step 3 (development blocks and correctness fixtures):
 
 Status: **closed 2026-09-16** except the registry entry, which belongs to
 step 5. Runs 35060320613, 35060327373 and 35060335177 under `runs/`.
+
+## Step 3: development blocks and correctness fixtures
+
+Deliverables live under `evaluation/fixtures/` (see its README):
+`development-corpus.json` with the three client inputs committed under
+`blocks/1/`, and `trie/fixtures.json` with its generator and the
+`evaluation/harness/` runner. `apparatus-execute` gained
+`input_source=fixture` (offline, no RPC credential, sha256 checked against
+the manifest) and now keeps the executed client input in every artifact.
+
+Fork support was checked with one block per era, chosen by
+`fork_windows.py` (records in `pins.json` `fixtures.forkSupport`):
+
+| era | block | gasUsed | result |
+| --- | --- | ---: | --- |
+| Prague | 22441128 | 16,850,044 | pass, 336.7M cycles (run 35078553836) |
+| Osaka | 23945771 | 28,167,520 | pass, 388.4M cycles (run 35078560969); development block 3 |
+| BPO1 | 23985839 | 24,099,656 | provider rate limit, not retried (`FAILURES.md` #9) |
+| BPO2 | 25988980 | 27,674,793 | fail: host gas mismatch on EIP-7702 authorizations of nonexistent authorities (`FAILURES.md` #10) |
+| BPO2, no type 4 | 25988970 | 2,952,836 | pass, 63.1M cycles (run 35081362097) |
+
+The pinned host's `proofs` backend loads every address as an existing
+account, so revm grants the 12,500 gas EIP-7702 refund the chain does not
+for authorities absent from the parent state, and the host rejects the block
+before the guest runs. Current-era blocks almost all carry such
+transactions (110 of 120 sampled carry type 4 transactions), so the
+supported range for the holdout is the Cancun era, blocks 19426587 to
+22431083. The pin stays unpatched.
+
+Gate to step 4 (holdout selection rule, commitment, salt):
+
+- `evaluation/fixtures/development-corpus.json` lists three blocks with
+  committed client inputs; each executes offline through
+  `input_source=fixture` and reaches the manifest's `stateRoot`.
+- `evaluation/fixtures/trie/fixtures.json` regenerates byte-identical from
+  the py-trie oracle in CI, and the harness passes it on both upstream
+  backends (`pointer` and `arena`): run 35081286192, 31/31 each.
+- The supported block range is recorded in `pins.json` and
+  `demand/spec.json` before any holdout salt is drawn.
+
+Status: **closed 2026-09-16**; offline corpus executions in runs
+35081865737 and 35081874073.

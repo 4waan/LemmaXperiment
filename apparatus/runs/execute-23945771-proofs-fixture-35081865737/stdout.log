@@ -1,0 +1,55 @@
+[2m2026-09-16T09:52:43.344164Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-16T09:54:26.901571Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m lemma-prove [3mvariant[0m[2m=[0m"standard" [3mexecutor[0m[2m=[0m"sp1 default (native on x86_64 linux)" [3mvkey[0m[2m=[0m0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+[2m2026-09-16T09:54:35.781994Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Saved stdin to run/stdin/23945771.bin
+[2m2026-09-16T09:54:49.155092Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Execution successful [3mexecuted_block_hash[0m[2m=[0m0x5144e4f2f6d502f8bd656a1817db398ee5374a78c1993d1ac70817e3bdf6c81d [3mduration[0m[2m=[0m13.373029687s
+
+Execution report:
+gas: 480495751
+opcode counts (388436425 total instructions):
+    75057327 addi
+    48482473 lbu
+    41642237 ld
+    37638474 sd
+    25521325 sb
+    24716261 sll
+    21623969 or
+    16149720 bne
+    15237881 add
+    14913842 and
+    14885080 beq
+    10168456 srl
+    10094324 jalr
+     5959266 bltu
+     5499977 auipc
+     5044191 sub
+     3479560 lui
+     3121265 bgeu
+     2647913 xor
+     2148754 jal
+     1381619 mul
+     1029118 sltu
+      345484 sw
+      289878 srlw
+      282698 mulhu
+      250389 sh
+      249900 addw
+      220823 ecall
+       98455 lw
+       56939 blt
+       48094 lb
+       46154 bge
+       37844 lwu
+       27482 sra
+       15101 lh
+       13128 divu
+        7047 slt
+        3918 lhu
+          58 sllw
+           1 remu
+syscall counts (219212 total syscall instructions):
+    95744 secp256k1_double
+    75645 keccak_permute
+    47795 secp256k1_add
+       14 sha_compress
+       14 sha_extend
+

@@ -82,7 +82,7 @@
       "manifest": "evaluation/fixtures/development-corpus.json",
       "manifestSha256": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
       "clientInputs": "evaluation/fixtures/blocks/1/<block>.bin, committed, sha256 per block in the manifest",
-      "offlineExecution": "apparatus-execute input_source=fixture (no RPC credential in the job)"
+      "offlineExecution": "apparatus-execute input_source=fixture (no RPC credential in the job); runs 35081865737 (23945771 standard: 388,436,425 cycles, PGU 480,495,751) and 35081874073 (20600066 cycle-tracking: 22,628,490 cycles, phase columns filled)"
     },
     "trieFixtures": {
       "file": "evaluation/fixtures/trie/fixtures.json",
@@ -245,7 +245,7 @@
       "untracked": 1852763,
       "nested precompile-ecrecover": 38126
     },
-    "cycleJitter": "same client input, four host runs: 22629796 / 22629474 / 22628475 / 22629229 cycles and 28810531 / 28810305 / 28809494 PGU (run 35078583453 added); cause is HashMap serialization order when the host writes the stdin, which also applies when the client input comes from the cache or the corpus, see INTERFACES.md section 7"
+    "cycleJitter": "same client input, four host runs: 22629796 / 22629474 / 22628475 / 22629229 cycles and 28810531 / 28810305 / 28809494 PGU (run 35078583453 added); cause is HashMap serialization order when the host writes the stdin, which also applies when the client input comes from the cache or the corpus, see INTERFACES.md section 7; in the cycle-tracking build only the `deserialize inputs` phase and the untracked remainder move between runs of the same client input (6876142 vs 6876414 cycles in runs 35060320613 and 35081874073), every other phase is identical"
   },
   "developmentProfiles": {
     "18884864": {

@@ -59,10 +59,13 @@ jobs:
         run: sudo apt-get install -y -qq protobuf-compiler libssl-dev pkg-config clang >/dev/null
 
       - name: Install SP1 toolchain
+        # sp1up and `cargo prove install-toolchain` read GitHub releases through
+        # the API; unauthenticated calls share the hosted-runner IP's quota and
+        # get 403 rate-limited. The job token lifts that.
         run: |
           curl -L https://sp1up.succinct.xyz | bash
           echo "$HOME/.sp1/bin" >> "$GITHUB_PATH"
-          "$HOME/.sp1/bin/sp1up" -v v${{ steps.pins.outputs.sp1_ver }}
+          "$HOME/.sp1/bin/sp1up" -v v${{ steps.pins.outputs.sp1_ver }} --token "${{ github.token }}"
           "$HOME/.sp1/bin/cargo-prove" prove --version
 
       - name: Inject lemma-prove into the workspace

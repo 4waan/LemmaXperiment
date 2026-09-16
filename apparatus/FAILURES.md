@@ -13,6 +13,7 @@ plan stays readable and the failures stay countable.
 | 5 | [34944035840](https://github.com/4waan/LemmaXperiment/actions/runs/34944035840) | prove | cancelled at 5 h 56 min by the 355 min job cap, still proving | working set ~27 GB (peak RSS 15.9 GB + 11.5 GB swap) against 16 GB RAM: the run swapped for six hours. Memory cannot go much lower through env vars; the rest is recursion proving keys. No shard progress visible because the pinned host pins `sp1_prover=warn` | `lemma-prove` honors `SP1_LOG` for shard progress; prove the smallest block (20600066, 0.96M gas) first to measure throughput before choosing between block size and host |
 
 | 6 | [35048872659](https://github.com/4waan/LemmaXperiment/actions/runs/35048872659) | build | `unresolved module or unlinked crate tracing` in `wrap.rs` | `lemma-wrap` used `tracing::info!` without listing `tracing` as a dependency; every SP1 import resolved | added `tracing = "0.1"`; next build green |
+| 7 | [35058394157](https://github.com/4waan/LemmaXperiment/actions/runs/35058394157) | build (standard) | `sp1up` step: `Fetching GitHub releases failed after 4 attempts: HTTP 403 ... API rate limit exceeded` | `cargo prove install-toolchain` queries the GitHub releases API unauthenticated; hosted runners share one IP quota, and the first job of the new two-variant matrix drew a runner whose quota was spent (the sibling job on another runner passed) | `sp1up --token "${{ github.token }}"`, which sp1up forwards to `install-toolchain` |
 
 ## Open
 
@@ -27,8 +28,10 @@ plan stays readable and the failures stay countable.
 
 ## Patterns
 
-- Two of six failures were runner-environment gaps (missing package, wrong
-  cache). Both are what RSP's own CI already handles; mirror it first.
+- Three of seven failures were runner-environment gaps (missing package,
+  wrong cache, unauthenticated GitHub API). The first two are what RSP's own
+  CI already handles; mirror it first. The third only shows on shared
+  hosted-runner IPs.
 - Two of six were memory, one was the time cap. GitHub's hosted runner kills the whole VM on
   memory exhaustion, which also loses `if: always()` artifacts. Anything
   diagnostic must stream to the job log.

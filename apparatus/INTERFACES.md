@@ -126,8 +126,9 @@ witnesses, not modules.
 The line in EXPERIMENT.md that the reference witness builder already
 deduplicates accessed nodes is visible in both builders: one node store keyed
 by `MptNodeReference` per trie (`mpt.rs:1170-1180`, `execution_witness.rs:21-30`).
-Duplicate authentication does not come from the host; whatever the guest
-re-hashes, it re-hashes because of how it decodes and uses the tries.
+Whether the guest still does redundant hashing over that deduplicated
+witness is a question for the creator's profiling; the host builder does not
+settle it either way.
 
 ## 4. The two trie implementations under the seam
 

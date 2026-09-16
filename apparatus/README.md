@@ -71,7 +71,11 @@ Gate to step 3 (development blocks and correctness fixtures):
 - `INTERFACES.md` names the seam, the frozen parts and proposed
   `allowedSourcePaths`, and `demand/spec.json` carries the proposal.
 - The cycle-tracking build reproduces the step 1 totals (cycles and prover
-  gas) for block 20600066 with the same vkey, and the phase columns sum to
-  the total within the untracked remainder.
+  gas) for block 20600066 within the run-to-run jitter documented in
+  `INTERFACES.md` section 7, with the same vkey and guest ELF hash, and the
+  phase columns plus the untracked remainder sum to the total.
 - The registry snapshot has the `arena` feature as its seeded
   existing-capability entry (filled at step 5 with the rest of the snapshot).
+
+Status: **closed 2026-09-16** except the registry entry, which belongs to
+step 5. Runs 35060320613, 35060327373 and 35060335177 under `runs/`.

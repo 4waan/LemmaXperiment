@@ -11,6 +11,7 @@ description = "Thin wrapper over the pinned rsp-host-executor that also saves st
 [dependencies]
 tokio.workspace = true
 url.workspace = true
+tracing = "0.1"
 tracing-subscriber = "0.3.18"
 dotenv = "0.15.0"
 clap = { version = "4.5.7", features = ["derive", "env"] }

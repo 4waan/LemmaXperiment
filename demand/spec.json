@@ -14,16 +14,32 @@
   "toolchainManifestHash": null,
   "integrationTarget": {
     "pipeline": "RSP/SP1",
-    "rspCommit": null,
-    "sp1Version": null,
-    "supportedFork": null,
-    "proofMode": null,
-    "hardware": null
+    "rspCommit": "2013b56184f9770bd12d1027495eebd1a0b81745",
+    "rspTag": "reth-2.2.0-sp1-6.8.0",
+    "sp1Version": "6.8.0",
+    "circuitVersion": "v6.1.0",
+    "supportedFork": "Cancun for the development blocks proven so far; Prague-era support is checked in step 3 before holdout selection",
+    "proofMode": "compressed (SP1 core proof); Groth16 wrap for on-chain verification",
+    "hardware": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, SP1 cpu prover; see apparatus/pins.json",
+    "stateBackend": "proofs (eth_getProof); execution-witness is unavailable on the pinned RPC provider"
   },
 
   "workloadRelation": null,
-  "allowedSourcePaths": [],
-  "integrationInterface": null,
+  "allowedSourcePaths": [
+    "crates/mpt/**",
+    "crates/<new-module-crate>/**",
+    "crates/executor/client/src/io.rs",
+    "crates/executor/client/src/executor.rs (cfg-gated backend blocks only, lines 50-75 and 130-142 at the pin)",
+    "crates/executor/client/Cargo.toml",
+    "bin/client/src/main.rs (stdin reading only, lines 20-33 at the pin)",
+    "bin/client/Cargo.toml",
+    "crates/executor/host/src/host_executor.rs (witness encoding only, lines 252-258 at the pin)",
+    "crates/executor/host/src/full_executor.rs (build_stdin only, lines 66-75 at the pin)",
+    "crates/executor/host/Cargo.toml",
+    "bin/host/Cargo.toml",
+    "bin/host/build.rs"
+  ],
+  "integrationInterface": "Implement rsp_mpt::StateTries (crates/mpt/src/lib.rs:442 at the pin) for the new representation and wire its construction exactly as the upstream `arena` feature is wired (guest: io.rs, executor.rs, bin/client; host: host_executor.rs encoding from EthereumState, full_executor.rs stdin), behind one cargo feature declared on bin/host and bin/client and forwarded to the guest by bin/host/build.rs. The unchanged lemma-prove wrapper built with that feature is the integration; the evaluator derives the guest key from its own build. See apparatus/INTERFACES.md sections 2, 5 and 6.",
 
   "publicDevelopmentCorpusHash": null,
   "publicDevelopmentBlocks": [],

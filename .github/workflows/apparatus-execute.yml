@@ -51,7 +51,11 @@ jobs:
           key: witness-${{ inputs.block }}-${{ inputs.state_backend }}
 
       - name: Execute
+        # pipefail: the binary's exit status must fail the step even though
+        # its output goes through tee; without it a crashed run still writes
+        # a run record.
         run: |
+          set -o pipefail
           mkdir -p run cache
           start=$(date +%s)
           dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \

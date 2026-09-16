@@ -59,11 +59,12 @@ jobs:
 
       - name: Wrap
         run: |
+          set -o pipefail
           mkdir -p run
           ( while true; do line="$(date -u +%T) $(free -m | awk '/Mem/{print "mem_used_mb="$3} /Swap/{print "swap_used_mb="$3}' | xargs)"; echo "MEMSAMPLE $line"; echo "$line" >> run/memory.log; sleep 30; done ) &
           start=$(date +%s)
           dist/lemma-wrap --compressed-proof in/prove/out/${{ inputs.block }}.proof.bin \
-            --stdin in/execute/stdin/${{ inputs.block }}.bin --out-dir run/out 2>&1 | grep -v MEMSAMPLE | tee run/stdout.log
+            --stdin in/execute/stdin/${{ inputs.block }}.bin --out-dir run/out 2>&1 | { grep -v MEMSAMPLE || true; } | tee run/stdout.log
           end=$(date +%s)
           {
             echo "block: ${{ inputs.block }}"

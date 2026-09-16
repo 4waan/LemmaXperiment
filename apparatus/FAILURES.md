@@ -14,6 +14,7 @@ plan stays readable and the failures stay countable.
 
 | 6 | [35048872659](https://github.com/4waan/LemmaXperiment/actions/runs/35048872659) | build | `unresolved module or unlinked crate tracing` in `wrap.rs` | `lemma-wrap` used `tracing::info!` without listing `tracing` as a dependency; every SP1 import resolved | added `tracing = "0.1"`; next build green |
 | 7 | [35058394157](https://github.com/4waan/LemmaXperiment/actions/runs/35058394157) | build (standard) | `sp1up` step: `Fetching GitHub releases failed after 4 attempts: HTTP 403 ... API rate limit exceeded` | `cargo prove install-toolchain` queries the GitHub releases API unauthenticated; hosted runners share one IP quota, and the first job of the new two-variant matrix drew a runner whose quota was spent (the sibling job on another runner passed) | `sp1up --token "${{ github.token }}"`, which sp1up forwards to `install-toolchain` |
+| 8 | [35060195042](https://github.com/4waan/LemmaXperiment/actions/runs/35060195042), [35060203750](https://github.com/4waan/LemmaXperiment/actions/runs/35060203750), [35060212541](https://github.com/4waan/LemmaXperiment/actions/runs/35060212541) | execute | `lemma-prove` printed its usage text and exited; the step then wrote `run.txt` with `wall_seconds: 0` and only failed at `cat run/report.csv` | operator dispatch error: the inputs were built in a zsh loop that does not word-split, so `block` arrived as `20600066 cycle-tracking` and `variant` as empty. The step masked the binary's exit status because its output goes through `tee` and the job shell has no `pipefail` | re-dispatched with quoted inputs; `set -o pipefail` at the top of the execute, prove and wrap steps so a binary failure fails the step before any record is written |
 
 ## Open
 
@@ -37,3 +38,5 @@ plan stays readable and the failures stay countable.
   diagnostic must stream to the job log.
 - A failing command inside `a && b && c` does not fail a `bash -e` step.
   One command per line in workflow `run:` blocks.
+- A failing command on the left of `| tee` does not fail the step either
+  unless `set -o pipefail` is on. Every run step now sets it.

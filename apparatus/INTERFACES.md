@@ -33,6 +33,26 @@ labels are the constants at `executor.rs:28-34`; the CSV columns of
 | `validate block post-execution` | `executor.rs:106` | receipts root, gas used, requests, bloom | none |
 | `compute state root` | `executor.rs:130` | `hash_state_slow` on the outcome, then `tries.update(&post_state)` and `tries.state_root()` | inserts and deletes into storage tries and the state trie, rehash along every modified path |
 
+`initialize witness db` in order (`build_trie_db`, `io.rs:235-278`), because
+it is the phase named after the witness and the one the CSV attributes least
+ambiguously:
+
+1. `io.rs:241`: `state_anchor != tries.state_root()` fails with
+   `MismatchedStateRoot`. The anchor is the parent header's `state_root`
+   (`io.rs:142`). On the default backend this call hashes the whole revealed
+   state trie, since nothing is cached after deserialization.
+2. `io.rs:245-251`: for every revealed storage trie, its root is recomputed
+   (`storage_roots()`, again a full hash of that trie) and compared with the
+   `storage_root` in the account leaf (`tries.account(...)`, a state-trie
+   walk); `MismatchedStorageRoot` otherwise.
+3. `io.rs:253`: every bytecode is keccak-hashed (`hash_slow`) into a
+   `HashMap<B256, &Bytecode>`.
+4. `io.rs:258-274`: the current header and the ancestor headers are sealed
+   (`seal_slow`, `io.rs:151-154`, one keccak per header, done before the
+   phase starts) and checked as a chain by number and parent hash; the map
+   feeds `BLOCKHASH`.
+5. `io.rs:277`: `TrieDB::new`. No copy of the tries: `TrieDB` borrows them.
+
 After the last phase, `executor.rs:144` compares the computed root with the
 block header's `state_root` and fails with `MismatchedStateRoot` otherwise.
 That comparison, together with the committed header, is what makes every

@@ -79,6 +79,7 @@ jobs:
 
       - name: Prove
         run: |
+          set -o pipefail
           mkdir -p run cache
           # Sampler writes to the job log (streams live, survives a VM kill)
           # and to a file for the run record.

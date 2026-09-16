@@ -5,7 +5,7 @@
 
   "buyer": null,
   "assignedCreatorPayee": null,
-  "evaluatorSigner": null,
+  "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
 
   "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen end-to-end latency target.",
 
@@ -43,7 +43,7 @@
 
   "publicDevelopmentCorpusHash": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
   "publicDevelopmentBlocks": [20600066, 18884864, 23945771],
-  "sealedHoldoutCommitment": null,
+  "sealedHoldoutCommitment": "e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
   "evaluationPolicyHash": null,
   "correctnessPolicyHash": null,
   "formalScopePolicyHash": null,

@@ -12,10 +12,15 @@ Owner: evaluator. Separate environment, separate signing identity.
 - `harness/`: `lemma-fixtures`, runs the trie fixtures against a
   `StateTries` backend inside the pinned RSP workspace
   (`.github/workflows/apparatus-fixtures.yml`).
+- `holdout/`: the frozen selection rule for the ten held-out blocks
+  (`RULE.md`), the script that implements it (`holdout.py`) and the public
+  commitment (`commitment.json`: preSalt hash, beacon block, sha256 of the
+  sealed manifest, evaluator signature). The blocks themselves are not
+  here: the sealed manifest and the preSalt live in the evaluator
+  environment, outside the repository, and are published under
+  `holdout/revealed/` only after the final evaluation is signed. Anyone can
+  then run `holdout.py verify`.
 - `reports/`: one signed report per evaluated candidate.
-
-Held-out fixtures are not stored here. Their commitment, selection rule and
-salt are revealed after the final evaluation.
 
 ## Procedure
 
@@ -28,9 +33,12 @@ salt are revealed after the final evaluation.
    with A and B and compare public values.
 3. Formal: run Lean with the frozen toolchain; check axioms against policy;
    a designated reviewer confirms the theorem addresses the optimization.
-4. Performance: 10 holdout blocks, 3 paired runs each, randomized order, fresh
-   caches, identical resources. Separate preparation, guest, proving, wrapping,
-   verification and peak-resource measurements.
+4. Performance: the 10 sealed holdout blocks (`holdout/RULE.md`), witnesses
+   produced at evaluation time with `apparatus-execute input_source=rpc`
+   after the candidate's final submission is immutable; paired executions
+   in randomized order, fresh caches, identical resources. Separate
+   preparation, guest, proving, wrapping, verification and peak-resource
+   measurements. Failures and timeouts are retained; no block is replaced.
 5. Verdict: Pass, Fail or Inconclusive. Signed. Never invented timings.
 
 ## Report fields

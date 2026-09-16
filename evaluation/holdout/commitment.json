@@ -1,7 +1,7 @@
 {
   "schema": "lemma-holdout-commitment/1",
   "setId": 1,
-  "phase": "precommit",
+  "phase": "sealed",
   "rule": {
     "file": "evaluation/holdout/RULE.md",
     "sha256": "7d8c630c392139af7c95df8d7558506094cec4d8a5757cc5d771319827eeea49"
@@ -22,7 +22,27 @@
     },
     "evidence": "the push of this file triggers .github/workflows/holdout-commitment.yml, whose log records the chain head at that time"
   },
-  "sealed": null,
+  "sealed": {
+    "at": "2026-09-16T14:34:42Z",
+    "commitment": "e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
+    "manifestSchema": "lemma-holdout-manifest/1",
+    "manifestBytes": 7550,
+    "beacon": {
+      "block": 25990577,
+      "hash": "0x5f09d550382a0f7ad6f5394acf3dfc3a3a6296d2824cf999d1bbc5c233063eab",
+      "timestamp": 1789568207,
+      "finalizedAtRead": 25990599,
+      "sources": [
+        "archive provider (RPC_1)",
+        "https://ethereum-rpc.publicnode.com"
+      ]
+    },
+    "precommitGitCommit": "2a537e4cd595852b7c2f4239a635335f6cda6967",
+    "precommitRun": "35106575645",
+    "signedMessage": "lemma-holdout/1 commitment e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
+    "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
+    "evaluatorSignature": "0x432308a3b24a74e183dda402d0f47a77f33aa4dcdc343053637136a909ca43d9077f5b8d2a9bfa08a7c5e67329fbdffe78515d0a395767760ba73c80fce47a5c1c"
+  },
   "storage": "preSalt and the sealed manifest stay in the evaluator environment (outside the repository and the creator workspace); not in any GitHub secret",
   "reveal": "after the final evaluation is signed: publish the manifest and preSalt under evaluation/holdout/revealed/ and run holdout.py verify"
 }

@@ -1,10 +1,11 @@
 # apparatus/
 
-Owner: operator. EXPERIMENT.md section 4, steps 1 to 3: reproduce a real
+Owner: operator. EXPERIMENT.md section 4, steps 1 to 4: reproduce a real
 baseline block proof and pin source, dependencies, toolchain, proof mode and
 hardware; identify the permitted witness-processing interfaces without
 implementing anything; prepare three public development blocks and
-independent correctness fixtures.
+independent correctness fixtures; freeze and commit the holdout selection
+(the sealed material itself belongs to the evaluator, `evaluation/holdout/`).
 
 Nothing downstream can start until this stage produces a verified proof of a
 real block with the pinned configuration. If it cannot, record the blocker in
@@ -47,8 +48,10 @@ real block with the pinned configuration. If it cannot, record the blocker in
 - It does not implement or prototype any optimization.
 - It does not choose between `proofs` and `execution-witness` for the agent;
   both backends are recorded as permitted insertion candidates for step 2.
-- It does not select holdout blocks. That is step 4 and needs a committed
-  salt stored away from the creator.
+- It does not touch the holdout blocks. Step 4 sealed them
+  (`evaluation/holdout/`); no apparatus run executes them before the final
+  evaluation, so nothing under `runs/` or in the public workflow logs can
+  reveal them.
 
 ## Gate to step 2 (interface survey)
 
@@ -123,3 +126,41 @@ Gate to step 4 (holdout selection rule, commitment, salt):
 
 Status: **closed 2026-09-16**; offline corpus executions in runs
 35081865737 and 35081874073.
+
+## Step 4: holdout selection rule, commitment and salt
+
+Deliverables live under `evaluation/holdout/`: `RULE.md` (frozen rule:
+ten consecutive Cancun-era blocks, exclusion margin around every executed
+block, salted start), `holdout.py` (precommit, seal, derive, verify) and
+`commitment.json`. Two phases, both pushed to the public repository:
+
+| phase | when | what became public |
+| --- | --- | --- |
+| precommit | commit 2a537e4, run 35106575645 at 14:09:17Z | sha256 of the preSalt, beacon block 25990577, rule and script hashes; the run logged chain head 25990539, 38 blocks before the beacon |
+| sealed | `commitment.json` phase `sealed`, 2026-09-16T14:34:42Z | sha256 of the sealed manifest (`e60d6ced…`), the beacon hash, the evaluator signature |
+
+The salt is `sha256(preSalt || hash of block 25990577)`, so it could not be
+chosen after the rule was public: the preSalt was fixed by its published
+hash before the beacon block existed, and the beacon hash was read only
+after finality. The sealed manifest (ten headers agreed by two providers,
+preSalt, salt, derivation trace) and the preSalt live in the evaluator
+directory on the operator laptop, outside the repository and the future
+creator workspace, and in no GitHub secret.
+
+Not done in this step, by choice: no executability pre-check of the sealed
+blocks. Running them through `apparatus-execute` would print them in public
+logs, and the laptop cannot build the host. The rule's era is the one the
+pinned host reproduces in full (step 3), witness generation happens at
+evaluation time, and any failure is retained rather than replaced.
+
+Gate to step 5 (evaluator image, metrics, formal scope, limits):
+
+- `demand/spec.json` `sealedHoldoutCommitment` equals
+  `evaluation/holdout/commitment.json` `sealed.commitment`, and the
+  precommit run logged a chain head below the beacon block.
+- The sealed manifest's sha256 equals the commitment (checked at seal time;
+  re-checkable by the evaluator with `sha256sum`).
+- The exclusion set in `RULE.md` covers every block listed in
+  `pins.json` `fixtures.blockGasUsed` and the development corpus.
+
+Status: **closed 2026-09-16**.

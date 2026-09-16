@@ -82,6 +82,24 @@ every address as existing, revm refunds 12,500 gas the chain does not;
 `apparatus/FAILURES.md` #10, upstream succinctlabs/rsp#181). Holdout
 blocks are drawn from the Cancun era, 19426587 to 22431083.
 
+## Apparatus step 4: holdout commitment
+
+Set 1 sealed 2026-09-16 (`evaluation/holdout/`). Rule frozen first
+(`RULE.md`, sha256 `7d8c630c…`): ten consecutive Cancun-era blocks
+(19426587 to 22431083), window rejected within 1000 blocks of any executed
+block, start = 19426587 + sha256(domain || salt || k) mod 3004488.
+Precommit (commit 2a537e4, run 35106575645): preSalt hash and beacon block
+25990577 published while the chain head was 25990539. Salt =
+sha256(preSalt || hash of the finalized beacon block). Commitment = sha256
+of the sealed manifest: `e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362`, signed by the evaluator key
+(EIP-191). Manifest and preSalt stay in the evaluator directory on the
+laptop, outside the repository; reveal after the final evaluation is
+signed, verifiable with `holdout.py verify`.
+
+No executability pre-check of the sealed blocks (it would print them in
+public logs); witnesses are produced at evaluation time and any failure is
+retained.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)

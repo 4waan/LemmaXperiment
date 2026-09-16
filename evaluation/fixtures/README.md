@@ -2,8 +2,8 @@
 
 Owner: operator, prepared in apparatus step 3 (EXPERIMENT.md section 4).
 Public: the creator sees all of this. The held-out blocks are not here; their
-selection rule, manifest and salt are committed in step 4 and stored away
-from the creator.
+selection rule and commitment are in `evaluation/holdout/` (step 4) and the
+sealed manifest and salt are stored away from the creator.
 
 Two fixture sets, one manifest each. The sha256 of a manifest is what the
 demand and the evaluation policy pin.

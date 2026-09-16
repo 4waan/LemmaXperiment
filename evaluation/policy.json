@@ -57,6 +57,16 @@
     "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode",
     "metricIsDeterministic": "given the stdin bytes; across host runs the stdin differs in HashMap order and PGU moved by 0.004% over three runs of the same client input (apparatus/INTERFACES.md section 7), so the client input is fixed by hash and the per-block value is the median of the executions",
     "holdoutBlocks": 10,
+    "holdout": {
+      "rule": "evaluation/holdout/RULE.md",
+      "setId": 1,
+      "commitmentFile": "evaluation/holdout/commitment.json",
+      "commitment": "e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
+      "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
+      "storage": "sealed manifest and preSalt in the evaluator environment, outside the repository; revealed under evaluation/holdout/revealed/ after the final evaluation is signed",
+      "witnesses": "produced at evaluation time with apparatus-execute input_source=rpc, once per block, after the candidate's final submission is immutable; every failure or timeout is retained and reported, no block is replaced",
+      "oneEvaluationPerSet": true
+    },
     "executionsPerVariantPerBlock": 2,
     "plannedExecutions": 40,
     "plannedRealProofs": 3,

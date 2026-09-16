@@ -1,6 +1,6 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era)",
+  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era); step 4 closed 2026-09-16: holdout set 1 sealed (evaluation/holdout/commitment.json), precommit run 35106575645 before beacon block 25990577",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -64,7 +64,28 @@
       18884864,
       23945771
     ],
-    "holdoutSelectionRule": "ten consecutive Cancun-era mainnet blocks (19426587 to 22431083, the last era the pinned host reproduces in full), start chosen by committed salt, disjoint from development blocks; requires archive RPC; committed in step 4",
+    "holdoutSelectionRule": "evaluation/holdout/RULE.md (set 1): ten consecutive Cancun-era mainnet blocks (19426587 to 22431083), start derived from a salt = sha256(preSalt || hash of beacon block 25990577), window rejected within 1000 blocks of any executed block; sealed 2026-09-16",
+    "holdout": {
+      "setId": 1,
+      "rule": "evaluation/holdout/RULE.md",
+      "ruleSha256": "7d8c630c392139af7c95df8d7558506094cec4d8a5757cc5d771319827eeea49",
+      "selectorSha256": "a0eb09b49204e0655162c89110e2cff9436d08c8fe4967bc4e3597ea527e290d",
+      "commitmentFile": "evaluation/holdout/commitment.json",
+      "commitment": "e60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
+      "precommit": {
+        "commit": "2a537e4cd595852b7c2f4239a635335f6cda6967",
+        "run": 35106575645,
+        "preSaltSha256": "a41d33592debd71c9e5f9b6c8730968483dd8ebe88dbdd299f9e020333da4da5",
+        "beaconBlock": 25990577,
+        "chainHeadLoggedByRun": 25990539
+      },
+      "beaconHash": "0x5f09d550382a0f7ad6f5394acf3dfc3a3a6296d2824cf999d1bbc5c233063eab",
+      "sealedAt": "2026-09-16T14:34:42Z",
+      "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
+      "storage": "evaluator directory on the operator laptop (outside the repository and the creator workspace); no GitHub secret",
+      "witnesses": "produced at evaluation time (apparatus-execute input_source=rpc), after the candidate's final submission; no executability pre-check, failures retained",
+      "reveal": "after the final evaluation is signed, under evaluation/holdout/revealed/"
+    },
     "archiveRpcProvider": "Alchemy (verified eth_getProof on Cancun-era blocks)",
     "blockGasUsed": {
       "18884864": 4266500,

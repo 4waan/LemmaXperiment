@@ -20,7 +20,28 @@
       "capacity boundaries",
       "trie updates"
     ],
-    "anyUnexplainedMismatchBlocks": true
+    "anyUnexplainedMismatchBlocks": true,
+    "trieFixtures": {
+      "file": "evaluation/fixtures/trie/fixtures.json",
+      "sha256": "24e32dda5badbc14fbf066437bff91db768636d7f6cb8a94dd4af05d084c53e6",
+      "oracle": "py-trie 4.0.0 (independent of the Rust code under test); regenerated and diffed in apparatus-fixtures.yml",
+      "cases": 31,
+      "harness": "evaluation/harness (lemma-fixtures)",
+      "harnessSha256": "7e0a2b230289965281e50c6081bd3b7a6c1dfce8e4330c2cc2d53270dbd2b2d6",
+      "upstreamBaseline": "run 35081286192: 31/31 on the pointer backend and 31/31 on the arena backend",
+      "candidateSpecificFamilies": "forged handles and capacity boundaries are instantiated by the evaluator from the same cases against the candidate's own witness encoding and cap setting (evaluation/fixtures/README.md)"
+    },
+    "developmentCorpus": {
+      "manifest": "evaluation/fixtures/development-corpus.json",
+      "sha256": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
+      "blocks": [
+        20600066,
+        18884864,
+        23945771
+      ],
+      "blockIntegration": "A and B execute every corpus block offline (apparatus-execute input_source=fixture) and must reach the manifest's stateRoot; identical public values"
+    },
+    "supportedRange": "Cancun era (19426587 to 22431083); see demand/spec.json integrationTarget.supportedFork"
   },
   "formal": {
     "leanToolchain": null,

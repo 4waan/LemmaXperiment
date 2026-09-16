@@ -1,0 +1,104 @@
+{
+ "schema": "lemma-development-corpus/1",
+ "chainId": 1,
+ "pipeline": "2013b56184f9770bd12d1027495eebd1a0b81745",
+ "inputProvenance": "client inputs written by the pinned host (lemma-prove, standard build) from eth_getProof state on the pinned archive provider in the apparatus-execute runs named per block; headers cross-checked against an unrelated public endpoint; no light client proves canonicality (TRIE_MODULE_PROTOCOL.md section 8)",
+ "howToUse": "apparatus-execute with input_source=fixture executes a block offline from blocks/1/<number>.bin after checking its sha256 against this file; the guest recomputes the post-state root and must reach stateRoot",
+ "selection": {
+  "20600066": "step 1 baseline: a small Cancun-era block chosen so a compressed proof fits one GitHub runner job",
+  "18884864": "rsp-tests cached block (Shanghai era), used for the first offline execution in step 1",
+  "23945771": "Osaka-era fork-support check block chosen by apparatus/fork_windows.py (lower median gasUsed of the 120 blocks starting 10,000 blocks after Osaka activation). The current-era (BPO2) median block 25988980 chosen by the same rule is not reproducible by the pinned host (apparatus/FAILURES.md #10), so the latest era check that executed is the third development block"
+ },
+ "blocks": [
+  {
+   "number": 20600066,
+   "hash": "0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a",
+   "parentHash": "0xf4e899916ab8b84eec775d0a7ba4efffd06d0f0f302aae40d5575c1da7b821c2",
+   "parentStateRoot": "0x43e2de7b20abf2056a535a8b70d87cfbf2dd4c0dfa5eb76a39a3e5bef7a52c3f",
+   "stateRoot": "0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6",
+   "timestamp": 1724521907,
+   "fork": "cancun",
+   "gasUsed": 958960,
+   "txCount": 27,
+   "requestsHash": null,
+   "clientInput": "blocks/1/20600066.bin",
+   "clientInputSha256": "ea1f2b5b11638292c0d82d4f851aa6cf18bacdff4937e9f9a88dd49589aa1a0d",
+   "clientInputBytes": 437245,
+   "producedBy": {
+    "run": "execute-20600066-proofs-35078583453",
+    "variant": "standard",
+    "stateBackend": "proofs",
+    "lemmaProveSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
+    "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba"
+   },
+   "expected": {
+    "blockHash": "0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a",
+    "stateRoot": "0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6",
+    "totalCycles": 22629229,
+    "proverGas": 28810101,
+    "note": "cycles and prover gas from that run's standard build; repeat executions move by about 0.01% (stdin map order), see apparatus/INTERFACES.md section 7"
+   },
+   "headerCheckedAgainst": "ethereum-rpc.publicnode.com"
+  },
+  {
+   "number": 18884864,
+   "hash": "0x856a86b8144c68fe2888298ceec7c156a338aac13d92d5e3c2460ca49793ed69",
+   "parentHash": "0xbb9abb994e8c193b54fe9819e0ef532d9149e26e64335fa71b665410d98bcace",
+   "parentStateRoot": "0x9ee106c5eea70228710b418f54807624b5f1fe88469a5297db814398f289a71e",
+   "stateRoot": "0x1b38d53a1944484c8c7e30177fd4dbde3f622d66a558ffdc786b362eb632595d",
+   "timestamp": 1703775659,
+   "fork": "shanghai",
+   "gasUsed": 4266500,
+   "txCount": 30,
+   "requestsHash": null,
+   "clientInput": "blocks/1/18884864.bin",
+   "clientInputSha256": "e49a1e2bf1aaf92607d78d3d852ecc26d9d34f854ddf3384e1228688c797ab5c",
+   "clientInputBytes": 1706966,
+   "producedBy": {
+    "run": "execute-18884864-proofs-35078589781",
+    "variant": "standard",
+    "stateBackend": "proofs",
+    "lemmaProveSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
+    "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba"
+   },
+   "expected": {
+    "blockHash": "0x856a86b8144c68fe2888298ceec7c156a338aac13d92d5e3c2460ca49793ed69",
+    "stateRoot": "0x1b38d53a1944484c8c7e30177fd4dbde3f622d66a558ffdc786b362eb632595d",
+    "totalCycles": 89571800,
+    "proverGas": 108529342,
+    "note": "cycles and prover gas from that run's standard build; repeat executions move by about 0.01% (stdin map order), see apparatus/INTERFACES.md section 7"
+   },
+   "headerCheckedAgainst": "ethereum-rpc.publicnode.com"
+  },
+  {
+   "number": 23945771,
+   "hash": "0x5144e4f2f6d502f8bd656a1817db398ee5374a78c1993d1ac70817e3bdf6c81d",
+   "parentHash": "0x24ba61106b92d9db69b3dc2d9682f09d2ae40c98407e75676f3c9b26cfc54f5c",
+   "parentStateRoot": "0x812919c61ba15d86c5cd9bae95af7c5f950c2afbfc915c41488dfbb708bfed25",
+   "stateRoot": "0x07aad45d7be4413ec7f67400843770a0b223247bd37730b0126118f1170c6d15",
+   "timestamp": 1764925787,
+   "fork": "osaka",
+   "gasUsed": 28167520,
+   "txCount": 167,
+   "requestsHash": "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "clientInput": "blocks/1/23945771.bin",
+   "clientInputSha256": "690dbddc4d9a09e3bb88b96b71d55f079c75dbd7e244a8f438753e9e5da64b8f",
+   "clientInputBytes": 6785629,
+   "producedBy": {
+    "run": "execute-23945771-proofs-35078560969",
+    "variant": "standard",
+    "stateBackend": "proofs",
+    "lemmaProveSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
+    "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba"
+   },
+   "expected": {
+    "blockHash": "0x5144e4f2f6d502f8bd656a1817db398ee5374a78c1993d1ac70817e3bdf6c81d",
+    "stateRoot": "0x07aad45d7be4413ec7f67400843770a0b223247bd37730b0126118f1170c6d15",
+    "totalCycles": 388441163,
+    "proverGas": 480498762,
+    "note": "cycles and prover gas from that run's standard build; repeat executions move by about 0.01% (stdin map order), see apparatus/INTERFACES.md section 7"
+   },
+   "headerCheckedAgainst": "ethereum-rpc.publicnode.com"
+  }
+ ]
+}

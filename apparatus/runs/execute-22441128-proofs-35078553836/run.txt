@@ -1,0 +1,12 @@
+block: 22441128
+state_backend: proofs
+variant: standard
+input_source: rpc
+mode: execute
+vkey: 0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+wall_seconds: 549
+runner: 4 vcpu 15 GB
+lemma_prove_sha256: 155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7
+client_input_sha256: 9a7b75980bd2cdd9c8e91ff3b0db31b5b8ff906feb384816857cc06744bbb491
+client_input_bytes: 6773662
+witness: cache/input/1/22441128.bin sha256=9a7b75980bd2cdd9c8e91ff3b0db31b5b8ff906feb384816857cc06744bbb491

@@ -1,0 +1,1391 @@
+{
+  "backend": "pointer",
+  "fixtures_schema": "lemma-trie-fixtures/1",
+  "generator": {
+    "independence": "pure-Python trie; no Rust code from the pipeline under test is imported or executed",
+    "oracle": "py-trie 4.0.0 (HexaryTrie), rlp 5.0.0, eth-hash 0.8.0 with pycryptodome 3.23.0",
+    "python": "3.12.14",
+    "script": "evaluation/fixtures/trie/gen.py",
+    "seed": 20260916
+  },
+  "cases": 31,
+  "passed": 31,
+  "failed": 0,
+  "by_family": {
+    "forged": {
+      "cases": 3,
+      "passed": 3,
+      "queries": 0,
+      "updates": 0
+    },
+    "incorrect-root": {
+      "cases": 3,
+      "passed": 3,
+      "queries": 0,
+      "updates": 0
+    },
+    "lookups": {
+      "cases": 5,
+      "passed": 5,
+      "queries": 73,
+      "updates": 2
+    },
+    "malformed-rlp": {
+      "cases": 4,
+      "passed": 4,
+      "queries": 0,
+      "updates": 0
+    },
+    "missing-witness": {
+      "cases": 5,
+      "passed": 5,
+      "queries": 35,
+      "updates": 0
+    },
+    "update": {
+      "cases": 11,
+      "passed": 11,
+      "queries": 12,
+      "updates": 9
+    }
+  },
+  "seconds": 0.006454853,
+  "results": [
+    {
+      "id": "a01-full-present-absent",
+      "family": "lookups",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=1 balance=0xde0b701d78f6a3f storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=2 balance=0x1bc16da8b59401b2 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=3 balance=0x29a224b169b5c877 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=4 balance=0x3782db5f2b12e0fb storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=5 balance=0x456392541ca99714 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=6 balance=0x534448a23a715ccc storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=7 balance=0x6124ff5f5e8c6555 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xd0591206d9e81e07f4defc5327957173572bcd1bca7838caa7be39b0c12b1873",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=8 balance=0x6f05b5d8f8fb481e storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=9 balance=0x7ce66ccecdec1b2b storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x8ac72347830e5ddc storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xb2e7b7a21d986ae84d62a7de4a916f006c4e42a596358b93bad65492d174c4ff",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x98a7d9dde857bff2 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0xa688907d9de44419 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "empty slot in the root branch"
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "path mismatch inside the one-nibble extension"
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "empty slot in the branch under the extension"
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "path mismatch inside the three-nibble extension"
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "reaches a leaf whose path differs"
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a02-partial-witness",
+      "family": "missing-witness",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=1 balance=0xde0b701d78f6a3f storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=2 balance=0x1bc16da8b59401b2 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=3 balance=0x29a224b169b5c877 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=4 balance=0x3782db5f2b12e0fb storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "exclusion path present"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8e26ce501e03de7861472d44131e3b098c796a94e9f5b19c505aa7d2966f4c38) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xd5974ae3261e2f6b46bb186de6602868ad639d26d2eb8c3243bd2fd39713bbf7) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xab9be637deab3c506eb6ba0d69d660c855e455487a02224e457ecaeee05ac7d7) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xa98de03d4876c556309d5f50cacea89c8e03d5eb6483290a58e461d6828e7ce0) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x19e07dabf1c9bdff20be5af456da69d48962a51cab9e87c74c199dc4513b3908) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x6ba156f72354ba1f04b395d19c33b2dd5b59c115ed3cbf2796dad7ea11034826) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x930a360231052f723b93ebd40b627a063223173478341ca300854a0539498e32) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x9be4fd5b2db224942666872b0f48022cd4dbe330cc9b3072d98de62b5a86fa17) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "path not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "absent key under the resolved extension: its branch is in the witness"
+        },
+        {
+          "kind": "account",
+          "expect": "reject",
+          "got": "panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xd5974ae3261e2f6b46bb186de6602868ad639d26d2eb8c3243bd2fd39713bbf7) at crates/mpt/src/lib.rs:468",
+          "pass": true,
+          "note": "absent key whose root slot is an unresolved digest"
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a03-wrong-root",
+      "family": "incorrect-root",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: MismatchedStateRoot(0xa8b00f00d62de1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7, 0xa8b00f00d62ce1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7)",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a04-dropped-inner-node",
+      "family": "missing-witness",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(0) at crates/mpt/src/mpt.rs:1096",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a05-truncated-path",
+      "family": "missing-witness",
+      "expected_build": "ok-or-reject",
+      "build": "reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8d1744550190cadc067dfa3e51aabd772fdf3791183f480ecf9daf347377af0b) at crates/mpt/src/lib.rs:468",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a06-forged-leaf-broken-chain",
+      "family": "forged",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(2) at crates/mpt/src/mpt.rs:1096",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a07-forged-leaf-rebuilt-chain",
+      "family": "forged",
+      "expected_build": "ok-or-reject",
+      "build": "reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8d1744550190cadc067dfa3e51aabd772fdf3791183f480ecf9daf347377af0b) at crates/mpt/src/lib.rs:468",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a08-modified-leaf-new-root",
+      "family": "lookups",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=7 balance=0x3039 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=2 balance=0x1bc16da8b59401b2 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=3 balance=0x29a224b169b5c877 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=4 balance=0x3782db5f2b12e0fb storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=5 balance=0x456392541ca99714 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=6 balance=0x534448a23a715ccc storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=7 balance=0x6124ff5f5e8c6555 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xd0591206d9e81e07f4defc5327957173572bcd1bca7838caa7be39b0c12b1873",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=8 balance=0x6f05b5d8f8fb481e storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=9 balance=0x7ce66ccecdec1b2b storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x8ac72347830e5ddc storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xb2e7b7a21d986ae84d62a7de4a916f006c4e42a596358b93bad65492d174c4ff",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x98a7d9dde857bff2 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0xa688907d9de44419 storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a09-truncated-rlp",
+      "family": "malformed-rlp",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(RlpIncorrectListLen) at crates/mpt/src/mpt.rs:1095",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a10-noncanonical-rlp",
+      "family": "malformed-rlp",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(RlpIncorrectListLen) at crates/mpt/src/mpt.rs:1095",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a11-branch-with-value",
+      "family": "malformed-rlp",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(Custom(\"branch node with value\")) at crates/mpt/src/mpt.rs:1095",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "a12-empty-path-item",
+      "family": "malformed-rlp",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: index out of bounds: the len is 0 but the index is 0 at crates/mpt/src/mpt.rs:333",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "e01-empty-trie",
+      "family": "lookups",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x04757d5213606cd4e8ae35c69009d2e72694ea33ae686651d49dfb215854a0fb",
+        "got": "0x04757d5213606cd4e8ae35c69009d2e72694ea33ae686651d49dfb215854a0fb",
+        "storage_roots": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "e02-single-leaf",
+      "family": "lookups",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=4 balance=0x3782db5f2b12e0fb storageRoot=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421 codeHash=0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "absent",
+          "got": "absent",
+          "pass": true,
+          "note": "root leaf path differs"
+        }
+      ],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "got": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "storage_roots": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "b01-storage-full",
+      "family": "lookups",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x16345785d8a0000 storageRoot=0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a codeHash=0x07ad118d6cc8642c86c03827f276d8b791a65e5c99a3845faf186be720a1455d",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x2c68af0bb140000 storageRoot=0xc169f9b2eb326734378eea77484e4715eb6e2b273328da31f30d9aef36e38441 codeHash=0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0x429d069189e0000 storageRoot=0x3cd57ee4ac83ddb56aae6456e8df3a6fb3456a84d183c168692db0d1a0ed9002 codeHash=0xcde7aac41575d8b30bd84f598371d46d266fadb09c9dcfcdd047fd087ef8763e",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=13 balance=0x58d15e176280000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x124787cd33af4a91148bc5521374b123cb0c5aaa5b0f02ff8d9bf1bb816791b8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=14 balance=0x6f05b59d3b20000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x48ff38a7839bff5a0a8ec3ebb1de0c376b5886f85817779bd4e7a0f82ed99b46",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=15 balance=0x853a0d2313c0000 storageRoot=0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59 codeHash=0x833657cddc570dd91a5715fcdb759e6dc72e3670b7506790c97b974b3276926d",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x1",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x2",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x83",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x84",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xa9c4e2308c4873507e2b4980a546537d30fca45a6a18a85aa394961cad94dd0f",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xdf0260e84f13a1cd329c25986473f56a85e25767d5a6ec15007185f65d245713",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xe654dc92c3d3655c2262a3180004d973f5b53aef792c03a879349ea9907a3112",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "random slot; diverges near the root"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x1",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x2",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "empty slot of the inline branch at depth 63"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "mismatch inside the inline extension"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "empty slot of the branch at depth 49"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "mismatch inside the root extension"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x7f",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x80",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x1234",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "empty slot of the branch under the nine-nibble extension"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "mismatch inside the inline leaf"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "mismatch inside the 32-byte hashed leaf"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e9",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3ea",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3eb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e9",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3ea",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3eb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3e9",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3ea",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3eb",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "b02-storage-not-in-witness",
+      "family": "missing-witness",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "storage",
+          "expect": "reject",
+          "got": "panic: Can get from MPT: NodeNotResolved(0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59) at crates/mpt/src/lib.rs:478",
+          "pass": true,
+          "note": "storage trie not in witness"
+        },
+        {
+          "kind": "storage",
+          "expect": "reject",
+          "got": "panic: Can get from MPT: NodeNotResolved(0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59) at crates/mpt/src/lib.rs:478",
+          "pass": true,
+          "note": "storage trie not in witness"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x0",
+          "pass": true,
+          "note": "empty storage root"
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x1",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x2",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x3",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x83",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0x84",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xa9c4e2308c4873507e2b4980a546537d30fca45a6a18a85aa394961cad94dd0f",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xdf0260e84f13a1cd329c25986473f56a85e25767d5a6ec15007185f65d245713",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "storage",
+          "expect": "value",
+          "got": "0xe654dc92c3d3655c2262a3180004d973f5b53aef792c03a879349ea9907a3112",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "b03-wrong-storage-hash",
+      "family": "incorrect-root",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: MismatchedStorageRoot(0x6ef348c2263df28652bdaae4654baf83a96f70a2, 0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a, 0x122df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a)",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "b04-account-storage-root-mismatch",
+      "family": "incorrect-root",
+      "expected_build": "reject",
+      "build": "reject: build_trie_db: MismatchedStorageRoot",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "b05-storage-missing-node",
+      "family": "missing-witness",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "storage",
+          "expect": "reject",
+          "got": "panic: Can get from MPT: NodeNotResolved(0x9762296a77efcfd8a3733af3f762521d85ec801de5088b2465703f460230cca2) at crates/mpt/src/lib.rs:478",
+          "pass": true,
+          "note": "branch not in witness"
+        },
+        {
+          "kind": "storage",
+          "expect": "reject",
+          "got": "panic: Can get from MPT: NodeNotResolved(0x9762296a77efcfd8a3733af3f762521d85ec801de5088b2465703f460230cca2) at crates/mpt/src/lib.rs:478",
+          "pass": true,
+          "note": "branch not in witness"
+        },
+        {
+          "kind": "storage",
+          "expect": "reject",
+          "got": "panic: Can get from MPT: NodeNotResolved(0x9762296a77efcfd8a3733af3f762521d85ec801de5088b2465703f460230cca2) at crates/mpt/src/lib.rs:478",
+          "pass": true,
+          "note": "branch not in witness"
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x16345785d8a0000 storageRoot=0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a codeHash=0x07ad118d6cc8642c86c03827f276d8b791a65e5c99a3845faf186be720a1455d",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x2c68af0bb140000 storageRoot=0xc169f9b2eb326734378eea77484e4715eb6e2b273328da31f30d9aef36e38441 codeHash=0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0x429d069189e0000 storageRoot=0x3cd57ee4ac83ddb56aae6456e8df3a6fb3456a84d183c168692db0d1a0ed9002 codeHash=0xcde7aac41575d8b30bd84f598371d46d266fadb09c9dcfcdd047fd087ef8763e",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=13 balance=0x58d15e176280000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x124787cd33af4a91148bc5521374b123cb0c5aaa5b0f02ff8d9bf1bb816791b8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=14 balance=0x6f05b59d3b20000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x48ff38a7839bff5a0a8ec3ebb1de0c376b5886f85817779bd4e7a0f82ed99b46",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=15 balance=0x853a0d2313c0000 storageRoot=0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59 codeHash=0x833657cddc570dd91a5715fcdb759e6dc72e3670b7506790c97b974b3276926d",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "b06-forged-inline-leaf",
+      "family": "forged",
+      "expected_build": "reject",
+      "build": "reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(1) at crates/mpt/src/mpt.rs:1119",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "u01-modify-accounts",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x16345785d8a0000 storageRoot=0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a codeHash=0x07ad118d6cc8642c86c03827f276d8b791a65e5c99a3845faf186be720a1455d",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x2c68af0bb140000 storageRoot=0xc169f9b2eb326734378eea77484e4715eb6e2b273328da31f30d9aef36e38441 codeHash=0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0x429d069189e0000 storageRoot=0x3cd57ee4ac83ddb56aae6456e8df3a6fb3456a84d183c168692db0d1a0ed9002 codeHash=0xcde7aac41575d8b30bd84f598371d46d266fadb09c9dcfcdd047fd087ef8763e",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=13 balance=0x58d15e176280000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x124787cd33af4a91148bc5521374b123cb0c5aaa5b0f02ff8d9bf1bb816791b8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=14 balance=0x6f05b59d3b20000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x48ff38a7839bff5a0a8ec3ebb1de0c376b5886f85817779bd4e7a0f82ed99b46",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=15 balance=0x853a0d2313c0000 storageRoot=0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59 codeHash=0x833657cddc570dd91a5715fcdb759e6dc72e3670b7506790c97b974b3276926d",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x9d3f063094b6ead8b22bd14e92b578b3e48131471aa8d9adb234bc5e437ce727",
+        "got": "0x9d3f063094b6ead8b22bd14e92b578b3e48131471aa8d9adb234bc5e437ce727",
+        "storage_roots": [
+          {
+            "hashed_address": "0x72ea3758224f863c3091eab77748f779d850cf098e269b0f0a5720ea90784e25",
+            "expected": "0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03",
+            "account_leaf": "0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03",
+            "pass": true
+          },
+          {
+            "hashed_address": "0xbc76aa117433e1dfe786dbe5500918693c86f33abbe941e25eecee61cc8c71ef",
+            "expected": "0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a",
+            "account_leaf": "0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u02-create-accounts",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=10 balance=0x16345785d8a0000 storageRoot=0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a codeHash=0x07ad118d6cc8642c86c03827f276d8b791a65e5c99a3845faf186be720a1455d",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=11 balance=0x2c68af0bb140000 storageRoot=0xc169f9b2eb326734378eea77484e4715eb6e2b273328da31f30d9aef36e38441 codeHash=0x309c67890bde4c575dc23d2cc3b5c3a3d599e312e980e9b61b5bc8f3cd87c8bb",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=12 balance=0x429d069189e0000 storageRoot=0x3cd57ee4ac83ddb56aae6456e8df3a6fb3456a84d183c168692db0d1a0ed9002 codeHash=0xcde7aac41575d8b30bd84f598371d46d266fadb09c9dcfcdd047fd087ef8763e",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=13 balance=0x58d15e176280000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x124787cd33af4a91148bc5521374b123cb0c5aaa5b0f02ff8d9bf1bb816791b8",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=14 balance=0x6f05b59d3b20000 storageRoot=0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03 codeHash=0x48ff38a7839bff5a0a8ec3ebb1de0c376b5886f85817779bd4e7a0f82ed99b46",
+          "pass": true,
+          "note": null
+        },
+        {
+          "kind": "account",
+          "expect": "present",
+          "got": "nonce=15 balance=0x853a0d2313c0000 storageRoot=0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59 codeHash=0x833657cddc570dd91a5715fcdb759e6dc72e3670b7506790c97b974b3276926d",
+          "pass": true,
+          "note": null
+        }
+      ],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x80f6e195c9f924c98c1a487be9eaed36104dcd94979924c01f6da11d5701f454",
+        "got": "0x80f6e195c9f924c98c1a487be9eaed36104dcd94979924c01f6da11d5701f454",
+        "storage_roots": [
+          {
+            "hashed_address": "0x4bb66f971d43bec1d665a9395275943c7826c85c8901e68e81f5e488cd79c3a1",
+            "expected": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "account_leaf": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "pass": true
+          },
+          {
+            "hashed_address": "0x8f3197a008e40f0b705f1d476da662b8467148cbe676a25bdc81438bfa2a9540",
+            "expected": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "account_leaf": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u03-delete-collapse-branch",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x4bc5fd9a926eb45f8c7c836ad92b88d4b0e3437364a1caa56624d19cda68d918",
+        "got": "0x4bc5fd9a926eb45f8c7c836ad92b88d4b0e3437364a1caa56624d19cda68d918",
+        "storage_roots": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u03b-delete-collapse-unresolved-sibling",
+      "family": "update",
+      "expected_build": "ok-or-reject",
+      "build": "reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8d1744550190cadc067dfa3e51aabd772fdf3791183f480ecf9daf347377af0b) at crates/mpt/src/lib.rs:468",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "u04-storage-writes",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x169385d9e3354e7b043dae83a2b6ac9b6c2341f9d834c8462c79bd4c0c7825c2",
+        "got": "0x169385d9e3354e7b043dae83a2b6ac9b6c2341f9d834c8462c79bd4c0c7825c2",
+        "storage_roots": [
+          {
+            "hashed_address": "0x613599c6c883576de8836943768e50fefe91e1d8011eb87ebafcff1abc22df93",
+            "expected": "0x72bd78023827344035c98328b15c79ea67969c341c5023557c74a929c5e1d25a",
+            "account_leaf": "0x72bd78023827344035c98328b15c79ea67969c341c5023557c74a929c5e1d25a",
+            "pass": true
+          },
+          {
+            "hashed_address": "0x8f3037295c75befd2402b2b818cc42c999fff334b4eef36b487fd407ec10cf0b",
+            "expected": "0x45fb2c147e04ffe3a6928902f4150ed9ccda01ac4a7cf6d0664086a597cbb0b4",
+            "account_leaf": "0x45fb2c147e04ffe3a6928902f4150ed9ccda01ac4a7cf6d0664086a597cbb0b4",
+            "pass": true
+          },
+          {
+            "hashed_address": "0xbc76aa117433e1dfe786dbe5500918693c86f33abbe941e25eecee61cc8c71ef",
+            "expected": "0x1f369791601f4ae522c69957e04dfbe0686f6a9747f0115531e93d67c1166a79",
+            "account_leaf": "0x1f369791601f4ae522c69957e04dfbe0686f6a9747f0115531e93d67c1166a79",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u05-wipe-storage",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x4f924632c6539b8b62b400c629c34ac88b12080133aabfd758150ab6f51e6896",
+        "got": "0x4f924632c6539b8b62b400c629c34ac88b12080133aabfd758150ab6f51e6896",
+        "storage_roots": [
+          {
+            "hashed_address": "0xbc76aa117433e1dfe786dbe5500918693c86f33abbe941e25eecee61cc8c71ef",
+            "expected": "0x30f78ef413c441b9bca80cc2fccf83cdbe1d6a5293fba9eabe601c9d981d8d95",
+            "account_leaf": "0x30f78ef413c441b9bca80cc2fccf83cdbe1d6a5293fba9eabe601c9d981d8d95",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u06-delete-account-with-storage",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x2350e9946cf683c1b9550b26ab60240230d383339939c02dbbcba9c43b954386",
+        "got": "0x2350e9946cf683c1b9550b26ab60240230d383339939c02dbbcba9c43b954386",
+        "storage_roots": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u07-create-account-with-storage",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0xf155e649fcb64fdb5594964729256aefd2caf2a93f18fb058cf39b4e6d438896",
+        "got": "0xf155e649fcb64fdb5594964729256aefd2caf2a93f18fb058cf39b4e6d438896",
+        "storage_roots": [
+          {
+            "hashed_address": "0x4bb66f971d43bec1d665a9395275943c7826c85c8901e68e81f5e488cd79c3a1",
+            "expected": "0x9a2f1dcc1f2a94a09d5dd51e24b00840b23198bd727a1b65335235fb36c5fa97",
+            "account_leaf": "0x9a2f1dcc1f2a94a09d5dd51e24b00840b23198bd727a1b65335235fb36c5fa97",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u08-update-unresolved-path",
+      "family": "update",
+      "expected_build": "ok-or-reject",
+      "build": "reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xf2365c4be6a9afa306ba8ca110ecdb4e729377d35a80f185936eabb7cc28abff) at crates/mpt/src/lib.rs:468",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": null,
+      "pass": true
+    },
+    {
+      "id": "u09-shared-storage-immutability",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0x2d84570ac1c68db5f371d3b2d478f840a2ead4a8faddd9f8d8a41377933e96ad",
+        "got": "0x2d84570ac1c68db5f371d3b2d478f840a2ead4a8faddd9f8d8a41377933e96ad",
+        "storage_roots": [
+          {
+            "hashed_address": "0x0d930d3f72c5e079ba8050de4ed44e4426ad0f8737d23d7e25c652b7cf4a22d1",
+            "expected": "0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03",
+            "account_leaf": "0x6fa39d2abcf35dbf070baedef5ef95fe0ebdabedadfe98e2c7f1267f4a633f03",
+            "pass": true
+          },
+          {
+            "hashed_address": "0x72ea3758224f863c3091eab77748f779d850cf098e269b0f0a5720ea90784e25",
+            "expected": "0x7d7c68f35f287c127d7e7d581080f767786cc8e3129b5bad6a4398d11c12f135",
+            "account_leaf": "0x7d7c68f35f287c127d7e7d581080f767786cc8e3129b5bad6a4398d11c12f135",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "id": "u10-codehash-none",
+      "family": "update",
+      "expected_build": "ok",
+      "build": "ok",
+      "build_pass": true,
+      "queries": [],
+      "repeat_consistent": true,
+      "update": {
+        "expect": "ok",
+        "expected_state_root": "0xd27143907c71912a7294ec1d7cc8cb1162867400cd4392f7d7ab4be9d963e5d9",
+        "got": "0xd27143907c71912a7294ec1d7cc8cb1162867400cd4392f7d7ab4be9d963e5d9",
+        "storage_roots": [
+          {
+            "hashed_address": "0x98e6904a72846e6cc0bce590f6bd4908cf691fc31d4f8f91f10a1205da908a2b",
+            "expected": "0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59",
+            "account_leaf": "0x1510b27c9f1fe091ca4f45d2b12198b3739572953496747de4e6aa309e087e59",
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      "pass": true
+    }
+  ]
+}

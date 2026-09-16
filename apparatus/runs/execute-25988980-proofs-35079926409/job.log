@@ -1,0 +1,53 @@
+2026-09-16T09:32:02.2272176Z ##[group]Run set -o pipefail
+2026-09-16T09:32:02.2272621Z ^[[36;1mset -o pipefail^[[0m
+2026-09-16T09:32:02.2272928Z ^[[36;1mmkdir -p run cache^[[0m
+2026-09-16T09:32:02.2273236Z ^[[36;1mif [ "rpc" = rpc ]; then^[[0m
+2026-09-16T09:32:02.2273559Z ^[[36;1m  rpc_args="--rpc-url $RPC_1"^[[0m
+2026-09-16T09:32:02.2274107Z ^[[36;1melse^[[0m
+2026-09-16T09:32:02.2274365Z ^[[36;1m  unset RPC_1^[[0m
+2026-09-16T09:32:02.2274641Z ^[[36;1m  rpc_args=""^[[0m
+2026-09-16T09:32:02.2274907Z ^[[36;1mfi^[[0m
+2026-09-16T09:32:02.2275154Z ^[[36;1mstart=$(date +%s)^[[0m
+2026-09-16T09:32:02.2275567Z ^[[36;1mdist/lemma-prove --block-number 25988980 --chain-id 1 $rpc_args \^[[0m
+2026-09-16T09:32:02.2276080Z ^[[36;1m  --cache-dir cache --state-backend proofs \^[[0m
+2026-09-16T09:32:02.2276670Z ^[[36;1m  --stdin-dir run/stdin --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log^[[0m
+2026-09-16T09:32:02.2277215Z ^[[36;1mend=$(date +%s)^[[0m
+2026-09-16T09:32:02.2278242Z ^[[36;1mmkdir -p run/input^[[0m
+2026-09-16T09:32:02.2278620Z ^[[36;1mcp -r cache/input/. run/input/^[[0m
+2026-09-16T09:32:02.2278987Z ^[[36;1m{^[[0m
+2026-09-16T09:32:02.2279234Z ^[[36;1m  echo "block: 25988980"^[[0m
+2026-09-16T09:32:02.2279554Z ^[[36;1m  echo "state_backend: proofs"^[[0m
+2026-09-16T09:32:02.2279883Z ^[[36;1m  echo "variant: standard"^[[0m
+2026-09-16T09:32:02.2280220Z ^[[36;1m  echo "input_source: rpc"^[[0m
+2026-09-16T09:32:02.2280533Z ^[[36;1m  echo "mode: execute"^[[0m
+2026-09-16T09:32:02.2280861Z ^[[36;1m  echo "vkey: $(cat run/out/vkey.txt)"^[[0m
+2026-09-16T09:32:02.2281233Z ^[[36;1m  echo "wall_seconds: $((end - start))"^[[0m
+2026-09-16T09:32:02.2281688Z ^[[36;1m  echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"^[[0m
+2026-09-16T09:32:02.2282257Z ^[[36;1m  echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"^[[0m
+2026-09-16T09:32:02.2282875Z ^[[36;1m  echo "client_input_sha256: $(sha256sum cache/input/1/25988980.bin | cut -d' ' -f1)"^[[0m
+2026-09-16T09:32:02.2283484Z ^[[36;1m  echo "client_input_bytes: $(stat -c %s cache/input/1/25988980.bin)"^[[0m
+2026-09-16T09:32:02.2284158Z ^[[36;1m  find cache -type f -exec sh -c 'for f; do echo "witness: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +^[[0m
+2026-09-16T09:32:02.2284720Z ^[[36;1m} | tee run/run.txt^[[0m
+2026-09-16T09:32:02.2285039Z ^[[36;1mecho "== report.csv"; cat run/report.csv^[[0m
+2026-09-16T09:32:02.2285463Z ^[[36;1mecho "== execution.json"; cat run/out/*.execution.json^[[0m
+2026-09-16T09:32:02.2325030Z shell: /usr/bin/bash -e {0}
+2026-09-16T09:32:02.2325349Z env:
+2026-09-16T09:32:02.2325589Z   SP1_PROVER: cpu
+2026-09-16T09:32:02.2325850Z   ARTIFACT_SUFFIX: 
+2026-09-16T09:32:02.2326109Z   FIXTURE_SUFFIX: 
+2026-09-16T09:32:02.2326778Z   RPC_1: ***
+2026-09-16T09:32:02.2327044Z ##[endgroup]
+2026-09-16T09:32:02.6542067Z ^[[2m2026-09-16T09:32:02.653400Z^[[0m ^[[32m INFO^[[0m ^[[2msp1_sdk::cpu^[[0m^[[2m:^[[0m initializing cpu prover
+2026-09-16T09:33:36.1988221Z ^[[2m2026-09-16T09:33:36.198161Z^[[0m ^[[32m INFO^[[0m ^[[2mlemma_prove^[[0m^[[2m:^[[0m lemma-prove ^[[3mvariant^[[0m^[[2m=^[[0m"standard" ^[[3mexecutor^[[0m^[[2m=^[[0m"sp1 default (native on x86_64 linux)" ^[[3mvkey^[[0m^[[2m=^[[0m0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+2026-09-16T09:33:36.1991669Z ^[[2m2026-09-16T09:33:36.198204Z^[[0m ^[[32m INFO^[[0m ^[[2mrsp_host_executor::host_executor^[[0m^[[2m:^[[0m fetching the current block and the previous block
+2026-09-16T09:33:36.5087386Z ^[[2m2026-09-16T09:33:36.508330Z^[[0m ^[[32m INFO^[[0m ^[[2mrsp_host_executor::host_executor^[[0m^[[2m:^[[0m setting up the database for the block executor
+2026-09-16T09:33:36.5090588Z ^[[2m2026-09-16T09:33:36.508356Z^[[0m ^[[32m INFO^[[0m ^[[2mrsp_host_executor::host_executor^[[0m^[[2m:^[[0m executing the block with rpc db: block_number=25988980, transaction_count=253
+2026-09-16T09:35:43.8068360Z ^[[2m2026-09-16T09:35:43.806456Z^[[0m ^[[32m INFO^[[0m ^[[2mrsp_host_executor::host_executor^[[0m^[[2m:^[[0m validating the block post execution
+2026-09-16T09:35:43.9834415Z Error: Failed to validate post execution state
+2026-09-16T09:35:43.9834941Z 
+2026-09-16T09:35:43.9835104Z Caused by:
+2026-09-16T09:35:43.9861959Z     block gas used mismatch: got 27639202, expected 27674793; gas spent by each transaction: [(0, 136131), (1, 302516), (2, 455342), (3, 630528), (4, 767389), (5, 926855), (6, 1158433), (7, 1339378), (8, 1520607), (9, 1659480), (10, 1849650), (11, 2015879), (12, 2137785), (13, 2324648), (14, 2441504), (15, 2607749), (16,
+2026-09-16T09:35:43.9873327Z 
+2026-09-16T09:35:43.9873460Z Location:
+2026-09-16T09:35:43.9873745Z     crates/executor/host/src/full_executor.rs:444:36
+2026-09-16T09:35:44.0413388Z ##[error]Process completed with exit code 1.

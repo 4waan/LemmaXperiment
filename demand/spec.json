@@ -18,7 +18,7 @@
     "rspTag": "reth-2.2.0-sp1-6.8.0",
     "sp1Version": "6.8.0",
     "circuitVersion": "v6.1.0",
-    "supportedFork": "Cancun for the development blocks proven so far; Prague-era support is checked in step 3 before holdout selection",
+    "supportedFork": "Cancun era in full (blocks 19426587 to 22431083). Prague and Osaka rules execute (blocks 22441128, 23945771 and 25988970 pass), but the pinned host rejects any block carrying an EIP-7702 authorization of a nonexistent authority (apparatus/FAILURES.md #10), so holdout blocks are drawn from the Cancun era",
     "proofMode": "compressed (SP1 core proof); Groth16 wrap for on-chain verification",
     "hardware": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, SP1 cpu prover; see apparatus/pins.json",
     "stateBackend": "proofs (eth_getProof); execution-witness is unavailable on the pinned RPC provider"
@@ -41,8 +41,8 @@
   ],
   "integrationInterface": "Implement rsp_mpt::StateTries (crates/mpt/src/lib.rs:442 at the pin) for the new representation and wire its construction exactly as the upstream `arena` feature is wired (guest: io.rs, executor.rs, bin/client; host: host_executor.rs encoding from EthereumState, full_executor.rs stdin), behind one cargo feature declared on bin/host and bin/client and forwarded to the guest by bin/host/build.rs. The unchanged lemma-prove wrapper built with that feature is the integration; the evaluator derives the guest key from its own build. See apparatus/INTERFACES.md sections 2, 5 and 6.",
 
-  "publicDevelopmentCorpusHash": null,
-  "publicDevelopmentBlocks": [],
+  "publicDevelopmentCorpusHash": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
+  "publicDevelopmentBlocks": [20600066, 18884864, 23945771],
   "sealedHoldoutCommitment": null,
   "evaluationPolicyHash": null,
   "correctnessPolicyHash": null,

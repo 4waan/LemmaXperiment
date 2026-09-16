@@ -116,7 +116,7 @@ out = {
     "selection": {
         "20600066": "step 1 baseline: a small Cancun-era block chosen so a compressed proof fits one GitHub runner job",
         "18884864": "rsp-tests cached block (Shanghai era), used for the first offline execution in step 1",
-        "third": "current-era block chosen by apparatus/fork_windows.py: lower median gasUsed of the 120 blocks ending at the block finalized at selection time (see apparatus/pins.json forkSupport)",
+        "23945771": "Osaka-era fork-support check block chosen by apparatus/fork_windows.py (lower median gasUsed of the 120 blocks starting 10,000 blocks after Osaka activation). The current-era (BPO2) median block 25988980 chosen by the same rule is not reproducible by the pinned host (apparatus/FAILURES.md #10), so the latest era check that executed is the third development block",
     },
     "blocks": blocks,
 }

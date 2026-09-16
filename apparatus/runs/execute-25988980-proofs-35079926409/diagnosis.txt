@@ -1,0 +1,36 @@
+block: 25988980 (BPO2 era, 2026-09-16 12:16:23 UTC), hash 0xcafc7fd37ecc931f..., 253 txs, gasUsed 27674793
+run: 35079926409, standard build (lemma-prove sha256 155ca79e...), state backend proofs, input_source rpc
+result: host post-execution validation failed before any client input was written
+  "block gas used mismatch: got 27639202, expected 27674793" (35,591 gas)
+
+per-transaction comparison of the host's cumulative gas (from the error message) against eth_getBlockReceipts:
+  tx 105  type 4  1 authorization  chain 72156  host 61565  diff 10591  (12,500 less refund on the host, minus the EIP-3529 refund cap)
+  tx 119  type 4  1 authorization  chain 122298 host 109798 diff 12500
+  tx 126  type 4  1 authorization  chain 105745 host 93245  diff 12500
+  every other transaction, including the other two type 4 transactions, matches
+
+authorities of the three diverging authorizations, recovered from (chainId, address, nonce, yParity, r, s):
+  tx 105  0xaAc49Ad556Ec49708A369F3e941282e90F40d496  auth.nonce 0  parent state: nonce 0 balance 0 codeHash 0x0 (not in trie)
+  tx 119  0xdAEc63d30901655a1b548A5028891d3063292bCD  auth.nonce 0  parent state: nonce 0 balance 0 codeHash 0x0 (not in trie)
+  tx 126  0x4bC0f24220B81C93a3242db5f4bdfa312D29C623  auth.nonce 0  parent state: nonce 0 balance 0 codeHash 0x0 (not in trie)
+  the two matching type 4 transactions have authorities with nonce 2 and 11, and 4 (existing accounts)
+
+cause:
+  EIP-7702 step 7 refunds PER_EMPTY_ACCOUNT_COST - PER_AUTH_BASE_COST = 12,500 gas only if the authority exists in the trie.
+  revm-handler 18.1.0 (revm 38.0.0, locked by the pin) apply_eip7702_auth_list:
+      if !(authority_acc_info.is_empty() && authority_acc.account().is_loaded_as_not_existing_not_touched()) { refunded_accounts += 1; }
+  The LoadedAsNotExisting status is set only when Database::basic returns None.
+  The pinned host's proofs backend, crates/storage/rpc-db/src/basic.rs:171-180 (BasicRpcDb::basic_ref), returns Ok(Some(account_info))
+  for every address, so a nonexistent authority is loaded as an existing empty account and the host refunds 12,500 gas the chain does not.
+  The guest's TrieDB::basic_ref (crates/executor/client/src/io.rs) returns None for accounts absent from the state trie, so the guest
+  would agree with the chain; the host rejects the block before the guest runs.
+
+scope:
+  any block with a type 4 transaction whose authority did not exist at the parent block. 110 of the 120 blocks 25988885-25989004 carry
+  type 4 transactions. Block 25988970 (same window, no type 4 transactions) executes: run 35081362097, 63,073,850 cycles.
+  Prague-era block 22441128 (no type 4) and Osaka-era block 23945771 (one type 4, existing authority) execute.
+  Upstream: succinctlabs/rsp#181 (open since 2026-05-24) reports the symptom on blocks 24431200, 25221400, 25222510 and attributes it
+  to the revm version locked by reth v1.9.3; the pin carries reth v2.2.0 / revm 38.0.0 and fails the same way.
+
+decision:
+  the pin stays unpatched (it is the baseline). Holdout blocks come from the Cancun era (19426587 to 22431083).

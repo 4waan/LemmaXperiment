@@ -1,6 +1,6 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build",
+  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era)",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -62,17 +62,117 @@
     "developmentBlocks": [
       20600066,
       18884864,
-      null
+      23945771
     ],
-    "holdoutSelectionRule": "ten consecutive supported mainnet blocks, start chosen by committed salt, disjoint from development blocks; requires archive RPC",
+    "holdoutSelectionRule": "ten consecutive Cancun-era mainnet blocks (19426587 to 22431083, the last era the pinned host reproduces in full), start chosen by committed salt, disjoint from development blocks; requires archive RPC; committed in step 4",
     "archiveRpcProvider": "Alchemy (verified eth_getProof on Cancun-era blocks)",
     "blockGasUsed": {
       "18884864": 4266500,
       "20600000": 14916853,
-      "20600066": 958960
+      "20600066": 958960,
+      "22441128": 16850044,
+      "23945771": 28167520,
+      "23985839": 24099656,
+      "25988980": 27674793,
+      "25988970": 2952836
     },
     "reuseBlockCandidate": 20600066,
-    "proofRequiringBlockPopulation": "mainnet blocks with total cycles under about 30M (roughly gasUsed under 1.2M) so a compressed proof fits one runner job"
+    "proofRequiringBlockPopulation": "mainnet blocks with total cycles under about 30M (roughly gasUsed under 1.2M) so a compressed proof fits one runner job",
+    "developmentCorpus": {
+      "manifest": "evaluation/fixtures/development-corpus.json",
+      "manifestSha256": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
+      "clientInputs": "evaluation/fixtures/blocks/1/<block>.bin, committed, sha256 per block in the manifest",
+      "offlineExecution": "apparatus-execute input_source=fixture (no RPC credential in the job)"
+    },
+    "trieFixtures": {
+      "file": "evaluation/fixtures/trie/fixtures.json",
+      "sha256": "24e32dda5badbc14fbf066437bff91db768636d7f6cb8a94dd4af05d084c53e6",
+      "generator": "evaluation/fixtures/trie/gen.py, seed 20260916, py-trie 4.0.0 oracle (rlp 5.0.0, eth-hash 0.8.0, pycryptodome 3.23.0), regenerated and diffed in apparatus-fixtures.yml",
+      "cases": 31,
+      "harness": "evaluation/harness (lemma-fixtures), injected as bin/lemma-fixtures into the pinned workspace",
+      "results": {
+        "run": 35081286192,
+        "pointer": "31/31 pass (results in apparatus/runs/fixtures-35081286192/pointer)",
+        "arena": "31/31 pass (apparatus/runs/fixtures-35081286192/arena)",
+        "harnessSha256": "7e0a2b230289965281e50c6081bd3b7a6c1dfce8e4330c2cc2d53270dbd2b2d6",
+        "firstRun": "35080214388: 27/31 on both backends; the four misses were fixture expectations (the guest's storage-root check reads every revealed account, so incomplete account paths reject at build; an absent key under a resolved extension reads absent), corrected in the generator"
+      }
+    },
+    "forkSupport": {
+      "checkedOn": "2026-09-16",
+      "chainSpec": "reth v2.2.0 mainnet spec via alloy-hardforks 0.4.7: ... Cancun (ts 1710338135), Prague (ts 1746612311, block 22431084), Osaka (ts 1764798551), BPO1 (ts 1765290071), BPO2 (ts 1767747671); no later fork known to the pin",
+      "providerEthConfig": "current fork activation 1767747671 (BPO2, blob target 14 max 21, P256VERIFY at 0x100), next: none",
+      "selectionRule": "lower median gasUsed of a 120-block window; past eras: window starts activation+10000; current era: window ends at the finalized block at selection time",
+      "finalizedAtSelection": {
+        "number": 25989004,
+        "timestamp": 1789549271
+      },
+      "checks": {
+        "prague": {
+          "block": 22441128,
+          "window": [
+            22441084,
+            22441203
+          ],
+          "run": 35078553836,
+          "result": "pass",
+          "totalCycles": 336701911,
+          "proverGas": 425810699,
+          "clientInputSha256": "9a7b75980bd2cdd9c8e91ff3b0db31b5b8ff906feb384816857cc06744bbb491",
+          "type4Transactions": 0
+        },
+        "osaka": {
+          "block": 23945771,
+          "window": [
+            23945694,
+            23945813
+          ],
+          "run": 35078560969,
+          "result": "pass",
+          "totalCycles": 388441163,
+          "proverGas": 480498762,
+          "clientInputSha256": "690dbddc4d9a09e3bb88b96b71d55f079c75dbd7e244a8f438753e9e5da64b8f",
+          "type4Transactions": 1,
+          "note": "the one authorization's authority existed (nonce 0xd7fb)"
+        },
+        "bpo1": {
+          "block": 23985839,
+          "window": [
+            23985778,
+            23985897
+          ],
+          "run": 35078569391,
+          "result": "provider 429 (FAILURES.md #9), not retried"
+        },
+        "bpo2": {
+          "block": 25988980,
+          "window": [
+            25988885,
+            25989004
+          ],
+          "run": 35079926409,
+          "result": "fail: host block gas used mismatch, 35,591 gas over three type 4 transactions whose authorities did not exist (FAILURES.md #10)",
+          "type4Transactions": 5
+        },
+        "bpo2NoType4": {
+          "block": 25988970,
+          "run": 35081362097,
+          "result": "pass",
+          "totalCycles": 63073850,
+          "proverGas": 79799096,
+          "clientInputSha256": "dda5fb040e04b0ef435400bf8ba3f10cf9f4327e3d070ada7e43644228a2cd90",
+          "type4Transactions": 0,
+          "note": "current-era block without type 4 transactions (one blob): BPO2 blob parameters and Osaka rules execute; only failure 10's case is unsupported"
+        }
+      },
+      "supportedRange": "Cancun era (19426587 to 22431083) in full; Prague, Osaka and BPO eras only for blocks without an EIP-7702 authorization of a nonexistent authority (110 of 120 blocks sampled at the head carry type 4 transactions)",
+      "activationBlocks": {
+        "prague": 22431084,
+        "osaka": 23935694,
+        "bpo1": 23975778,
+        "bpo2": 24179383
+      }
+    }
   },
   "hardware": {
     "executionHost": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, x86_64 (shared; wall time not a benchmark)",
@@ -145,7 +245,7 @@
       "untracked": 1852763,
       "nested precompile-ecrecover": 38126
     },
-    "cycleJitter": "same client input, three host runs: 22629796 / 22629474 / 22628475 cycles and 28810531 / 28810305 / 28809494 PGU; cause is HashMap serialization order in the stdin, see INTERFACES.md section 7"
+    "cycleJitter": "same client input, four host runs: 22629796 / 22629474 / 22628475 / 22629229 cycles and 28810531 / 28810305 / 28809494 PGU (run 35078583453 added); cause is HashMap serialization order when the host writes the stdin, which also applies when the client input comes from the cache or the corpus, see INTERFACES.md section 7"
   },
   "developmentProfiles": {
     "18884864": {
@@ -165,7 +265,51 @@
       "compute state root": 10122839,
       "untracked": 4960482,
       "nested precompile-ecrecover": 74911,
-      "note": "execute only; 89.6M cycles does not fit one runner job for proving"
+      "note": "execute only; 89.6M cycles does not fit one runner job for proving",
+      "standardRun": {
+        "run": 35078589781,
+        "totalCycles": 89571800,
+        "note": "same client input as the cycle-tracking run (sha256 e49a1e2b), 666 cycles apart: the host re-serializes the cached input into the stdin, so HashMap order still moves"
+      }
+    },
+    "23945771": {
+      "run": 35078560969,
+      "variant": "standard",
+      "gasUsed": 28167520,
+      "txCount": 167,
+      "totalCycles": 388441163,
+      "proverGas": 480498762,
+      "executionSeconds": 7.56,
+      "hostWallSeconds": 512,
+      "clientInputSha256": "690dbddc4d9a09e3bb88b96b71d55f079c75dbd7e244a8f438753e9e5da64b8f",
+      "clientInputBytes": 6785629,
+      "note": "execute only; Osaka era; development block 3"
+    },
+    "22441128": {
+      "run": 35078553836,
+      "variant": "standard",
+      "gasUsed": 16850044,
+      "txCount": 194,
+      "totalCycles": 336701911,
+      "proverGas": 425810699,
+      "executionSeconds": 13.73,
+      "hostWallSeconds": 549,
+      "clientInputSha256": "9a7b75980bd2cdd9c8e91ff3b0db31b5b8ff906feb384816857cc06744bbb491",
+      "clientInputBytes": 6773662,
+      "note": "execute only; Prague-era fork-support check, not in the corpus"
+    },
+    "25988970": {
+      "run": 35081362097,
+      "variant": "standard",
+      "gasUsed": 2952836,
+      "txCount": 62,
+      "totalCycles": 63073850,
+      "proverGas": 79799096,
+      "executionSeconds": 2.2,
+      "hostWallSeconds": 118,
+      "clientInputSha256": "dda5fb040e04b0ef435400bf8ba3f10cf9f4327e3d070ada7e43644228a2cd90",
+      "clientInputBytes": 1219812,
+      "note": "execute only; BPO2-era fork-support check, not in the corpus"
     }
   }
 }

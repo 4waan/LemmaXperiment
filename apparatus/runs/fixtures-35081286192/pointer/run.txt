@@ -1,0 +1,9 @@
+backend: pointer
+rsp_commit: 2013b56184f9770bd12d1027495eebd1a0b81745
+workspace_edit: added member bin/lemma-fixtures (see evaluation/harness)
+rustc: rustc 1.94.0 (4a4ef493e 2026-03-02)
+harness_sha256: 7e0a2b230289965281e50c6081bd3b7a6c1dfce8e4330c2cc2d53270dbd2b2d6
+fixtures_sha256: 24e32dda5badbc14fbf066437bff91db768636d7f6cb8a94dd4af05d084c53e6
+lemma_fixtures_sha256: 895d499c3d93d8fe23d600eaddba874248acd92e1909587ea408f4ef9c39b77a
+outcome: success
+runner: 4 vcpu 15 GB

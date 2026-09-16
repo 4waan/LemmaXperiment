@@ -1,0 +1,38 @@
+pass a01-full-present-absent                      build=ok (arena witness 3508 bytes) queries=17 update=-
+pass a02-partial-witness                          build=ok (arena witness 1828 bytes) queries=15 update=-
+pass a03-wrong-root                               build=reject: from_proofs: MismatchedStateRoot(0xa8b00f00d62de1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7, 0xa8b00f00d62ce1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7) queries=0 update=-
+pass a04-dropped-inner-node                       build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(0) at crates/mpt/src/mpt.rs:1096 queries=0 update=-
+pass a05-truncated-path                           build=reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8d1744550190cadc067dfa3e51aabd772fdf3791183f480ecf9daf347377af0b) at crates/mpt/src/lib.rs:497 queries=0 update=-
+pass a06-forged-leaf-broken-chain                 build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(2) at crates/mpt/src/mpt.rs:1096 queries=0 update=-
+pass a07-forged-leaf-rebuilt-chain                build=reject: from_proofs: MismatchedStateRoot(0x086b3210ebb1766d6d9273f083d54347e216e560731129a4894d30822faeeb74, 0xa8b00f00d62de1088d64b06af01a552c649df2cff591741e87e97c766f64f8a7) queries=0 update=-
+pass a08-modified-leaf-new-root                   build=ok (arena witness 3280 bytes) queries=12 update=-
+pass a09-truncated-rlp                            build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(RlpIncorrectListLen) at crates/mpt/src/mpt.rs:1095 queries=0 update=-
+pass a10-noncanonical-rlp                         build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(RlpIncorrectListLen) at crates/mpt/src/mpt.rs:1095 queries=0 update=-
+pass a11-branch-with-value                        build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: LegacyRlp(Custom("branch node with value")) at crates/mpt/src/mpt.rs:1095 queries=0 update=-
+pass a12-empty-path-item                          build=reject: from_proofs: panic: index out of bounds: the len is 0 but the index is 0 at crates/mpt/src/mpt.rs:333 queries=0 update=-
+pass e01-empty-trie                               build=ok (arena witness 20 bytes) queries=2 update=0x04757d5213606cd4e8ae35c69009d2e72694ea33ae686651d49dfb215854a0fb
+pass e02-single-leaf                              build=ok (arena witness 284 bytes) queries=2 update=0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421
+pass b01-storage-full                             build=ok (arena witness 3720 bytes) queries=40 update=-
+pass b02-storage-not-in-witness                   build=ok (arena witness 3696 bytes) queries=11 update=-
+pass b03-wrong-storage-hash                       build=reject: from_proofs: MismatchedStorageRoot(0x6ef348c2263df28652bdaae4654baf83a96f70a2, 0x922df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a, 0x122df8d5d17350675b8bebde156fc0c064d98dc1519ef41b63c036a908dbab6a) queries=0 update=-
+pass b04-account-storage-root-mismatch            build=reject: build_trie_db: MismatchedStorageRoot queries=0 update=-
+pass b05-storage-missing-node                     build=ok (arena witness 3620 bytes) queries=9 update=-
+pass b06-forged-inline-leaf                       build=reject: from_proofs: panic: called `Result::unwrap()` on an `Err` value: NodeHasInvalidSuccessor(1) at crates/mpt/src/mpt.rs:1119 queries=0 update=-
+pass u01-modify-accounts                          build=ok (arena witness 3720 bytes) queries=6 update=0x9d3f063094b6ead8b22bd14e92b578b3e48131471aa8d9adb234bc5e437ce727
+pass u02-create-accounts                          build=ok (arena witness 3808 bytes) queries=6 update=0x80f6e195c9f924c98c1a487be9eaed36104dcd94979924c01f6da11d5701f454
+pass u03-delete-collapse-branch                   build=ok (arena witness 3288 bytes) queries=0 update=0x4bc5fd9a926eb45f8c7c836ad92b88d4b0e3437364a1caa56624d19cda68d918
+pass u03b-delete-collapse-unresolved-sibling      build=reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0x8d1744550190cadc067dfa3e51aabd772fdf3791183f480ecf9daf347377af0b) at crates/mpt/src/lib.rs:497 queries=0 update=-
+pass u04-storage-writes                           build=ok (arena witness 3720 bytes) queries=0 update=0x169385d9e3354e7b043dae83a2b6ac9b6c2341f9d834c8462c79bd4c0c7825c2
+pass u05-wipe-storage                             build=ok (arena witness 3720 bytes) queries=0 update=0x4f924632c6539b8b62b400c629c34ac88b12080133aabfd758150ab6f51e6896
+pass u06-delete-account-with-storage              build=ok (arena witness 3720 bytes) queries=0 update=0x2350e9946cf683c1b9550b26ab60240230d383339939c02dbbcba9c43b954386
+pass u07-create-account-with-storage              build=ok (arena witness 3764 bytes) queries=0 update=0xf155e649fcb64fdb5594964729256aefd2caf2a93f18fb058cf39b4e6d438896
+pass u08-update-unresolved-path                   build=reject: build_trie_db: panic: called `Result::unwrap()` on an `Err` value: NodeNotResolved(0xf2365c4be6a9afa306ba8ca110ecdb4e729377d35a80f185936eabb7cc28abff) at crates/mpt/src/lib.rs:497 queries=0 update=-
+pass u09-shared-storage-immutability              build=ok (arena witness 3720 bytes) queries=0 update=0x2d84570ac1c68db5f371d3b2d478f840a2ead4a8faddd9f8d8a41377933e96ad
+pass u10-codehash-none                            build=ok (arena witness 3720 bytes) queries=0 update=0xd27143907c71912a7294ec1d7cc8cb1162867400cd4392f7d7ab4be9d963e5d9
+  forged           3/3 cases, 0 queries, 0 updates
+  incorrect-root   3/3 cases, 0 queries, 0 updates
+  lookups          5/5 cases, 73 queries, 2 updates
+  malformed-rlp    4/4 cases, 0 queries, 0 updates
+  missing-witness  5/5 cases, 35 queries, 0 updates
+  update           11/11 cases, 12 queries, 9 updates
+31 cases, 31 passed, 0 failed, backend arena -> run/results-arena.json

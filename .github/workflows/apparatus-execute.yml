@@ -4,6 +4,13 @@ name: apparatus-execute
 # prover gas (PGU), report.csv and the prover-ready stdin. With
 # variant=cycle-tracking the report also carries per-phase cycles (the
 # standard build leaves those columns at 0); totals must agree across variants.
+#
+# input_source=rpc builds the client input from the archive provider and keeps
+# it in the actions cache; input_source=fixture runs offline from the committed
+# development corpus (evaluation/fixtures/blocks/) after checking its sha256
+# against the corpus manifest, with no RPC credential in the environment.
+# Either way the client input that was executed is kept in the artifact under
+# run/input/.
 
 on:
   workflow_dispatch:
@@ -20,16 +27,20 @@ on:
         description: standard or cycle-tracking (which apparatus-build artifact to run)
         default: standard
         required: true
+      input_source:
+        description: rpc (fetch and cache the client input) or fixture (offline, from evaluation/fixtures/blocks)
+        default: rpc
+        required: true
 
 jobs:
   execute:
-    name: execute ${{ inputs.block }} (${{ inputs.state_backend }}, ${{ inputs.variant }})
+    name: execute ${{ inputs.block }} (${{ inputs.state_backend }}, ${{ inputs.variant }}, ${{ inputs.input_source }})
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
-      RPC_1: ${{ secrets.RPC_1 }}
       SP1_PROVER: cpu
       ARTIFACT_SUFFIX: ${{ inputs.variant == 'cycle-tracking' && '-cycle-tracking' || '' }}
+      FIXTURE_SUFFIX: ${{ inputs.input_source == 'fixture' && '-fixture' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,32 +56,60 @@ jobs:
           cat dist/build-record.txt
 
       - name: Witness cache
+        if: inputs.input_source == 'rpc'
         uses: actions/cache@v4
         with:
           path: cache
           key: witness-${{ inputs.block }}-${{ inputs.state_backend }}
 
+      - name: Client input from the development corpus
+        if: inputs.input_source == 'fixture'
+        run: |
+          src="evaluation/fixtures/blocks/1/${{ inputs.block }}.bin"
+          [ -f "$src" ] || { echo "no committed client input for block ${{ inputs.block }}"; exit 1; }
+          want=$(jq -r --argjson n "${{ inputs.block }}" '.blocks[] | select(.number == $n) | .clientInputSha256' evaluation/fixtures/development-corpus.json)
+          have=$(sha256sum "$src" | cut -d' ' -f1)
+          echo "manifest: $want"
+          echo "file:     $have"
+          [ -n "$want" ] && [ "$want" = "$have" ] || { echo "client input does not match the corpus manifest"; exit 1; }
+          mkdir -p cache/input/1
+          cp "$src" cache/input/1/
+
       - name: Execute
         # pipefail: the binary's exit status must fail the step even though
         # its output goes through tee; without it a crashed run still writes
-        # a run record.
+        # a run record. In fixture mode the host gets no RPC URL and no RPC_1
+        # variable, so the only possible input is the committed file.
+        env:
+          RPC_1: ${{ inputs.input_source == 'rpc' && secrets.RPC_1 || '' }}
         run: |
           set -o pipefail
           mkdir -p run cache
+          if [ "${{ inputs.input_source }}" = rpc ]; then
+            rpc_args="--rpc-url $RPC_1"
+          else
+            unset RPC_1
+            rpc_args=""
+          fi
           start=$(date +%s)
-          dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \
+          dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 $rpc_args \
             --cache-dir cache --state-backend ${{ inputs.state_backend }} \
             --stdin-dir run/stdin --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
           end=$(date +%s)
+          mkdir -p run/input
+          cp -r cache/input/. run/input/
           {
             echo "block: ${{ inputs.block }}"
             echo "state_backend: ${{ inputs.state_backend }}"
             echo "variant: ${{ inputs.variant }}"
+            echo "input_source: ${{ inputs.input_source }}"
             echo "mode: execute"
             echo "vkey: $(cat run/out/vkey.txt)"
             echo "wall_seconds: $((end - start))"
             echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+            echo "client_input_sha256: $(sha256sum cache/input/1/${{ inputs.block }}.bin | cut -d' ' -f1)"
+            echo "client_input_bytes: $(stat -c %s cache/input/1/${{ inputs.block }}.bin)"
             find cache -type f -exec sh -c 'for f; do echo "witness: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee run/run.txt
           echo "== report.csv"; cat run/report.csv
@@ -78,6 +117,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: execute-${{ inputs.block }}-${{ inputs.state_backend }}${{ env.ARTIFACT_SUFFIX }}-${{ github.run_id }}
+          name: execute-${{ inputs.block }}-${{ inputs.state_backend }}${{ env.ARTIFACT_SUFFIX }}${{ env.FIXTURE_SUFFIX }}-${{ github.run_id }}
           path: run/
           retention-days: 90

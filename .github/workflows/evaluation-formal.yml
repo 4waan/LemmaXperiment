@@ -1,0 +1,72 @@
+name: evaluation-formal
+
+# The frozen Lean procedure (evaluation/policy.json `formal`): toolchain pin,
+# `lake build`, `#print axioms` for every listed theorem against the allowed
+# set, the toolchain's own `leanchecker` kernel re-check, and a scan for
+# placeholders and escape hatches. Mechanical part only; the reviewer note is
+# written by a person. Runs on the evaluator smoke project by default and on
+# a candidate's `formal/` at a given ref when dispatched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: git ref of this repository to check (candidate submission); empty = the workflow's own ref
+        default: ""
+        required: false
+      project:
+        description: Lean project directory inside the checkout
+        default: formal
+        required: true
+  push:
+    paths:
+      - evaluation/formal-smoke/**
+      - evaluation/analysis/axioms.py
+      - .github/workflows/evaluation-formal.yml
+
+jobs:
+  check:
+    name: lean check (${{ inputs.project || 'evaluation/formal-smoke' }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PROJECT: ${{ inputs.project || 'evaluation/formal-smoke' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: policy
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          path: subject
+
+      - name: Install elan (toolchain from the project's lean-toolchain, checked against the policy)
+        run: |
+          curl -sSfL https://elan.lean-lang.org/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Check
+        run: |
+          set -o pipefail
+          cd subject
+          echo "subject: $(git rev-parse HEAD) $PROJECT"
+          [ -d "$PROJECT" ] || { echo "no project at $PROJECT"; exit 1; }
+          mkdir -p ../out
+          python3 ../policy/evaluation/analysis/axioms.py "$PROJECT" --policy ../policy/evaluation/policy.json --out ../out/formal-report.json 2>&1 | tee ../out/formal.log
+          {
+            echo "subject_commit: $(git rev-parse HEAD)"
+            echo "project: $PROJECT"
+            echo "policy_commit: $(git -C ../policy rev-parse HEAD)"
+            echo "policy_sha256: $(sha256sum ../policy/evaluation/policy.json | cut -d' ' -f1)"
+            echo "axioms_py_sha256: $(sha256sum ../policy/evaluation/analysis/axioms.py | cut -d' ' -f1)"
+            echo "lean: $(cd "$PROJECT" && lake env lean --version)"
+            echo "runner: $ImageOS $ImageVersion"
+          } | tee ../out/formal-run.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: formal-${{ github.run_id }}
+          path: out/
+          retention-days: 90

@@ -15,12 +15,31 @@ name: apparatus-build
 #                   and vkey. The registered existing capability and the
 #                   evaluation counterfactual (evaluation/policy.json).
 
+#
+# A push builds the three variants from the pin. A dispatch builds one
+# variant, optionally with a candidate overlay: `overlay_ref` names a ref of
+# this repository whose candidate/rsp/ files are copied over the pinned tree
+# after evaluation/overlay.py checks every path against the demand's
+# allowedSourcePaths, and `variant` names the candidate's cargo feature,
+# which is declared on the injected lemma-prove exactly as bin/host declares
+# its own. The pinned commit is never changed by an overlay.
+
 on:
   workflow_dispatch:
+    inputs:
+      overlay_ref:
+        description: ref of this repository whose candidate/rsp/ overlay is applied onto the pinned RSP (empty = none)
+        default: ""
+        required: false
+      variant:
+        description: standard, cycle-tracking, arena, or the candidate's cargo feature name
+        default: standard
+        required: true
   push:
     paths:
       - apparatus/pins.json
       - apparatus/prover/**
+      - evaluation/overlay.py
       - .github/workflows/apparatus-build.yml
 
 jobs:
@@ -28,12 +47,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [standard, cycle-tracking, arena]
-    name: build (${{ matrix.variant }})
+        variant: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.variant)) || fromJSON('["standard", "cycle-tracking", "arena"]') }}
+    name: build (${{ matrix.variant }}${{ inputs.overlay_ref && format(', overlay {0}', inputs.overlay_ref) || '' }})
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
       VARIANT: ${{ matrix.variant }}
+      OVERLAY_REF: ${{ inputs.overlay_ref || '' }}
       # `pkg/feature` form so the flag is explicit per package: rsp is bin/host.
       CARGO_FEATURES: ${{ matrix.variant != 'standard' && format('--features rsp/{0},lemma-prove/{0}', matrix.variant) || '' }}
       ARTIFACT_SUFFIX: ${{ matrix.variant != 'standard' && format('-{0}', matrix.variant) || '' }}
@@ -73,6 +93,21 @@ jobs:
           "$HOME/.sp1/bin/sp1up" -v v${{ steps.pins.outputs.sp1_ver }} --token "${{ github.token }}"
           "$HOME/.sp1/bin/cargo-prove" prove --version
 
+      - name: Candidate overlay
+        if: env.OVERLAY_REF != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.OVERLAY_REF }}
+          path: overlay
+
+      - name: Apply the overlay within allowedSourcePaths
+        if: env.OVERLAY_REF != ''
+        run: |
+          mkdir -p dist
+          echo "overlay_commit: $(git -C overlay rev-parse HEAD)" | tee dist/overlay.txt
+          python3 evaluation/overlay.py --spec demand/spec.json --overlay overlay/candidate/rsp --rsp rsp --record dist/overlay-files.txt
+          cat dist/overlay-files.txt >> dist/overlay.txt
+
       - name: Inject lemma-prove into the workspace
         run: |
           mkdir -p rsp/bin/lemma-prove/src
@@ -80,6 +115,14 @@ jobs:
           cp apparatus/prover/src/*.rs rsp/bin/lemma-prove/src/
           cp rsp/bin/host/src/cli.rs rsp/bin/host/src/execute.rs rsp/bin/lemma-prove/src/
           sed -i 's|    "bin/host",|    "bin/host",\n    "bin/lemma-prove",|' rsp/Cargo.toml
+          case "$VARIANT" in
+            standard|cycle-tracking|arena) ;;
+            *)
+              # A candidate feature: declare it on the wrapper the way bin/host
+              # declares its own backend features; build.rs forwards it to the guest.
+              sed -i "/^\[features\]/a $VARIANT = [\"rsp-host-executor/$VARIANT\", \"rsp-client-executor/$VARIANT\"]" rsp/bin/lemma-prove/Cargo.toml
+              grep -n "^$VARIANT = " rsp/bin/lemma-prove/Cargo.toml ;;
+          esac
           git -C rsp diff --stat
 
       # No Rust cache on purpose: sp1-core-executor-runner's build script
@@ -101,7 +144,9 @@ jobs:
             echo "cargo_features: ${CARGO_FEATURES:-(none)}"
             echo "runner: ${{ runner.os }} ${{ runner.arch }} $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
             echo "rsp_commit: $(git -C rsp rev-parse HEAD)"
+            echo "overlay_ref: ${OVERLAY_REF:-(none)}"
             echo "workspace_edit: added member bin/lemma-prove (see apparatus/prover)"
+            echo "cargo_lock_sha256: $(sha256sum rsp/Cargo.lock | cut -d' ' -f1)"
             echo "cargo_prove: $(cargo prove --version 2>&1 | head -1)"
             echo "rustc: $(cd rsp && rustc --version)"
             echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
@@ -111,6 +156,7 @@ jobs:
             # cycle-tracking must agree, arena differs by construction.
             find rsp -path '*/elf-compilation/*' -type f -name rsp-client -exec sh -c 'for f; do echo "guest_elf: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee dist/build-record.txt
+          cp rsp/Cargo.lock dist/Cargo.lock
           df -h / | tail -1
 
       - uses: actions/upload-artifact@v4

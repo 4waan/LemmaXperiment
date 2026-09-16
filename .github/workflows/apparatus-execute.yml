@@ -46,6 +46,10 @@ on:
         description: replay only; expected sha256 of that stdin file
         default: ""
         required: false
+      build_run:
+        description: apparatus-build run id whose artifact to execute (empty = latest successful build); required for candidate variants
+        default: ""
+        required: false
 
 jobs:
   execute:
@@ -64,11 +68,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           commit=$(jq -r .rsp.commit apparatus/pins.json)
-          run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
+          run_id="${{ inputs.build_run }}"
+          [ -n "$run_id" ] || run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
           [ -n "$run_id" ] || { echo "no successful apparatus-build run"; exit 1; }
+          echo "build_run=$run_id" >> "$GITHUB_ENV"
           gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit$ARTIFACT_SUFFIX" -D dist
           chmod +x dist/rsp dist/lemma-prove
           cat dist/build-record.txt
+          [ ! -f dist/overlay.txt ] || cat dist/overlay.txt
 
       - name: Witness cache
         if: inputs.input_source == 'rpc' && inputs.variant != 'arena'
@@ -143,6 +150,7 @@ jobs:
             echo "variant: ${{ inputs.variant }}"
             echo "input_source: ${{ inputs.input_source }}"
             echo "replay_run: ${{ inputs.replay_run }}"
+            echo "build_run: $build_run"
             echo "mode: execute"
             echo "vkey: $(cat run/out/vkey.txt)"
             echo "wall_seconds: $((end - start))"

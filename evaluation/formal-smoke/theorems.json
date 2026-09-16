@@ -1,0 +1,4 @@
+{
+  "modules": ["Smoke"],
+  "theorems": ["Smoke.resolve_refines", "Smoke.empty_sound"]
+}

@@ -10,6 +10,15 @@ name: apparatus-fixtures
 
 on:
   workflow_dispatch:
+    inputs:
+      overlay_ref:
+        description: ref of this repository whose candidate/rsp/ overlay is applied onto the pinned RSP (empty = none); the harness comes from the workflow's own ref
+        default: ""
+        required: false
+      backends:
+        description: JSON list of harness backends to run
+        default: '["pointer", "arena"]'
+        required: true
   push:
     paths:
       - evaluation/fixtures/trie/**
@@ -44,12 +53,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        backend: [pointer, arena]
+        backend: ${{ fromJSON(inputs.backends || '["pointer", "arena"]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       CARGO_INCREMENTAL: "0"
+      OVERLAY_REF: ${{ inputs.overlay_ref || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +72,21 @@ jobs:
           git clone https://github.com/succinctlabs/rsp rsp
           git -C rsp checkout -q ${{ steps.pins.outputs.rsp_commit }}
           git -C rsp rev-parse HEAD
+
+      - name: Candidate overlay
+        if: env.OVERLAY_REF != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.OVERLAY_REF }}
+          path: overlay
+
+      - name: Apply the overlay within allowedSourcePaths
+        if: env.OVERLAY_REF != ''
+        run: |
+          mkdir -p run
+          echo "overlay_commit: $(git -C overlay rev-parse HEAD)" | tee run/overlay.txt
+          python3 evaluation/overlay.py --spec demand/spec.json --overlay overlay/candidate/rsp --rsp rsp --record run/overlay-files.txt
+          cat run/overlay-files.txt >> run/overlay.txt
 
       - name: Install build deps
         run: sudo apt-get install -y -qq protobuf-compiler libssl-dev pkg-config clang >/dev/null
@@ -94,6 +119,7 @@ jobs:
           {
             echo "backend: ${{ matrix.backend }}"
             echo "rsp_commit: $(git -C rsp rev-parse HEAD)"
+            echo "overlay_ref: ${OVERLAY_REF:-(none)}"
             echo "workspace_edit: added member bin/lemma-fixtures (see evaluation/harness)"
             echo "rustc: $(cd rsp && rustc --version)"
             echo "harness_sha256: $(cat evaluation/harness/Cargo.toml evaluation/harness/src/*.rs | sha256sum | cut -d' ' -f1)"

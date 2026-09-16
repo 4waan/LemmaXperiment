@@ -1,11 +1,67 @@
 {
-  "policyVersion": "0.1-draft",
-  "policyHash": null,
-  "evaluatorImageHash": null,
+  "policyVersion": "1.0",
+  "frozenAt": "2026-09-16",
+  "scope": "Evaluation of one candidate for the demand in demand/spec.json (EXPERIMENT.md sections 4 step 5 and 7). Every rule below is mechanical unless it names a reviewer. Changing any value after funding requires a new policy version, a new hash and a new demand version.",
+  "hashing": {
+    "policyHash": "keccak256 of the canonical JSON of this file (UTF-8, keys sorted, no whitespace). Recorded as evaluationPolicyHash in demand/spec.json and committed onchain at funding; never stored inside this file",
+    "correctnessPolicyHash": "keccak256 of the canonical JSON of the `correctness` object",
+    "formalScopePolicyHash": "keccak256 of the canonical JSON of the `formal` object",
+    "evaluatorImageHash": "sha256 over the sorted `<path> <sha256>` lines of evaluatorImage.files at the frozen commit (a tree hash); stored in evaluatorImage.hash and therefore covered by policyHash",
+    "tool": "evaluation/freeze.py (writes the hashes; --check verifies them)",
+    "canonicalJson": "ROBINHOOD_CHAIN_PROD.md section 3.2: keccak256 for values that go onchain, sha256 for files that stay offchain; the holdout commitment is the sha256 of the sealed manifest bytes, stored onchain verbatim as bytes32"
+  },
+  "evaluatorImage": {
+    "hash": null,
+    "definition": "The evaluator is a set of workflow files and scripts in this repository run on GitHub-hosted runners, plus binaries built from the pinned RSP commit by those workflows. The image hash covers the files; the binaries are content-addressed by sha256 in apparatus/pins.json and every run record (run.txt, build-record.txt). The OS image is GitHub's rolling ubuntu-24.04 and is recorded per job (ImageOS, ImageVersion) rather than pinned.",
+    "files": [
+      ".github/workflows/apparatus-build.yml",
+      ".github/workflows/apparatus-execute.yml",
+      ".github/workflows/apparatus-fixtures.yml",
+      ".github/workflows/apparatus-prove.yml",
+      ".github/workflows/apparatus-wrap.yml",
+      ".github/workflows/evaluation-formal.yml",
+      ".github/workflows/holdout-commitment.yml",
+      "apparatus/pins.json",
+      "apparatus/prover/Cargo.toml",
+      "apparatus/prover/build.rs",
+      "apparatus/prover/src/main.rs",
+      "apparatus/prover/src/save.rs",
+      "apparatus/prover/src/wrap.rs",
+      "evaluation/analysis/axioms.py",
+      "evaluation/analysis/paired.py",
+      "evaluation/fixtures/development-corpus.json",
+      "evaluation/fixtures/trie/fixtures.json",
+      "evaluation/fixtures/trie/gen.py",
+      "evaluation/harness/Cargo.toml",
+      "evaluation/harness/src/main.rs",
+      "evaluation/holdout/RULE.md",
+      "evaluation/holdout/holdout.py",
+      "evaluation/holdout/commitment.json",
+      "evaluation/overlay.py"
+    ],
+    "binaries": {
+      "guestElfSha256": "db0e3298c8a9078c1e0c3e3c7a2d13898282e6326f53290845623e7751ac6a17",
+      "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba",
+      "lemmaProveStandardSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
+      "lemmaProveCycleTrackingSha256": "264a88cedd5eb5c30f67864d524eb652b450053d88e2dbe352d021d497d8b098",
+      "lemmaProveArenaSha256": null,
+      "arenaGuestElfSha256": null,
+      "arenaVkey": null,
+      "reproduced": "standard and cycle-tracking hashes identical across builds 35058733285, 35060847955, 35081854796, 35109750714 and 35109751028; the arena hashes come from the step 5 build (apparatus/pins.json sp1.hostBuildVariants)"
+    },
+    "runner": "GitHub-hosted ubuntu-24.04, x86_64, 4 vCPU, 16 GB RAM, 14 GB free disk; no GPU; SP1 cpu prover",
+    "provenance": "Every run keeps the exact command, binary hashes, stdin sha256 and runner image in its artifact (run.txt) and the operator copies it under apparatus/runs/<id>/; workflow run ids are cited in the report"
+  },
   "reproduction": {
-    "networkAccess": "none",
-    "buildTimeoutSeconds": null,
-    "buildMemoryBytes": null
+    "candidateBundle": "one commit of this repository holding candidate/ (module, adapter, tests, build recipe, manifest.json) and formal/; the RSP changes travel as an overlay under candidate/rsp/ mirroring the pinned tree",
+    "artifactDigest": "sha256 tree hash over candidate/ and formal/ at that commit (sorted `<path> <sha256>` lines), equal to the digest submitted onchain",
+    "build": "apparatus-build.yml dispatched with overlay_ref = the candidate commit and variant = the candidate's cargo feature; evaluation/overlay.py refuses any overlay file outside demand/spec.json allowedSourcePaths before anything is copied; the pinned RSP commit is never changed; the wrapper declares the feature the way bin/host declares its own and forwards it to the guest",
+    "guestKeyDerivation": "the evaluator's own build writes vkey.txt; it must equal the manifest's guestProgramKey, and the evaluator never accepts a key supplied by the candidate",
+    "dependencies": "the build record keeps the resulting Cargo.lock and its sha256; its diff against the baseline build's lock must consist only of the crates the manifest declares (dependencyVersions, dependencyLicenses), reviewed by the evaluator",
+    "networkAccess": "hosted runners have unrestricted egress and no policy can enforce a filter there; mitigation: the build fetches only what Cargo.lock names, build scripts inside the overlay are read by the evaluator before the build runs, and the run record lists every overlay file with its sha256",
+    "buildTimeoutSeconds": 14400,
+    "buildMemoryBytes": 17179869184,
+    "measuredBaselineBuildSeconds": 1230
   },
   "correctness": {
     "oracle": "independent implementation or fixture oracle not sharing the changed algorithm",
@@ -28,8 +84,7 @@
       "cases": 31,
       "harness": "evaluation/harness (lemma-fixtures)",
       "harnessSha256": "7e0a2b230289965281e50c6081bd3b7a6c1dfce8e4330c2cc2d53270dbd2b2d6",
-      "upstreamBaseline": "run 35081286192: 31/31 on the pointer backend and 31/31 on the arena backend",
-      "candidateSpecificFamilies": "forged handles and capacity boundaries are instantiated by the evaluator from the same cases against the candidate's own witness encoding and cap setting (evaluation/fixtures/README.md)"
+      "upstreamBaseline": "run 35081286192: 31/31 on the pointer backend and 31/31 on the arena backend"
     },
     "developmentCorpus": {
       "manifest": "evaluation/fixtures/development-corpus.json",
@@ -38,24 +93,38 @@
         20600066,
         18884864,
         23945771
-      ],
-      "blockIntegration": "A and B execute every corpus block offline (apparatus-execute input_source=fixture) and must reach the manifest's stateRoot; identical public values"
+      ]
     },
-    "supportedRange": "Cancun era (19426587 to 22431083); see demand/spec.json integrationTarget.supportedFork"
+    "supportedRange": "Cancun era (19426587 to 22431083); see demand/spec.json integrationTarget.supportedFork",
+    "blockIntegration": "A (standard), B (candidate) and C (arena) execute every development-corpus block and must reach the manifest's stateRoot; A and B from the committed client input, C from RPC (the arena host cannot load the pointer-format corpus input, apparatus/prover/README.md); identical public values across variants",
+    "harnessAdapter": "the candidate's StateTries backend is run through evaluation/harness with an adapter arm the evaluator writes from the candidate's documented construction (compatibilityManifest); the adapter is published with the report and its harness sha256 recorded",
+    "candidateSpecificFamilies": "forged handles and capacity boundaries are instantiated by the evaluator from the same cases against the candidate's own witness encoding and cap setting (evaluation/fixtures/README.md)"
   },
   "formal": {
-    "leanToolchain": null,
+    "leanToolchain": "leanprover/lean4:v4.34.0",
+    "lakeDependencies": "none expected; if the project's lake-manifest.json pins Batteries or Mathlib by commit the evaluator builds them from source at that commit and the axiom report still governs",
     "allowedAxioms": [
       "propext",
       "Classical.choice",
       "Quot.sound"
     ],
     "sorryAllowed": false,
-    "reviewerRequired": true
+    "forbidden": "any other axiom in #print axioms (sorryAx, native_decide's auxiliary axioms, user axiom declarations); opaque, unsafe or implemented_by declarations in the model; a theorem whose hypotheses include the conclusion",
+    "checks": "evaluation-formal.yml runs evaluation/analysis/axioms.py: lean-toolchain equals leanToolchain, lake build, #print axioms for every theorem in formal/theorems.json against allowedAxioms, leanchecker --fresh on every listed module, and a source scan for sorry, admit, native_decide, axiom, implemented_by, unsafe, opaque",
+    "smokeProject": "evaluation/formal-smoke (the procedure demonstrated on a cache-refinement theorem of the expected shape; run 35120xxxxxx)",
+    "theoremScope": "a model-level refinement theorem over the changed operation (TRIE_MODULE_PROTOCOL.md section 6 for a trie candidate): for a fixed witness and a stated invariant, the optimized resolution returns the same accepted results and rejections as the unoptimized model; the invariant holds for the empty state and is preserved by every insertion; the authenticator and decoder are abstract and deterministic; hash-keyed reuse names its no-collision or exact-byte assumption explicitly",
+    "modelToCode": "formal/model-to-code.md maps every Lean definition to the Rust items it models and states the gap; the theorem covers the model, the Rust behavior is covered by the correctness gate, and no claim of a verified prover, verified compiler or complete Ethereum semantics is made (ROBINHOOD_CHAIN_PROD.md I-X3)",
+    "reviewerRequired": true,
+    "reviewer": "a person, the operator, not the creator model and not a model instance the creator controls; the review note states whether the theorem addresses the implemented optimization, whether any hypothesis assumes the result, and what the model omits; it is hashed into the report and signed with the verdict"
   },
   "performance": {
-    "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode",
-    "metricIsDeterministic": "given the stdin bytes; across host runs the stdin differs in HashMap order and PGU moved by 0.004% over three runs of the same client input (apparatus/INTERFACES.md section 7), so the client input is fixed by hash and the per-block value is the median of the executions",
+    "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode (sp1-sdk ExecutionReport gas), standard build variant",
+    "variants": {
+      "A": "upstream default MPT backend (lemma-prove standard); the funded baseline",
+      "B": "the candidate, built from its overlay with its feature",
+      "C": "upstream arena MPT backend (lemma-prove arena); the registered existing capability and the counterfactual (ROBINHOOD_CHAIN_PROD.md I-E9); unaudited upstream code, labeled as such"
+    },
+    "counterfactualRule": "per block the reported saving is the smaller of the improvement against A and the improvement against C; the gate applies to that smaller value. If C fails a block where A passes, that block's saving is measured against A only and the C failure is reported",
     "holdoutBlocks": 10,
     "holdout": {
       "rule": "evaluation/holdout/RULE.md",
@@ -68,27 +137,108 @@
       "oneEvaluationPerSet": true
     },
     "executionsPerVariantPerBlock": 2,
-    "plannedExecutions": 40,
+    "inputs": "one RPC-backed run per block and variant produces the stdin (apparatus-execute input_source=rpc, witness fetched inside the evaluator job after the candidate's final submission); the second execution replays that exact stdin (input_source=replay, sha256 checked), so both executions of a pair share one input byte for byte and their PGU must be identical (I-E8). A and B stdins differ in encoding when the candidate changes the witness format; their client inputs (pointer format) are the same bytes",
+    "plannedExecutions": 60,
     "plannedRealProofs": 3,
+    "realProofs": "one compressed proof each of A and B on the smallest holdout block by gasUsed if its A cycle count is under 30M (about 5.5M cycles per hour on the runner), otherwise on development block 20600066 and labeled so; the third proof is the reuse job. Proofs verify against the vkey the evaluator derived; PGU stays the gate",
+    "metricIsDeterministic": "given the stdin bytes; across host runs the stdin differs in HashMap order and PGU moved by 0.004% over three runs of the same client input (apparatus/INTERFACES.md section 7), so the client input is fixed by hash and the per-block value is the median of the executions",
     "minimumMedianPguImprovementPercent": 5,
     "bootstrapConfidence": 0.95,
     "maximumRegressionPercentPerBlock": 10,
+    "acceptance": {
+      "perBlockValue": "for each variant and holdout block, the median PGU over executionsPerVariantPerBlock executions of the same client input (fixed by sha256)",
+      "perBlockImprovementPercent": "100 * (alternativePGU - candidatePGU) / alternativePGU, computed against A and against C; the block's improvement is the smaller (counterfactualRule)",
+      "pairedBlocks": "holdout blocks on which both variants reach the manifest stateRoot with identical public values",
+      "statistic": "median of perBlockImprovementPercent over pairedBlocks",
+      "interval": {
+        "method": "percentile bootstrap of the statistic",
+        "resamples": 10000,
+        "resampleUnit": "paired block (with replacement, size = number of paired blocks)",
+        "seed": "sha256('lemma-eval/1' || policyHash) first 8 bytes, big-endian, recorded in the report (paired.py seed_from)",
+        "confidence": 0.95,
+        "bounds": "2.5th and 97.5th percentiles of the resampled statistics"
+      },
+      "pass": [
+        "correctness and formal gates pass",
+        "candidate reaches the manifest stateRoot on every holdout block where the baseline does",
+        "number of pairedBlocks >= minimumPairedBlocks",
+        "statistic >= minimumMedianPguImprovementPercent",
+        "interval lower bound > 0",
+        "no paired block with candidatePGU > (1 + maximumRegressionPercentPerBlock/100) * baselinePGU"
+      ],
+      "fail": "any pass condition false with pairedBlocks >= minimumPairedBlocks, or the candidate fails a block the baseline reaches",
+      "inconclusive": "fewer than minimumPairedBlocks paired blocks because the baseline or the evaluator infrastructure failed; no block is replaced (evaluation/holdout/RULE.md section 5)",
+      "minimumPairedBlocks": 8,
+      "disclosedLimitation": "with ten blocks a percentile bootstrap interval on the median is coarse: the lower bound stays above zero when at most two blocks regress and the rest improve clearly, and drops to the regression value with three or more (evaluation/analysis/paired.py --self-test). That is intended; a gain on a minority of blocks is Fail, not Pass"
+    },
+    "analysis": "evaluation/analysis/paired.py computes every value in `acceptance` from the run records and prints the verdict for the performance gate; its self-test documents the rule's behavior on synthetic ten-block sets",
     "secondaryReported": [
-      "total cycles",
-      "per-phase cycles from report.csv (cycle-tracking build variant, diagnostics only; see apparatus/prover/README.md)",
-      "host preparation wall time",
-      "network proof latency and PROVE cost for the three real proofs"
+      "total cycles and per-phase cycles from report.csv (cycle-tracking build variant, diagnostics only; see apparatus/prover/README.md)",
+      "host preparation wall time (witness fetch and host execution) per variant",
+      "peak resident set size of each execution (GNU time, run.txt peak_rss_kb)",
+      "compressed proving wall time on the runner for the real proofs, labeled as runner time, not a benchmark",
+      "network proof latency and PROVE cost if a network proof is bought"
     ],
-    "wallClockProvingIsGate": false,
-    "disclosedLimitation": "PGU models proving cost; it is not measured proving latency on fixed hardware.",
-    "executionHost": null,
+    "latency": {
+      "gate": false,
+      "reported": "median complete-job preparation+proving+wrapping wall time per variant on the shared runner, with the runner identity and load caveat (apparatus/pins.json hardware)",
+      "note": "demand/spec.json 0.1-draft gated on this metric; 0.2-draft reports it. Wall time on shared GitHub runners is not a benchmark"
+    },
+    "disclosedLimitation": "PGU models proving cost; it is not measured proving latency on fixed hardware. Ten adjacent blocks limit generalization",
+    "executionHost": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB (apparatus/pins.json hardware); executions of A, B and C interleave in an order drawn from the bootstrap seed and run one job at a time",
     "randomizedOrder": true,
-    "freshCachesPerJob": true
+    "freshCachesPerJob": true,
+    "limits": {
+      "executionTimeoutSeconds": 7200,
+      "peakMemoryBytes": 17179869184,
+      "onLimit": "an execution that exceeds the timeout or is killed for memory counts as that variant failing that block (retained, never rerun on another block); measured A: 28M-gas block 388M cycles in 512 s including witness fetch, replay 127 s",
+      "provingTimeoutSeconds": 21300,
+      "totalEvaluationRunnerHours": 24
+    }
   },
-  "verdicts": [
-    "Pass",
-    "Fail",
-    "Inconclusive"
-  ],
-  "oneHoldoutEvaluationPerDemand": true
+  "verdict": {
+    "values": [
+      "Pass",
+      "Fail",
+      "Inconclusive"
+    ],
+    "rule": "Pass only if the correctness, formal and performance gates all pass; Inconclusive when the performance gate cannot be decided because the baseline or the evaluator infrastructure failed (fewer paired blocks than minimumPairedBlocks) while correctness and formal pass; Fail otherwise. Insufficient compute is Inconclusive, never invented timings",
+    "report": "evaluation/reports/<candidateId>.json with the fields in evaluation/README.md; reportHash = sha256 of its canonical JSON; raw evidence (run records, execution and proof artifacts, formal report, reviewer note) referenced by run id and sha256",
+    "signature": "EIP-712 Verdict{chainId, contract, demandId, candidateDigest, policyHash, reportHash, guestKey, recipient, verdict, validUntil, nonce} signed by evaluatorSigner on the laptop (the key is never on a runner); domain separated by chainId 46630 and the CreationBounty address (ROBINHOOD_CHAIN_PROD.md C6, I-S9)",
+    "validitySeconds": 604800,
+    "oneHoldoutEvaluationPerDemand": true
+  },
+  "settlement": {
+    "chainId": 46630,
+    "chain": "Robinhood Chain testnet",
+    "verdictDomain": "EIP-712 Verdict domain-separated by chainId 46630 and the CreationBounty address (ROBINHOOD_CHAIN_PROD.md C6, I-S9)",
+    "crossCheck": "Arbitrum Sepolia gateway 0x397A5f7f3dBd538f23DE225B51f532c34448dA9B, read-only, not a verdict input"
+  },
+  "revisionHistory": [
+    {
+      "version": "0.1-draft",
+      "date": "2026-09-16",
+      "note": "step 3 fields: fixtures, development corpus, PGU metric"
+    },
+    {
+      "version": "0.2-draft",
+      "date": "2026-09-16",
+      "changes": [
+        "performance.acceptance: explicit per-block value, statistic, bootstrap interval, pass/fail/inconclusive semantics and minimum paired blocks",
+        "performance.latency: reported, not gated, matching demand/spec.json 0.2-draft",
+        "settlement: verdict domain on Robinhood Chain testnet 46630"
+      ]
+    },
+    {
+      "version": "1.0",
+      "date": "2026-09-16",
+      "changes": [
+        "evaluatorImage: file list, tree hash, content-addressed binaries, runner statement",
+        "reproduction: overlay bundle, allowedSourcePaths enforcement (evaluation/overlay.py), guest key derivation, lock review, limits",
+        "formal: toolchain leanprover/lean4:v4.34.0, mechanical checks (evaluation/analysis/axioms.py, evaluation-formal.yml), theorem scope, reviewer",
+        "performance: arena counterfactual C with the smaller-saving rule, replay-based determinism, real-proof rule, limits, analysis script",
+        "verdict: rule, report and EIP-712 signature; policyHash moved out of the file"
+      ]
+    }
+  ]
 }

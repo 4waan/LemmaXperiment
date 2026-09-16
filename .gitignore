@@ -1,3 +1,4 @@
 .env
 *.bin
 *.proof
+!evaluation/fixtures/blocks/**/*.bin

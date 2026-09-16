@@ -1,0 +1,30 @@
+[package]
+name = "lemma-fixtures"
+version = "0.1.0"
+edition = "2021"
+description = "Runs the independent trie fixtures against a StateTries backend of the pinned RSP."
+
+# Injected into the pinned RSP workspace at evaluation time as
+# bin/lemma-fixtures so every dependency resolves to the workspace's exact
+# versions (see .github/workflows/apparatus-fixtures.yml). It links the pinned
+# crates unchanged; a candidate is evaluated by pointing --backend at its
+# StateTries implementation once its integration lands in the workspace.
+
+[dependencies]
+clap = { version = "4.5.7", features = ["derive"] }
+eyre = "0.6.12"
+serde.workspace = true
+serde_json.workspace = true
+bumpalo.workspace = true
+
+rsp-mpt.workspace = true
+rsp-client-executor.workspace = true
+
+alloy-primitives.workspace = true
+reth-primitives-traits.workspace = true
+reth-trie.workspace = true
+revm.workspace = true
+
+[[bin]]
+name = "lemma-fixtures"
+path = "src/main.rs"

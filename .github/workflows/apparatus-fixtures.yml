@@ -1,0 +1,114 @@
+name: apparatus-fixtures
+
+# Runs the independent trie fixtures (evaluation/fixtures/trie) against the
+# pinned RSP through the lemma-fixtures harness, once per StateTries backend:
+# `pointer` (the upstream EthereumState) and `arena` (the upstream arena
+# feature, the seeded existing-capability control). A second job regenerates
+# the fixture file with the pinned py-trie oracle and checks it is byte
+# identical to the committed one, which is what makes the expected outcomes
+# independent of the Rust code under test.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - evaluation/fixtures/trie/**
+      - evaluation/harness/**
+      - .github/workflows/apparatus-fixtures.yml
+
+jobs:
+  regenerate:
+    name: regenerate fixtures with the py-trie oracle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned oracle
+        run: pip install --quiet "trie==4.0.0" "rlp==5.0.0" "eth-hash[pycryptodome]==0.8.0" "pycryptodome==3.23.0"
+      - name: Regenerate and compare
+        run: |
+          set -o pipefail
+          before=$(sha256sum evaluation/fixtures/trie/fixtures.json | cut -d' ' -f1)
+          python3 evaluation/fixtures/trie/gen.py | tee regen.log
+          after=$(sha256sum evaluation/fixtures/trie/fixtures.json | cut -d' ' -f1)
+          echo "committed: $before"
+          echo "regenerated: $after"
+          [ "$before" = "$after" ] || { echo "fixture file differs from the generator output"; git diff --stat; exit 1; }
+          pip freeze | grep -i "^trie\|^rlp\|^eth-hash\|^pycryptodome"
+
+  run:
+    name: run fixtures (${{ matrix.backend }})
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [pointer, arena]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read pins
+        id: pins
+        run: echo "rsp_commit=$(jq -r .rsp.commit apparatus/pins.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Clone RSP at pin
+        run: |
+          git clone https://github.com/succinctlabs/rsp rsp
+          git -C rsp checkout -q ${{ steps.pins.outputs.rsp_commit }}
+          git -C rsp rev-parse HEAD
+
+      - name: Install build deps
+        run: sudo apt-get install -y -qq protobuf-compiler libssl-dev pkg-config clang >/dev/null
+
+      - name: Inject lemma-fixtures into the workspace
+        run: |
+          mkdir -p rsp/bin/lemma-fixtures/src
+          cp evaluation/harness/Cargo.toml rsp/bin/lemma-fixtures/
+          cp evaluation/harness/src/*.rs rsp/bin/lemma-fixtures/src/
+          sed -i 's|    "bin/host",|    "bin/host",\n    "bin/lemma-fixtures",|' rsp/Cargo.toml
+          git -C rsp diff --stat
+
+      - name: Build
+        working-directory: rsp
+        run: cargo build --release -p lemma-fixtures
+
+      - name: Run
+        # The harness exits 1 on any mismatch; the record and the results are
+        # uploaded either way, and the job reports the failure at the end.
+        id: run
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p run
+          rsp/target/release/lemma-fixtures --fixtures evaluation/fixtures/trie/fixtures.json \
+            --backend ${{ matrix.backend }} --out run/results-${{ matrix.backend }}.json 2>&1 | tee run/stdout.log
+
+      - name: Record
+        run: |
+          {
+            echo "backend: ${{ matrix.backend }}"
+            echo "rsp_commit: $(git -C rsp rev-parse HEAD)"
+            echo "workspace_edit: added member bin/lemma-fixtures (see evaluation/harness)"
+            echo "rustc: $(cd rsp && rustc --version)"
+            echo "harness_sha256: $(cat evaluation/harness/Cargo.toml evaluation/harness/src/*.rs | sha256sum | cut -d' ' -f1)"
+            echo "fixtures_sha256: $(sha256sum evaluation/fixtures/trie/fixtures.json | cut -d' ' -f1)"
+            echo "lemma_fixtures_sha256: $(sha256sum rsp/target/release/lemma-fixtures | cut -d' ' -f1)"
+            echo "outcome: ${{ steps.run.outcome }}"
+            echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
+          } | tee run/run.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixtures-${{ matrix.backend }}-${{ github.run_id }}
+          path: run/
+          retention-days: 90
+
+      - name: Fail if the harness failed
+        if: steps.run.outcome != 'success'
+        run: exit 1

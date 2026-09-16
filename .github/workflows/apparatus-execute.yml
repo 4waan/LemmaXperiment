@@ -8,9 +8,16 @@ name: apparatus-execute
 # input_source=rpc builds the client input from the archive provider and keeps
 # it in the actions cache; input_source=fixture runs offline from the committed
 # development corpus (evaluation/fixtures/blocks/) after checking its sha256
-# against the corpus manifest, with no RPC credential in the environment.
-# Either way the client input that was executed is kept in the artifact under
-# run/input/.
+# against the corpus manifest, with no RPC credential in the environment;
+# input_source=replay executes the exact stdin a previous run saved
+# (replay_run + replay_sha256), so repeated measurements share one input byte
+# for byte. Every run keeps the executed client input under run/input/ (rpc,
+# fixture) and the executed stdin under run/stdin/ (all modes), with both
+# hashes in run.txt.
+#
+# variant=arena carries a different guest (upstream arena backend) whose host
+# writes a witness-less cache file, so it never touches the actions cache and
+# cannot run from the committed corpus: rpc or replay only.
 
 on:
   workflow_dispatch:
@@ -24,13 +31,21 @@ on:
         default: proofs
         required: true
       variant:
-        description: standard or cycle-tracking (which apparatus-build artifact to run)
+        description: standard, cycle-tracking or arena (which apparatus-build artifact to run)
         default: standard
         required: true
       input_source:
-        description: rpc (fetch and cache the client input) or fixture (offline, from evaluation/fixtures/blocks)
+        description: rpc (fetch and cache the client input), fixture (offline, from evaluation/fixtures/blocks) or replay (a saved stdin from replay_run)
         default: rpc
         required: true
+      replay_run:
+        description: replay only; run id of the apparatus-execute artifact holding stdin/<block>.bin
+        default: ""
+        required: false
+      replay_sha256:
+        description: replay only; expected sha256 of that stdin file
+        default: ""
+        required: false
 
 jobs:
   execute:
@@ -39,8 +54,8 @@ jobs:
     timeout-minutes: 120
     env:
       SP1_PROVER: cpu
-      ARTIFACT_SUFFIX: ${{ inputs.variant == 'cycle-tracking' && '-cycle-tracking' || '' }}
-      FIXTURE_SUFFIX: ${{ inputs.input_source == 'fixture' && '-fixture' || '' }}
+      ARTIFACT_SUFFIX: ${{ inputs.variant != 'standard' && format('-{0}', inputs.variant) || '' }}
+      FIXTURE_SUFFIX: ${{ inputs.input_source != 'rpc' && format('-{0}', inputs.input_source) || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,7 +71,7 @@ jobs:
           cat dist/build-record.txt
 
       - name: Witness cache
-        if: inputs.input_source == 'rpc'
+        if: inputs.input_source == 'rpc' && inputs.variant != 'arena'
         uses: actions/cache@v4
         with:
           path: cache
@@ -65,6 +80,7 @@ jobs:
       - name: Client input from the development corpus
         if: inputs.input_source == 'fixture'
         run: |
+          [ "${{ inputs.variant }}" != arena ] || { echo "the arena host cannot load the corpus inputs (pointer format); use rpc or replay"; exit 1; }
           src="evaluation/fixtures/blocks/1/${{ inputs.block }}.bin"
           [ -f "$src" ] || { echo "no committed client input for block ${{ inputs.block }}"; exit 1; }
           want=$(jq -r --argjson n "${{ inputs.block }}" '.blocks[] | select(.number == $n) | .clientInputSha256' evaluation/fixtures/development-corpus.json)
@@ -75,41 +91,70 @@ jobs:
           mkdir -p cache/input/1
           cp "$src" cache/input/1/
 
+      - name: Saved stdin from a previous run
+        if: inputs.input_source == 'replay'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -n "${{ inputs.replay_run }}" ] && [ -n "${{ inputs.replay_sha256 }}" ] || { echo "replay needs replay_run and replay_sha256"; exit 1; }
+          gh run download "${{ inputs.replay_run }}" -R "$GITHUB_REPOSITORY" -D replay
+          src=$(find replay -path '*/stdin/${{ inputs.block }}.bin' | head -1)
+          [ -n "$src" ] || { echo "run ${{ inputs.replay_run }} holds no stdin for block ${{ inputs.block }}"; exit 1; }
+          have=$(sha256sum "$src" | cut -d' ' -f1)
+          echo "expected: ${{ inputs.replay_sha256 }}"
+          echo "file:     $have"
+          [ "$have" = "${{ inputs.replay_sha256 }}" ] || { echo "saved stdin does not match replay_sha256"; exit 1; }
+          grep -E '^(variant|vkey|lemma_prove_sha256):' "$(dirname "$(dirname "$src")")/run.txt" || true
+          mkdir -p run/stdin
+          cp "$src" run/stdin/
+
       - name: Execute
         # pipefail: the binary's exit status must fail the step even though
         # its output goes through tee; without it a crashed run still writes
-        # a run record. In fixture mode the host gets no RPC URL and no RPC_1
-        # variable, so the only possible input is the committed file.
+        # a run record. In fixture and replay mode the host gets no RPC URL
+        # and no RPC_1 variable, so the only possible input is the checked
+        # file. GNU time records the peak resident set of the whole run.
         env:
           RPC_1: ${{ inputs.input_source == 'rpc' && secrets.RPC_1 || '' }}
         run: |
           set -o pipefail
           mkdir -p run cache
+          command -v /usr/bin/time >/dev/null || sudo apt-get install -y -qq time >/dev/null
           if [ "${{ inputs.input_source }}" = rpc ]; then
-            rpc_args="--rpc-url $RPC_1"
+            input_args="--rpc-url $RPC_1 --stdin-dir run/stdin"
+          elif [ "${{ inputs.input_source }}" = replay ]; then
+            unset RPC_1
+            input_args="--stdin-file run/stdin/${{ inputs.block }}.bin"
           else
             unset RPC_1
-            rpc_args=""
+            input_args="--stdin-dir run/stdin"
           fi
           start=$(date +%s)
-          dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 $rpc_args \
+          /usr/bin/time -v -o run/time.txt \
+            dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 $input_args \
             --cache-dir cache --state-backend ${{ inputs.state_backend }} \
-            --stdin-dir run/stdin --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
+            --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
           end=$(date +%s)
           mkdir -p run/input
-          cp -r cache/input/. run/input/
+          [ -d cache/input ] && cp -r cache/input/. run/input/ || true
           {
             echo "block: ${{ inputs.block }}"
             echo "state_backend: ${{ inputs.state_backend }}"
             echo "variant: ${{ inputs.variant }}"
             echo "input_source: ${{ inputs.input_source }}"
+            echo "replay_run: ${{ inputs.replay_run }}"
             echo "mode: execute"
             echo "vkey: $(cat run/out/vkey.txt)"
             echo "wall_seconds: $((end - start))"
-            echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
+            echo "peak_rss_kb: $(awk '/Maximum resident set size/{print $NF}' run/time.txt)"
+            echo "runner: $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB $ImageOS $ImageVersion"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
-            echo "client_input_sha256: $(sha256sum cache/input/1/${{ inputs.block }}.bin | cut -d' ' -f1)"
-            echo "client_input_bytes: $(stat -c %s cache/input/1/${{ inputs.block }}.bin)"
+            echo "stdin_sha256: $(sha256sum run/stdin/${{ inputs.block }}.bin | cut -d' ' -f1)"
+            echo "stdin_bytes: $(stat -c %s run/stdin/${{ inputs.block }}.bin)"
+            if [ -f cache/input/1/${{ inputs.block }}.bin ]; then
+              echo "client_input_sha256: $(sha256sum cache/input/1/${{ inputs.block }}.bin | cut -d' ' -f1)"
+              echo "client_input_bytes: $(stat -c %s cache/input/1/${{ inputs.block }}.bin)"
+            fi
             find cache -type f -exec sh -c 'for f; do echo "witness: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee run/run.txt
           echo "== report.csv"; cat run/report.csv

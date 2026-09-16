@@ -3,12 +3,17 @@ name: apparatus-build
 # Builds the pinned RSP host and the lemma-prove wrapper once, and keeps the
 # binaries as artifacts so execute/prove jobs never rebuild.
 #
-# Two variants, same sources and same guest ELF:
-#   standard        the pinned default; the only build used for proofs and
-#                   for any timing that counts
+# Three variants from the same sources:
+#   standard        the pinned default; the build used for proofs and for
+#                   any timing that counts; the evaluation baseline A
 #   cycle-tracking  bin/host's `cycle-tracking` feature (sp1-sdk/profiling):
-#                   the SP1 executor keeps the guest's cycle-tracker labels,
-#                   so report.csv gets per-phase cycles. Diagnostics only.
+#                   same guest ELF, the SP1 executor keeps the guest's
+#                   cycle-tracker labels, so report.csv gets per-phase
+#                   cycles. Diagnostics only.
+#   arena           bin/host's `arena` feature: the upstream arena MPT backend
+#                   (unaudited) in host and guest, so a different guest ELF
+#                   and vkey. The registered existing capability and the
+#                   evaluation counterfactual (evaluation/policy.json).
 
 on:
   workflow_dispatch:
@@ -23,15 +28,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [standard, cycle-tracking]
+        variant: [standard, cycle-tracking, arena]
     name: build (${{ matrix.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
       VARIANT: ${{ matrix.variant }}
       # `pkg/feature` form so the flag is explicit per package: rsp is bin/host.
-      CARGO_FEATURES: ${{ matrix.variant == 'cycle-tracking' && '--features rsp/cycle-tracking,lemma-prove/cycle-tracking' || '' }}
-      ARTIFACT_SUFFIX: ${{ matrix.variant == 'cycle-tracking' && '-cycle-tracking' || '' }}
+      CARGO_FEATURES: ${{ matrix.variant != 'standard' && format('--features rsp/{0},lemma-prove/{0}', matrix.variant) || '' }}
+      ARTIFACT_SUFFIX: ${{ matrix.variant != 'standard' && format('-{0}', matrix.variant) || '' }}
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       CARGO_INCREMENTAL: "0"
     steps:
@@ -102,7 +107,8 @@ jobs:
             echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
             echo "lemma_wrap_sha256: $(sha256sum dist/lemma-wrap | cut -d' ' -f1)"
-            # The guest ELF sp1-build produced for bin/client; both variants must agree.
+            # The guest ELF sp1-build produced for bin/client; standard and
+            # cycle-tracking must agree, arena differs by construction.
             find rsp -path '*/elf-compilation/*' -type f -name rsp-client -exec sh -c 'for f; do echo "guest_elf: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee dist/build-record.txt
           df -h / | tail -1

@@ -50,6 +50,11 @@ slop-bn254 = "=6.8.0"
 hex = "0.4"
 
 [features]
+# Mirrors bin/host at the pin: the upstream arena MPT backend (unaudited) for
+# host witness emission and, through build.rs, for the guest ELF. This is the
+# registered existing capability and the evaluator's counterfactual
+# (ROBINHOOD_CHAIN_PROD.md I-E9); it changes the guest, so its vkey differs.
+arena = ["rsp-host-executor/arena", "rsp-client-executor/arena"]
 # Mirrors bin/host at the pin. `sp1-sdk/profiling` makes the SP1 executor parse
 # the guest's `cycle-tracker-report-*` lines into ExecutionReport.cycle_tracker,
 # which is where the per-phase CSV columns come from; without it they read 0.

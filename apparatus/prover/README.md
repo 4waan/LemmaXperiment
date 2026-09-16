@@ -2,8 +2,9 @@
 
 A thin wrapper over the pinned RSP host. The guest ELF, executor crates and
 CSV report are the pinned upstream ones; this binary only adds `--stdin-dir`,
-`--out-dir` and `--proof-mode`, because the upstream CLI discards proof bytes
-and does not expose the executor's stdin dump.
+`--out-dir`, `--proof-mode` and `--stdin-file`, because the upstream CLI
+discards proof bytes, does not expose the executor's stdin dump and cannot
+execute a saved stdin again.
 
 It is not built standalone. `apparatus-build.yml` copies this directory into
 the pinned RSP checkout as `bin/lemma-prove`, copies `bin/host/src/cli.rs` and
@@ -21,18 +22,35 @@ vkey.txt                 program key of the embedded guest, every mode
 {block}.vk.bin / .txt    verifying key, bincode and bytes32    (with --prove)
 ```
 
+## Replay: `--stdin-file`
+
+`lemma-prove --block-number N --chain-id 1 --cache-dir cache --stdin-file N.bin ...`
+executes the stdin a previous run saved (`--stdin-dir`) through the
+executor's own validation path (guest execution, header check, the same
+hooks), without the RPC provider or the input cache. Two executions of one
+stdin file are executions of identical bytes, which is what the evaluation
+policy's determinism check needs: a fresh host run re-serializes the witness
+in HashMap order and moves cycles by about 0.01% (apparatus/INTERFACES.md
+section 7). Execute only; `--prove` with `--stdin-file` is refused.
+
 ## Build variants
 
-`apparatus-build.yml` builds the crate twice from the same sources:
+`apparatus-build.yml` builds the crate three times from the same sources:
 
-| variant | cargo features | SP1 executor | use |
-| --- | --- | --- | --- |
-| `standard` | none | native (x86_64 linux) | proofs, PGU, every timing that counts |
-| `cycle-tracking` | `rsp/cycle-tracking,lemma-prove/cycle-tracking` (= `sp1-sdk/profiling`) | portable interpreter | per-phase cycle attribution only |
+| variant | cargo features | guest ELF | SP1 executor | use |
+| --- | --- | --- | --- | --- |
+| `standard` | none | pinned default MPT | native (x86_64 linux) | proofs, PGU, every timing that counts; evaluation baseline A |
+| `cycle-tracking` | `rsp/cycle-tracking,lemma-prove/cycle-tracking` (= `sp1-sdk/profiling`) | same as standard | portable interpreter | per-phase cycle attribution only |
+| `arena` | `rsp/arena,lemma-prove/arena` (forwarded to the guest by `build.rs`, as `bin/host/build.rs` does) | upstream arena MPT backend, unaudited | native | the registered existing capability; evaluation counterfactual C (`evaluation/policy.json`) |
 
-The guest ELF is identical in both (the feature is host-side; `build.rs`
-forwards nothing to the guest), so `vkey.txt` must match across variants and
-so must `total_instruction_count` and `prover_gas`. What differs: SP1 6.8.0
+The arena host writes its input cache without the witness (`parent_state` is
+`serde(skip)` under that feature at the pin), so the arena variant never
+shares the actions cache and cannot load the committed corpus inputs: it
+runs from RPC, or replays a stdin it produced.
+
+Standard and cycle-tracking share the guest ELF (the feature is host-side),
+so `vkey.txt` must match between them and so must
+`total_instruction_count` and `prover_gas`. What differs: SP1 6.8.0
 only parses the guest's `cycle-tracker-report-*` lines under its `profiling`
 feature (`sp1-core-executor/src/minimal/write.rs`), and that feature also
 selects the portable executor over the native one (`sp1-core-executor/src/build.rs`

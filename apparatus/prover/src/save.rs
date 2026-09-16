@@ -8,10 +8,16 @@ use reth_primitives_traits::NodePrimitives;
 use rsp_host_executor::ExecutionHooks;
 use sp1_sdk::{ExecutionReport, HashableKey, SP1VerifyingKey};
 
-/// Which build produced the record. The guest ELF is the same in both; only
-/// the host-side SP1 executor differs (see Cargo.toml `cycle-tracking`).
-pub const VARIANT: &str =
-    if cfg!(feature = "cycle-tracking") { "cycle-tracking" } else { "standard" };
+/// Which build produced the record. `standard` and `cycle-tracking` share the
+/// guest ELF and differ only in the host-side SP1 executor; `arena` carries
+/// the upstream arena-backend guest (see Cargo.toml).
+pub const VARIANT: &str = if cfg!(feature = "arena") {
+    "arena"
+} else if cfg!(feature = "cycle-tracking") {
+    "cycle-tracking"
+} else {
+    "standard"
+};
 pub const EXECUTOR: &str = if cfg!(feature = "cycle-tracking") {
     "sp1 portable interpreter (profiling feature)"
 } else {

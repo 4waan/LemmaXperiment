@@ -293,3 +293,19 @@ The pinned RSP has an `arena` feature: an alternative, unaudited arena-based
 MPT backend for the witness path, forwarded to the guest. The registry
 snapshot must list it so the creator agent can weigh reuse or composition
 against creating something new.
+
+## Outcome of apparatus step 1 (2026-09-16)
+
+Closed. Block 20600066: executed (22.6M cycles, 28.8M PGU), compressed proof
+in 4 h 09 min on a free runner, shrink-wrapped and Groth16-proved in 31 min
+in a second job, verified on Arbitrum Sepolia through the SP1 gateway with
+negative controls reverting. Evidence in `apparatus/runs/`. Pins in
+`pins.json` have no unresolved hardware or verifier fields.
+
+Consequences carried forward:
+
+- Proof-requiring blocks come from the small-block population (under about
+  30M cycles). PGU evaluation on holdout blocks needs no proofs.
+- Compress and wrap are separate jobs; `lemma-wrap` consumes a saved
+  compressed proof and its stdin.
+- Every wall-clock number from these runs is a record, not a benchmark.

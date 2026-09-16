@@ -1,0 +1,8 @@
+{
+  "circuit_version": "v6.1.0",
+  "groth16_seconds": 233.087501745,
+  "proof_bytes_len": 356,
+  "public_values_len": 765,
+  "shrink_wrap_seconds": 1215.804763994,
+  "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba"
+}

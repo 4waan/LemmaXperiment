@@ -1,6 +1,6 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "proposed pin, not yet reproduced",
+  "status": "baseline reproduced 2026-09-16: block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -50,8 +50,8 @@
       ]
     },
     "developmentBlocks": [
+      20600066,
       18884864,
-      20600000,
       null
     ],
     "holdoutSelectionRule": "ten consecutive supported mainnet blocks, start chosen by committed salt, disjoint from development blocks; requires archive RPC",
@@ -61,12 +61,14 @@
       "20600000": 14916853,
       "20600066": 958960
     },
-    "reuseBlockCandidate": 20600066
+    "reuseBlockCandidate": 20600066,
+    "proofRequiringBlockPopulation": "mainnet blocks with total cycles under about 30M (roughly gasUsed under 1.2M) so a compressed proof fits one runner job"
   },
   "hardware": {
     "executionHost": "GitHub-hosted ubuntu-24.04 runner, 4 vCPU, 16 GB, x86_64 (shared; wall time not a benchmark)",
     "provingHost": "same runner, SP1 cpu prover, 6 hour job cap",
-    "note": "evaluator separation by workflow file hash and job logs, not by machine"
+    "note": "evaluator separation by workflow file hash and job logs, not by machine",
+    "runnerThroughput": "about 26 core shards per hour, about 5.5M cycles per hour end to end; blocks up to about 30M cycles fit the 6 hour cap"
   },
   "verifier": {
     "chain": "Arbitrum Sepolia",
@@ -78,7 +80,31 @@
       "version": "6.1.0",
       "address": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2"
     },
-    "note": "SDK 6.8.0 circuit v6.1.0 matches the deployed V6_1_0 verifier; gateway routes by selector",
-    "groth16Verifier": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2"
+    "note": "gateway routes selector 0x4388a21c to the v6.1.0 verifier; verifyProof passed, negative controls revert ProofInvalid",
+    "groth16Verifier": "0xb69f2584CBcFf99a58C4e7002E8b89Af54a6f4e2",
+    "gatewayRouteConfirmed": true
+  },
+  "baseline": {
+    "block": 20600066,
+    "gasUsed": 958960,
+    "txCount": 27,
+    "totalCycles": 22629796,
+    "proverGas": 28810531,
+    "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba",
+    "compressedProofSha256": "71a22e8442beeb985ec6ffd20940b6c0debac3cd9f736e3404f12f5434446f73",
+    "stdinSha256": "087ce12f1436aa3697347e9166248d6521ef6eb337d3b9709af50acd106cb3f2",
+    "groth16Selector": "0x4388a21c",
+    "runs": {
+      "execute": 35017847560,
+      "prove": 35018130745,
+      "wrap": 35051478400
+    },
+    "timings": {
+      "executeSeconds": 1.09,
+      "compressedProveSeconds": 14917,
+      "shrinkWrapSeconds": 1216,
+      "groth16Seconds": 233
+    },
+    "note": "timings are on a shared 4 vCPU GitHub runner with swap; they are records, not benchmarks"
   }
 }

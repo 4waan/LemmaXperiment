@@ -12,11 +12,14 @@ plan stays readable and the failures stay countable.
 
 | 5 | [34944035840](https://github.com/4waan/LemmaXperiment/actions/runs/34944035840) | prove | cancelled at 5 h 56 min by the 355 min job cap, still proving | working set ~27 GB (peak RSS 15.9 GB + 11.5 GB swap) against 16 GB RAM: the run swapped for six hours. Memory cannot go much lower through env vars; the rest is recursion proving keys. No shard progress visible because the pinned host pins `sp1_prover=warn` | `lemma-prove` honors `SP1_LOG` for shard progress; prove the smallest block (20600066, 0.96M gas) first to measure throughput before choosing between block size and host |
 
+| 6 | [35048872659](https://github.com/4waan/LemmaXperiment/actions/runs/35048872659) | build | `unresolved module or unlinked crate tracing` in `wrap.rs` | `lemma-wrap` used `tracing::info!` without listing `tracing` as a dependency; every SP1 import resolved | added `tracing = "0.1"`; next build green |
+
 ## Open
 
-- Throughput is unknown until a run with `SP1_LOG=debug` finishes. If the
-  small block also misses the cap, the free-runner path cannot produce the
-  baseline proof and the report records an environment blocker.
+- None. Apparatus step 1 closed on 2026-09-16: compressed proof of block
+  20600066 in 4 h 09 min, Groth16 wrap in 31 min, verified on Arbitrum
+  Sepolia through the SP1 gateway. Measured throughput about 5.5M cycles
+  per hour, so proof-requiring blocks stay under about 30M cycles.
 - If it still exceeds memory with swap in place, the next lever is SP1's fixed
   `ProverSemaphore::new(4)` in `cpu_worker_builder`, which is not an env var.
   It would need a custom worker builder in `lemma-prove`, still outside the
@@ -24,9 +27,9 @@ plan stays readable and the failures stay countable.
 
 ## Patterns
 
-- Two of four failures were runner-environment gaps (missing package, wrong
+- Two of six failures were runner-environment gaps (missing package, wrong
   cache). Both are what RSP's own CI already handles; mirror it first.
-- Two of four were memory. GitHub's hosted runner kills the whole VM on
+- Two of six were memory, one was the time cap. GitHub's hosted runner kills the whole VM on
   memory exhaustion, which also loses `if: always()` artifacts. Anything
   diagnostic must stream to the job log.
 - A failing command inside `a && b && c` does not fail a `bash -e` step.

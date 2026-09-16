@@ -44,6 +44,8 @@ real block with the pinned configuration. If it cannot, record the blocker in
 
 ## Gate to step 2 (interface survey)
 
+Status: **closed 2026-09-16**. See `SETUP_PLAN.md` outcome and `runs/`.
+
 - One real Compressed proof of a mainnet block verifies with the derived vkey.
 - `pins.json` has no `null` values in `rsp`, `sp1` and `hardware`.
 - A `runs/<id>/` directory holds the exact command, environment, report.csv

@@ -1,0 +1,8 @@
+block: 20600066
+mode: wrap groth16
+compressed_proof_sha256: 71a22e8442beeb985ec6ffd20940b6c0debac3cd9f736e3404f12f5434446f73
+stdin_sha256: 087ce12f1436aa3697347e9166248d6521ef6eb337d3b9709af50acd106cb3f2
+wall_seconds: 1781
+lemma_wrap_sha256: 3f9ff734069fa560598bdcae7ea6b4453678c8131e53b8abee76e57cd252f6c8
+peak_mem_used_mb: 15895
+peak_swap_used_mb: 16698

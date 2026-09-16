@@ -1,9 +1,9 @@
 {
   "demandId": null,
-  "specificationVersion": "0.3-draft",
+  "specificationVersion": "0.4-draft",
   "specificationHash": null,
-  "buyer": null,
-  "assignedCreatorPayee": null,
+  "buyer": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
+  "assignedCreatorPayee": "0xC18925708Fe771D56A31b31429c53CE99aB70a91",
   "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
   "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen prover-gas (PGU) acceptance gate on the sealed holdout set. Latency and cost are measured and reported separately; neither is a gate.",
   "baselineCommit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -51,8 +51,8 @@
     "sha256": "6b082a004a53244a87fc2c344670194046a72442add7829cb242bdeadbc687e2",
     "note": "recorded before any execution; disjoint from development by membership and from holdout set 1 by the frozen exclusion margin (reuse/input.py)"
   },
-  "evaluationPolicyHash": "b369e5679a4edfe13c8837b8ea0c53d1e182ed602a54160230db7fb113f78d0b",
-  "correctnessPolicyHash": "a591d7a7ba722741721d345bdd24fe3cfff18baf3aa29fc6f37858fc62da2821",
+  "evaluationPolicyHash": "4d586005a5bd138465bce92e30eda621e2f716c8f0529d82a94805c32fe14674",
+  "correctnessPolicyHash": "b398124529042e23a9fa31acc108ebfbc31d823a875ddb29fe0e9c2650e0046c",
   "formalScopePolicyHash": "840e425e653b48705be28d17e030f5a951e58896eafed7a5a45c57a5f7d052f7",
   "acceptanceCriteria": {
     "preserveResultsAndSecurity": true,
@@ -87,7 +87,7 @@
     "artifactDigest": "sha256 tree hash over candidate/ and formal/ at that commit (sorted `<path> <sha256>` lines), submitted onchain and recomputed by the evaluator"
   },
   "creationBounty": {
-    "amount": null,
+    "amount": 0.05,
     "asset": "testnet ETH",
     "chain": "Robinhood Chain testnet",
     "chainId": 46630,
@@ -119,20 +119,37 @@
     }
   },
   "usageFeePolicy": {
-    "contributorFee": null,
-    "workerCompensation": null
+    "contributorFee": 0.002,
+    "workerCompensation": 0.02,
+    "asset": "testnet ETH per reuse job, snapshotted at fundJob",
+    "label": "nominal; payment mechanics demonstrated"
   },
-  "licenseRequirements": null,
+  "licenseRequirements": "original contributions under MIT OR Apache-2.0 (the RSP workspace license); reused code keeps its own license with attribution in compositionManifest; nothing that restricts use in a proving service or requires source disclosure beyond the public bundle",
   "agentBudget": {
-    "model": null,
-    "tokenLimit": null,
-    "wallTimeSeconds": null
+    "model": "claude-opus-5",
+    "runtime": "Claude Agent SDK, restricted workspace (agent/runner)",
+    "tokenLimit": 400000000,
+    "tokenLimitDefinition": "input + cache-write + cache-read + output tokens over the main run",
+    "outputTokenLimit": 4000000,
+    "usdLimit": 300,
+    "priceSheet": "https://platform.claude.com/docs/en/about-claude/pricing read 2026-09-17 (demand/budget.json creatorBudget.priceSheet)",
+    "maxTurns": 3000,
+    "wallTimeSeconds": 259200,
+    "controlRuns": {"usdLimit": 20, "maxTurns": 150, "wallTimeSeconds": 7200},
+    "scenarioUsd": 210
   },
-  "computeBudget": null,
+  "computeBudget": {"file": "demand/budget.json creatorComputeBudget", "dispatches": {"apparatus-build": 8, "apparatus-execute": 60, "apparatus-fixtures": 6, "evaluation-formal": 6, "apparatus-prove": 0, "apparatus-wrap": 0}, "executeInputs": "fixture or replay; RPC-backed executions only for the three corpus blocks", "runnerHoursEstimate": 10, "usd": 0},
   "localAttemptLimit": 3,
   "holdoutSubmissionLimit": 1,
-  "submitBy": null,
-  "evaluateBy": null,
+  "submitBy": {
+    "unix": null,
+    "rule": "funding block timestamp + 345600 s (4 days: 72 h creator wall budget + 24 h runner confirmation wait, queueing and submission); absolute value written at funding",
+    "requires": "evaluateBy > submitBy (ROBINHOOD_CHAIN_PROD.md I-S10)"
+  },
+  "evaluateBy": {
+    "unix": null,
+    "rule": "submitBy + 432000 s (5 days: about 2 elapsed days of sequential runner work, 2 h review, one full retry of a 6 h proof, margin); absolute value written at funding"
+  },
   "revisionHistory": [
     {
       "version": "0.1-draft",
@@ -155,6 +172,15 @@
         "step 5: baselineCommit, dependencyLockHash (build 35122594072 Cargo.lock), toolchainManifestHash (evaluation/toolchain.json), workloadRelation, resourceLimits, candidateBundle",
         "allowedSourcePaths: workspace Cargo.toml and Cargo.lock admitted for reviewed additions only",
         "evaluationPolicyHash, correctnessPolicyHash, formalScopePolicyHash from evaluation/policy.json 1.0 (evaluation/freeze.py)"
+      ]
+    },
+    {
+      "version": "0.4-draft",
+      "date": "2026-09-17",
+      "changes": [
+        "step 6: agentBudget (claude-opus-5, token, output, USD, turn and wall-time limits from demand/budget.json), computeBudget, deadlines as rules relative to funding, sponsor amounts (bounty 0.05 testnet ETH, usage fee 0.002 + 0.02), licenseRequirements, buyer and assignedCreatorPayee",
+        "evaluation/policy.json 1.1 (corpus execution source per variant, budget pointer) and its hashes",
+        "remaining nulls: demandId, specificationHash, absolute deadlines and settlement addresses, all written at deployment and funding (step 7)"
       ]
     }
   ]

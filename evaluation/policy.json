@@ -1,6 +1,6 @@
 {
-  "policyVersion": "1.0",
-  "frozenAt": "2026-09-16",
+  "policyVersion": "1.1",
+  "frozenAt": "2026-09-17",
   "scope": "Evaluation of one candidate for the demand in demand/spec.json (EXPERIMENT.md sections 4 step 5 and 7). Every rule below is mechanical unless it names a reviewer. Changing any value after funding requires a new policy version, a new hash and a new demand version.",
   "hashing": {
     "policyHash": "keccak256 of the canonical JSON of this file (UTF-8, keys sorted, no whitespace). Recorded as evaluationPolicyHash in demand/spec.json and committed onchain at funding; never stored inside this file",
@@ -99,7 +99,7 @@
       ]
     },
     "supportedRange": "Cancun era (19426587 to 22431083); see demand/spec.json integrationTarget.supportedFork",
-    "blockIntegration": "A (standard), B (candidate) and C (arena) execute every development-corpus block and must reach the manifest's stateRoot; A and B from the committed client input, C from RPC (the arena host cannot load the pointer-format corpus input, apparatus/prover/README.md); identical public values across variants",
+    "blockIntegration": "A (standard), B (candidate) and C (arena) execute every development-corpus block and must reach the manifest's stateRoot with identical public values. A runs from the committed client input; a variant whose host cannot load the pointer-format input (C at the pin, and B if it changes the witness type) runs from RPC, which encodes the same block and node set (apparatus/prover/README.md)",
     "harnessAdapter": "the candidate's StateTries backend is run through evaluation/harness with an adapter arm the evaluator writes from the candidate's documented construction (compatibilityManifest); the adapter is published with the report and its harness sha256 recorded",
     "candidateSpecificFamilies": "forged handles and capacity boundaries are instantiated by the evaluator from the same cases against the candidate's own witness encoding and cap setting (evaluation/fixtures/README.md)"
   },
@@ -140,7 +140,7 @@
       "oneEvaluationPerSet": true
     },
     "executionsPerVariantPerBlock": 2,
-    "inputs": "one RPC-backed run per block and variant produces the stdin (apparatus-execute input_source=rpc, witness fetched inside the evaluator job after the candidate's final submission); the second execution replays that exact stdin (input_source=replay, sha256 checked), so both executions of a pair share one input byte for byte and their PGU must be identical (I-E8). A and B stdins differ in encoding when the candidate changes the witness format; their client inputs (pointer format) are the same bytes",
+    "inputs": "one RPC-backed run per block and variant produces the stdin (apparatus-execute input_source=rpc, witness fetched inside the evaluator job after the candidate's final submission); the second execution replays that exact stdin (input_source=replay, sha256 checked), so both executions of a pair share one input byte for byte and their PGU must be identical (I-E8). Across variants the stdins differ in encoding and in host serialization order; they encode the same block and the same witness node set, and the report records every stdin sha256",
     "plannedExecutions": 60,
     "plannedRealProofs": 3,
     "realProofs": "one compressed proof each of A and B on the smallest holdout block by gasUsed if its A cycle count is under 30M (about 5.5M cycles per hour on the runner), otherwise on development block 20600066 and labeled so; the third proof is the reuse job. Proofs verify against the vkey the evaluator derived; PGU stays the gate",
@@ -196,7 +196,8 @@
       "peakMemoryBytes": 17179869184,
       "onLimit": "an execution that exceeds the timeout or is killed for memory counts as that variant failing that block (retained, never rerun on another block); measured A: 28M-gas block 388M cycles in 512 s including witness fetch, replay 127 s",
       "provingTimeoutSeconds": 21300,
-      "totalEvaluationRunnerHours": 24
+      "totalEvaluationRunnerHours": 24,
+      "budget": "demand/budget.json evaluationBudget: about 20 runner hours and 2 elapsed days, operator-paid, no purchased proving"
     }
   },
   "verdict": {
@@ -241,6 +242,14 @@
         "formal: toolchain leanprover/lean4:v4.34.0, mechanical checks (evaluation/analysis/axioms.py, evaluation-formal.yml), theorem scope, reviewer",
         "performance: arena counterfactual C with the smaller-saving rule, replay-based determinism, real-proof rule, limits, analysis script",
         "verdict: rule, report and EIP-712 signature; policyHash moved out of the file"
+      ]
+    },
+    {
+      "version": "1.1",
+      "date": "2026-09-17",
+      "changes": [
+        "correctness.blockIntegration and performance.inputs: a variant that changes the witness type runs the corpus from RPC (same block and node set), not from the committed pointer-format input; 1.0 wording would have made an encoding-changing candidate fail by construction",
+        "performance.limits.budget: pointer to demand/budget.json (step 6)"
       ]
     }
   ]

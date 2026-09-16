@@ -10,6 +10,9 @@ Owner: buyer / operator. Frozen before the bounty is funded.
 - `registry-snapshot.json`: the set of existing evaluated capabilities the
   agent may search. The main creation run must contain no prebuilt solution to
   the funded gap. Seeded control entries are labeled.
+- `budget.json`: measured run costs, the list-price proof model, the creator,
+  compute and evaluation budgets and the deadline rules (step 6). The spec
+  carries the limits; this file carries their provenance.
 
 ## Produced by
 

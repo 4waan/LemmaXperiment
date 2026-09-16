@@ -1,6 +1,6 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era); step 4 closed 2026-09-16: holdout set 1 sealed (evaluation/holdout/commitment.json), precommit run 35106575645 before beacon block 25990577; step 5 closed 2026-09-16: evaluation policy 1.0 frozen (image, metrics with the arena counterfactual, formal scope, limits), arena build variant measured on the corpus, stdin replay determinism shown",
+  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build; step 3 closed 2026-09-16: development corpus of three blocks, 31 independent trie fixtures with the harness passing on both upstream backends, fork support checked (FAILURES.md #10 limits the holdout to the Cancun era); step 4 closed 2026-09-16: holdout set 1 sealed (evaluation/holdout/commitment.json), precommit run 35106575645 before beacon block 25990577; step 5 closed 2026-09-16: evaluation policy 1.0 frozen (image, metrics with the arena counterfactual, formal scope, limits), arena build variant measured on the corpus, stdin replay determinism shown; step 6 closed 2026-09-17: demand/budget.json (measured run costs, list-price proof model, creator and evaluation budgets, deadline rules), spec 0.4-draft, policy 1.1",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
@@ -203,6 +203,13 @@
         "control-A1 (reuse)",
         "control-A3 (decline)"
       ]
+    },
+    "budget": {
+      "file": "demand/budget.json",
+      "creatorUsdLimit": 300,
+      "creatorModel": "claude-opus-5",
+      "evaluationRunnerHours": 20,
+      "deadlineRule": "submitBy = funding + 4 d, evaluateBy = submitBy + 5 d"
     }
   },
   "hardware": {

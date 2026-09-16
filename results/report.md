@@ -121,6 +121,21 @@ saved stdin reproduces cycles and PGU exactly for both variants; the
 evaluation uses one RPC run plus one replay per block and variant (60
 executions planned). Peak resident set 7.5 to 8.8 GB on every run.
 
+## Apparatus step 6: proof-run costs and budgets
+
+`demand/budget.json` (2026-09-17). Measured: execute 83 to 549 s from RPC,
+59 to 127 s from a saved input; build 21 min; compressed proof 4 h 09 min
+for 22.6M cycles (5.5M cycles per hour, 30M-cycle ceiling under the 6 h
+cap). List price of a proof (Succinct network, not bought): 0.26 to 1.16
+PROVE per corpus block; a candidate at the 5% gate over the arena saves
+0.002 to 0.036 PROVE per job, so per-job value is small at this block size
+and volume decides break-even. Creator budget: `claude-opus-5`, 300 USD,
+400M tokens, 72 h, 3 revisions (scenario 210 USD); compute: corpus-only
+executions, no proofs, about 10 free runner hours. Evaluation: about 20
+runner hours over 2 days, operator-paid. Deadlines: submitBy = funding + 4
+days, evaluateBy = submitBy + 5 days. Sponsor amounts: bounty 0.05 testnet
+ETH, usage fee 0.002 + 0.02, labeled mechanics only.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)
@@ -155,7 +170,9 @@ creator experiment margin
   - creator-paid settlement and support costs
 ```
 
-All values: TBD. Testnet settlement is labeled payment mechanics demonstrated.
+All values: TBD until the runs happen. Estimates and price bases are in
+`demand/budget.json`; testnet settlement is labeled payment mechanics
+demonstrated, and the creator's inference bill is the only USD cost.
 
 ## Human interventions
 

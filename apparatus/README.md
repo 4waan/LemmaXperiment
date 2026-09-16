@@ -7,7 +7,9 @@ implementing anything; prepare three public development blocks and
 independent correctness fixtures; freeze and commit the holdout selection
 (the sealed material itself belongs to the evaluator, `evaluation/holdout/`);
 freeze the evaluator image, metrics, formal scope, limits and thresholds
-(`evaluation/policy.json` 1.0) and measure the existing capability.
+(`evaluation/policy.json`) and measure the existing capability; estimate
+proof-run costs and fix the agent, compute and evaluation budgets
+(`demand/budget.json`).
 
 Nothing downstream can start until this stage produces a verified proof of a
 real block with the pinned configuration. If it cannot, record the blocker in
@@ -198,3 +200,41 @@ Gate to step 6 (cost estimate, agent and evaluation budgets):
   requests are written.
 
 Status: **closed 2026-09-16**.
+
+## Step 6: proof-run costs and budgets
+
+Deliverable: `demand/budget.json`, carried into `demand/spec.json` 0.4-draft
+(`agentBudget`, `computeBudget`, `creationBounty.amount`, `usageFeePolicy`,
+`licenseRequirements`, `buyer`, `assignedCreatorPayee`, deadline rules).
+Every number names its provenance.
+
+| item | value | basis |
+| --- | --- | --- |
+| execute from RPC | 83 to 549 s per block | measured, five runs |
+| replay or fixture execute | 59 to 127 s (about 80 s SP1 setup) | measured, four runs |
+| build | 21 min per variant | measured, two runs |
+| compressed proof | 4 h 09 min for 22.6M cycles, about 5.5M cycles per hour; 6 h cap means about 30M cycles | measured, run 35018130745 |
+| proof list price | 0.2 PROVE + 2.0 PROVE per bPGU: 0.26 to 1.16 PROVE per corpus block; a 5% gain over the arena saves 0.002 to 0.036 PROVE per job | list price, not bought |
+| creator | `claude-opus-5`, 300 USD cap, 400M tokens, 4M output, 3000 turns, 72 h, 3 revisions; scenario 210 USD | price sheet read 2026-09-17 |
+| creator compute | 8 builds, 60 executes (corpus only), 6 fixtures, 6 Lean checks, no proofs; about 10 runner hours | free public-repo minutes |
+| evaluation | 1 build, 9 corpus runs, 30 witness runs + 30 replays, 2 proofs, 2 wraps, 2 h review; about 20 runner hours, 2 elapsed days | operator-paid, 0 USD |
+| deadlines | submitBy = funding + 4 days; evaluateBy = submitBy + 5 days | measured plan plus margin; absolute values at funding |
+| sponsor amounts | bounty 0.05, usage fee 0.002 + 0.02, gas reserve 0.01, testnet ETH | nominal, mechanics only |
+
+`evaluation/policy.json` moved to 1.1 for two wording fixes found while
+budgeting (a candidate that changes the witness type executes the corpus
+from RPC, as the arena does) and a budget pointer; hashes refrozen.
+
+Gate to step 7 (fund the bounty):
+
+- `demand/spec.json` nulls are only `demandId`, `specificationHash`, the
+  absolute `submitBy`/`evaluateBy` and the settlement addresses.
+- Sponsor and worker wallets funded on Robinhood Chain testnet with bounty,
+  fees and gas reserve (`demand/budget.json` `sponsorAmounts`).
+- Contracts deployed and verified (`contracts/`), `SP1VerifierGroth16`
+  v6.1.0 address recorded; `fundDemand` carries the spec hash, policy hash
+  `4d586005…` and holdout commitment `e60d6ced…`.
+- The runner (`agent/runner/`) enforces the creator limits in `budget.json`.
+
+Status: **closed 2026-09-17** for the estimate and the budgets; the
+absolute deadlines and amounts become final at funding.

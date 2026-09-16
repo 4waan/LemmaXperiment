@@ -40,6 +40,14 @@ humanInterventions[]: { at, kind, description }
 assistanceLevel: unassisted | assisted-configuration | human-assisted-implementation
 ```
 
+## Limits the runner enforces
+
+From `demand/spec.json` `agentBudget` and `computeBudget`
+(`demand/budget.json`): USD, total-token, output-token, turn and wall-time
+caps on the main run and on each control run; dispatch counts per workflow;
+execute inputs restricted to the committed corpus; no prove or wrap
+dispatches. Every stop records the usage that triggered it.
+
 ## Gate to next stage
 
 A submission transaction at or before `submitBy`, or a recorded decline with an

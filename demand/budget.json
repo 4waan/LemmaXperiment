@@ -1,0 +1,114 @@
+{
+  "schema": "lemma-budget/1",
+  "version": "1.0",
+  "frozenAt": "2026-09-17",
+  "purpose": "EXPERIMENT.md section 4 step 6: proof-run cost estimates from measured runs, and the explicit agent, compute and evaluation budgets that demand/spec.json carries. Every number states its provenance: measured (a run id), list price (a dated page) or scenario (an assumption).",
+  "zeroSpendConstraint": "No GPU rental, no PROVE purchase, no paid runner minutes: all proving and execution runs on GitHub-hosted runners of the public repository (free minutes, 6 h job cap, one RPC-bound job at a time). The only real money is the creator's inference; testnet ETH is nominal (ROBINHOOD_CHAIN_PROD.md I-X1).",
+
+  "measuredRunCosts": {
+    "runner": "GitHub-hosted ubuntu-24.04, 4 vCPU, 16 GB, x86_64; wall times are records on a shared machine, not benchmarks",
+    "build": {"seconds": 1260, "note": "one variant of the pinned host plus lemma-prove; three variants build in parallel", "runs": [35120130617, 35122594072]},
+    "executeFromRpc": {"secondsRange": [83, 549], "note": "witness fetch from the archive provider plus SP1 execute; 0.96M gas 83 s, 28.2M gas 512 to 549 s", "runs": [35078583453, 35078560969, 35078553836, 35122638658, 35123522987]},
+    "executeReplayOrFixture": {"secondsRange": [59, 127], "note": "about 80 s is SP1 setup regardless of block size; 28.2M gas executes in 12 s", "runs": [35081865737, 35081874073, 35122892653, 35124461684]},
+    "trieFixtures": {"seconds": 130, "note": "build of lemma-fixtures plus 31 cases per backend", "run": 35081286192},
+    "leanCheck": {"seconds": 70, "note": "elan install, toolchain download, build, axioms, leanchecker on the smoke project", "run": 35122594002},
+    "compressedProof": {"seconds": 14917, "block": 20600066, "cycles": 22629796, "throughputCyclesPerHour": 5500000, "note": "4 h 09 min with a 24 GB swap file; the 6 h cap bounds proofs to about 30M cycles", "run": 35018130745},
+    "groth16Wrap": {"seconds": 1449, "note": "shrink and wrap 1216 s, gnark 233 s", "run": 35051478400},
+    "peakResidentSetKb": {"range": [7534740, 8757568], "note": "every execute run of step 5; dominated by SP1 setup"},
+    "archiveRpc": {"provider": "Alchemy free tier, one key", "limit": "HTTP 429 with more than one concurrent witness fetch (apparatus/FAILURES.md #9); witness generation therefore runs one job at a time", "callsPerWitness": "not metered by the host; the dashboard is the only source"}
+  },
+
+  "modeledProofPrices": {
+    "basis": "Succinct Prover Network list price as quoted in PROOF_MODULE_VALUE.md section 2 from the network quickstart: 0.2 PROVE base fee plus up to 2.0 PROVE per billion PGU; a cap, not a cleared price; nothing is bought at it in this experiment",
+    "perProof": {
+      "20600066": {"A": 0.258, "C": 0.241, "unit": "PROVE"},
+      "18884864": {"A": 0.417, "C": 0.372, "unit": "PROVE"},
+      "23945771": {"A": 1.161, "C": 0.911, "unit": "PROVE"}
+    },
+    "savingAtThreshold": {
+      "rule": "a candidate exactly at the 5% gate against the arena counterfactual C saves 0.05 * pguC per job",
+      "20600066": {"pguSaved": 1030266, "prove": 0.0021},
+      "18884864": {"pguSaved": 4295745, "prove": 0.0086},
+      "23945771": {"pguSaved": 17787407, "prove": 0.0356},
+      "note": "the 0.2 PROVE base fee is invariant to any module, so per-job value is small unless blocks are large or volume is high (PROOF_MODULE_VALUE.md section 2)"
+    }
+  },
+
+  "creatorBudget": {
+    "model": "claude-opus-5 through the Claude Agent SDK (TOOLING.md B2); Sonnet 5 is the fallback if the sponsor cuts the budget before funding, recorded as a spec revision",
+    "priceSheet": {"source": "https://platform.claude.com/docs/en/about-claude/pricing", "readOn": "2026-09-17", "opus5UsdPerMTok": {"input": 5, "cacheWrite5m": 6.25, "cacheWrite1h": 10, "cacheRead": 0.5, "output": 25}, "sonnet5UsdPerMTok": {"input": 2, "cacheWrite5m": 2.5, "cacheWrite1h": 4, "cacheRead": 0.2, "output": 10}},
+    "scenario": {"turns": 1200, "averageContextTokens": 150000, "newTokensPerTurn": 5000, "outputTokensPerTurn": 2000, "cacheReadTokens": 180000000, "cacheWriteTokens": 6000000, "outputTokens": 2400000, "usdAtOpus5": 210, "usdAtSonnet5": 84, "note": "a three-day run with three local revisions; assumption, not a measurement"},
+    "limits": {
+      "usdLimit": 300,
+      "tokenLimit": 400000000,
+      "tokenLimitDefinition": "sum of input, cache-write, cache-read and output tokens reported by the API over every turn of the main run",
+      "outputTokenLimit": 4000000,
+      "maxTurns": 3000,
+      "wallTimeSeconds": 259200,
+      "localAttemptLimit": 3,
+      "holdoutSubmissionLimit": 1
+    },
+    "controls": {"perRun": {"usdLimit": 20, "maxTurns": 150, "wallTimeSeconds": 7200}, "runs": ["control-A1", "control-A3"], "note": "disposition-only, no builds beyond reading the registry snapshot and profiling records"},
+    "enforcement": "the runner (agent/runner, F2) stops the run at any limit and records the usage that triggered it; the run log carries the API usage per revision; the cost reported in results/report.md is the observed bill, not this estimate"
+  },
+
+  "creatorComputeBudget": {
+    "dispatches": {"apparatus-build": 8, "apparatus-execute": 60, "apparatus-fixtures": 6, "evaluation-formal": 6, "apparatus-prove": 0, "apparatus-wrap": 0},
+    "executeInputs": "fixture (the committed corpus) or replay; RPC-backed executions only for the three corpus blocks, none for other blocks, so the creator never fetches state outside the public corpus",
+    "runnerHoursEstimate": 10,
+    "usd": 0,
+    "note": "public repository minutes are free; the binding limits are the 6 h job cap, one RPC job at a time and the dispatch counts, enforced by the runner's tool allowlist"
+  },
+
+  "evaluationBudget": {
+    "paidBy": "operator (EXPERIMENT.md section 8: evaluation infrastructure is separately budgeted)",
+    "plan": {
+      "builds": {"count": 1, "note": "candidate variant B; A and C exist", "seconds": 1260},
+      "trieFixtures": {"count": 1, "seconds": 400, "note": "pointer, arena and the candidate backend"},
+      "leanCheck": {"count": 1, "seconds": 120},
+      "corpusExecutions": {"count": 9, "note": "A, B, C on three development blocks", "secondsEach": 300},
+      "holdoutWitnessRuns": {"count": 30, "note": "one RPC-backed run per block and variant, sequential", "secondsEach": 300},
+      "holdoutReplays": {"count": 30, "secondsEach": 120},
+      "compressedProofs": {"count": 2, "note": "A and B on the smallest holdout block under 30M A cycles, else 20600066 (the A proof of 20600066 exists: run 35018130745, reused rather than regenerated)", "secondsEach": 16000},
+      "wraps": {"count": 2, "secondsEach": 1500},
+      "humanReview": {"hours": 2, "note": "reviewer note on the theorem, verdict signing"}
+    },
+    "runnerHoursEstimate": 20,
+    "elapsedDaysEstimate": 2,
+    "usd": 0,
+    "provingCapCheck": "a proof job that would exceed the 6 h cap is not attempted; the report says so and PGU remains the gate (Inconclusive is never produced by a missing proof, since proofs are not the gate)"
+  },
+
+  "reuseBudget": {
+    "block": 20600928,
+    "gasUsed": 803522,
+    "cyclesEstimate": "about 19M on the baseline guest by gas ratio to 20600066; fits one proof job",
+    "proof": {"count": 1, "secondsEstimate": 12500, "note": "the third real proof; worker-run, settles on Robinhood Chain testnet"}
+  },
+
+  "deadlines": {
+    "rule": "measured plan plus margin, relative to the funding block timestamp; absolute Unix values are written into demand/spec.json and the fundDemand call at funding (step 7)",
+    "submitBy": {"afterFundingSeconds": 345600, "derivation": "72 h creator wall budget + 24 h for the runner's confirmation wait, queueing and the submission transaction"},
+    "evaluateBy": {"afterSubmitSeconds": 432000, "derivation": "about 2 elapsed days of sequential runner work + 2 h review + one full retry of the longest stage (a 6 h proof) + margin, rounded up to 5 days"},
+    "calendarCheck": "funding on 2026-09-18 gives submitBy 2026-09-22 and evaluateBy 2026-09-27, inside the ROBINHOOD_CHAIN_PROD.md plan (G3 to 23 September, G4 to 28 September) and before the 4 October buildathon deadline"
+  },
+
+  "sponsorAmounts": {
+    "asset": "testnet ETH on Robinhood Chain testnet (46630)",
+    "creationBounty": 0.05,
+    "usageFee": {"contributorFee": 0.002, "workerCompensation": 0.02, "note": "per reuse job, snapshotted at fundJob"},
+    "gasReserve": 0.01,
+    "label": "payment mechanics demonstrated; nominal amounts chosen by the sponsor, no willingness-to-pay claim",
+    "walletsToFund": {"sponsor": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c", "worker": "0x6101ddC7f01b102759055905fa6F9834B94f4078", "relayer for the evaluator verdict": "any funded account; the signature carries the authority"}
+  },
+
+  "scenarioEconomics": {
+    "label": "scenario, not observed savings (BUILD_CASE_MAP.md M-economic): prices are list prices and the bounty is testnet",
+    "creatorExperimentMargin": "bounty (testnet, no USD value) + usage fees (testnet) - inference cost (observed, up to 300 USD) - 0 proving cost: negative in USD by construction; the experiment measures whether the loop works, not whether it pays",
+    "buyerBreakEvenJobs": {
+      "formula": "ceil((bounty + integration cost) / net saving per job)",
+      "example": "a bounty valued at the creator's 300 USD inference cost, integration cost 0, saving 0.0356 PROVE per 28M-gas job at list price: break-even = 300 / (0.0356 * P) = 8427 / P jobs where P is the USD price of one PROVE (8427 jobs at P = 1); at the same gate on 0.96M-gas blocks the saving is 0.0021 PROVE per job and break-even is 142857 / P jobs",
+      "note": "PROVE is not converted to USD here; the report converts at the price on the day if it converts at all"
+    }
+  }
+}

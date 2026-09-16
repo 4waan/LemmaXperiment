@@ -1,0 +1,9 @@
+block: 20600066
+mode: prove compressed
+sp1_prover: cpu
+wall_seconds: 15021
+runner: 4 vcpu 15 GB (shared GitHub runner, not a benchmark)
+lemma_prove_sha256: 56d13f67fe1619254598dfdc86890b6cff97f13dce079e0e7cbe4c9e6126a77a
+peak_mem_used_mb: 15890
+peak_swap_used_mb: 8189
+prover_env: SHARD_SIZE=524288 ELEMENT_THRESHOLD=33554432 one worker per stage

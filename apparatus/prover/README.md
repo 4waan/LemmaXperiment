@@ -18,3 +18,19 @@ Outputs per block under `--out-dir`:
 {block}.proof.bin        bincode SP1 proof                     (with --prove)
 {block}.vk.bin / .txt    verifying key, bincode and bytes32    (with --prove)
 ```
+
+## lemma-wrap
+
+`lemma-wrap --compressed-proof {block}.proof.bin --stdin {block}.bin --out-dir wrap-out`
+
+Re-executes the guest for public values, verifies the compressed proof
+against the pinned vkey, runs shrink and wrap, then Groth16 through gnark
+(docker), verifies the bundle with the SDK and writes:
+
+```text
+groth16.bin          SP1ProofWithPublicValues, bincode
+proof.hex            on-chain proof bytes (4 byte selector + groth16 proof)
+public-values.hex    on-chain public values bytes
+vkey.txt             program vkey (bytes32)
+wrap.json            timings and lengths
+```

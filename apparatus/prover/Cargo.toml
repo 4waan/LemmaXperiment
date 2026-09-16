@@ -36,5 +36,25 @@ sp1-sdk.workspace = true
 sp1-core-executor.workspace = true
 strum = "0.27"
 
+# lemma-wrap only. Pinned to the exact versions in the RSP Cargo.lock.
+sp1-prover = "=6.8.0"
+sp1-hypercube = "=6.8.0"
+sp1-primitives = "=6.8.0"
+sp1-recursion-circuit = "=6.8.0"
+sp1-recursion-compiler = "=6.8.0"
+sp1-recursion-executor = "=6.8.0"
+sp1-recursion-gnark-ffi = "=6.8.0"
+slop-algebra = "=6.8.0"
+slop-bn254 = "=6.8.0"
+hex = "0.4"
+
+[[bin]]
+name = "lemma-prove"
+path = "src/main.rs"
+
+[[bin]]
+name = "lemma-wrap"
+path = "src/wrap.rs"
+
 [build-dependencies]
 sp1-build.workspace = true

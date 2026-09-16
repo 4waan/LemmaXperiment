@@ -2,7 +2,6 @@
 //! the guest or the executor crates: `--stdin-dir` (exposes the executor's
 //! existing stdin dump), `--out-dir` (saves proof, vkey, timings), and
 //! `--proof-mode` (compressed, groth16 or plonk instead of hardcoded compressed).
-#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 use std::{path::PathBuf, sync::Arc};
 

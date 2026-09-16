@@ -1,0 +1,85 @@
+name: apparatus-wrap
+
+# Shrink-wraps a saved compressed proof to Groth16 and emits the on-chain
+# bundle. Runs in its own job so compress and wrap each fit the 6 hour cap.
+
+on:
+  workflow_dispatch:
+    inputs:
+      block:
+        description: mainnet block number
+        default: "20600066"
+        required: true
+      prove_run_id:
+        description: apparatus-prove run id holding {block}.proof.bin (compressed)
+        required: true
+      execute_run_id:
+        description: apparatus-execute run id holding stdin/{block}.bin
+        required: true
+
+jobs:
+  wrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    env:
+      SP1_PROVER: cpu
+      SP1_LOG: info
+      SP1_WORKER_NUM_RECURSION_EXECUTOR_WORKERS: "1"
+      SP1_WORKER_RECURSION_EXECUTOR_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_RECURSION_PROVER_WORKERS: "1"
+      SP1_WORKER_RECURSION_PROVER_BUFFER_SIZE: "1"
+      SP1_WORKER_NUM_PREPARE_REDUCE_WORKERS: "1"
+      SP1_WORKER_PREPARE_REDUCE_BUFFER_SIZE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk and add swap
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo fallocate -l 24G /swapfile2
+          sudo chmod 600 /swapfile2
+          sudo mkswap /swapfile2 >/dev/null
+          sudo swapon /swapfile2
+          swapon --show
+          df -h / | tail -1; free -g | head -3
+          docker --version
+
+      - name: Fetch binaries and inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          commit=$(jq -r .rsp.commit apparatus/pins.json)
+          run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w apparatus-build -s success -L 1 --json databaseId -q '.[0].databaseId')
+          gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "rsp-host-$commit" -D dist
+          chmod +x dist/lemma-wrap
+          gh run download "${{ inputs.prove_run_id }}" -R "$GITHUB_REPOSITORY" -n "prove-${{ inputs.block }}-compressed-${{ inputs.prove_run_id }}" -D in/prove
+          gh run download "${{ inputs.execute_run_id }}" -R "$GITHUB_REPOSITORY" -n "execute-${{ inputs.block }}-proofs-${{ inputs.execute_run_id }}" -D in/execute
+          ls -la in/prove/out in/execute/stdin
+          sha256sum in/prove/out/${{ inputs.block }}.proof.bin in/execute/stdin/${{ inputs.block }}.bin
+
+      - name: Wrap
+        run: |
+          mkdir -p run
+          ( while true; do line="$(date -u +%T) $(free -m | awk '/Mem/{print "mem_used_mb="$3} /Swap/{print "swap_used_mb="$3}' | xargs)"; echo "MEMSAMPLE $line"; echo "$line" >> run/memory.log; sleep 30; done ) &
+          start=$(date +%s)
+          dist/lemma-wrap --compressed-proof in/prove/out/${{ inputs.block }}.proof.bin \
+            --stdin in/execute/stdin/${{ inputs.block }}.bin --out-dir run/out 2>&1 | grep -v MEMSAMPLE | tee run/stdout.log
+          end=$(date +%s)
+          {
+            echo "block: ${{ inputs.block }}"
+            echo "mode: wrap groth16"
+            echo "compressed_proof_sha256: $(sha256sum in/prove/out/${{ inputs.block }}.proof.bin | cut -d' ' -f1)"
+            echo "stdin_sha256: $(sha256sum in/execute/stdin/${{ inputs.block }}.bin | cut -d' ' -f1)"
+            echo "wall_seconds: $((end - start))"
+            echo "lemma_wrap_sha256: $(sha256sum dist/lemma-wrap | cut -d' ' -f1)"
+            echo "peak_mem_used_mb: $(grep -o 'mem_used_mb=[0-9]*' run/memory.log | cut -d= -f2 | sort -n | tail -1)"
+            echo "peak_swap_used_mb: $(grep -o 'swap_used_mb=[0-9]*' run/memory.log | cut -d= -f2 | sort -n | tail -1)"
+          } | tee run/run.txt
+          cat run/out/wrap.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wrap-${{ inputs.block }}-groth16-${{ github.run_id }}
+          path: run/
+          retention-days: 90

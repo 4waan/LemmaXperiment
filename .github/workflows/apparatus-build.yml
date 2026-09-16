@@ -70,7 +70,7 @@ jobs:
       - name: Build record
         run: |
           mkdir -p dist
-          cp rsp/target/release/rsp rsp/target/release/lemma-prove dist/
+          cp rsp/target/release/rsp rsp/target/release/lemma-prove rsp/target/release/lemma-wrap dist/
           {
             echo "built_at: $(date -u +%FT%TZ)"
             echo "runner: ${{ runner.os }} ${{ runner.arch }} $(nproc) vcpu $(free -g | awk '/Mem/{print $2}') GB"
@@ -80,6 +80,7 @@ jobs:
             echo "rustc: $(cd rsp && rustc --version)"
             echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
+            echo "lemma_wrap_sha256: $(sha256sum dist/lemma-wrap | cut -d' ' -f1)"
           } | tee dist/build-record.txt
           df -h / | tail -1
 

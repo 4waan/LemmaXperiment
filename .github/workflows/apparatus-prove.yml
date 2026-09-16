@@ -87,7 +87,7 @@ jobs:
           start=$(date +%s)
           dist/lemma-prove --block-number ${{ inputs.block }} --chain-id 1 --rpc-url "$RPC_1" \
             --cache-dir cache --prove --proof-mode ${{ inputs.proof_mode }} \
-            --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
+            --stdin-dir run/stdin --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
           end=$(date +%s)
           kill $sampler 2>/dev/null || true
           {

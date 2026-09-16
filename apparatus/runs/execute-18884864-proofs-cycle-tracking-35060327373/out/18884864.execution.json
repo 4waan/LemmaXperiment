@@ -1,0 +1,29 @@
+{
+  "block": 18884864,
+  "cycle_tracker": {
+    "block execution": 34510228,
+    "compute state root": 10122839,
+    "deserialize inputs": 19962490,
+    "initialize witness db": 17181639,
+    "precompile-ecrecover": 74911,
+    "recover senders": 1388961,
+    "validate block post-execution": 1055287,
+    "validate header": 389208
+  },
+  "execution_seconds": 4.210263244,
+  "executor": "sp1 portable interpreter (profiling feature)",
+  "invocation_tracker": {
+    "block execution": 1,
+    "compute state root": 1,
+    "deserialize inputs": 1,
+    "initialize witness db": 1,
+    "precompile-ecrecover": 2,
+    "recover senders": 1,
+    "validate block post-execution": 1,
+    "validate header": 1
+  },
+  "prover_gas": 108529300,
+  "total_instruction_count": 89571134,
+  "total_syscall_count": 42328,
+  "variant": "cycle-tracking"
+}

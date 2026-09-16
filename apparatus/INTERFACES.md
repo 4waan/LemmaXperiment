@@ -238,7 +238,61 @@ Measured with the `cycle-tracking` build variant (`apparatus/prover/README.md`,
 the SP1 host executor differs. Totals and prover gas are checked against the
 standard-build baseline of step 1 before the per-phase numbers are used.
 
-PENDING: filled in from the cycle-tracking execute runs.
+Runs (all `--state-backend proofs`, GitHub-hosted 4 vCPU runner, artifacts
+under `runs/`):
+
+| run | block | variant | cycles | prover gas | vkey | stdin sha256 |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| [35017847560](https://github.com/4waan/LemmaXperiment/actions/runs/35017847560) (step 1) | 20600066 | standard | 22,629,796 | 28,810,531 | `0x00b22d4b…65bfba` | `087ce12f…` (prove run) |
+| [35060335177](https://github.com/4waan/LemmaXperiment/actions/runs/35060335177) | 20600066 | standard | 22,629,474 | 28,810,305 | same | `c3cfba8f…` |
+| [35060320613](https://github.com/4waan/LemmaXperiment/actions/runs/35060320613) | 20600066 | cycle-tracking | 22,628,475 | 28,809,494 | same | `296f9a41…` |
+| [34940610488](https://github.com/4waan/LemmaXperiment/actions/runs/34940610488) (step 1) | 18884864 | standard | 89,571,530 | 108,529,239 | not recorded then | not recorded then |
+| [35060327373](https://github.com/4waan/LemmaXperiment/actions/runs/35060327373) | 18884864 | cycle-tracking | 89,571,134 | 108,529,300 | same | `327746bb…` |
+
+Both variants embed the same guest: the build records of run
+[35058733285](https://github.com/4waan/LemmaXperiment/actions/runs/35058733285)
+list the same `rsp-client` ELF sha256 (`db0e3298…6a17`) for `standard` and
+`cycle-tracking`, and every execute run derives the step 1 vkey. The
+cycle-tracking binaries are also byte-identical across two build runs
+(`lemma-prove` sha256 `264a88ce…`), so the build is reproducible.
+
+Per-phase cycles from the cycle-tracking runs:
+
+| phase | 20600066 cycles | share | 18884864 cycles | share |
+| --- | ---: | ---: | ---: | ---: |
+| `deserialize inputs` | 6,876,142 | 30.4% | 19,962,490 | 22.3% |
+| `initialize witness db` | 5,409,621 | 23.9% | 17,181,639 | 19.2% |
+| `recover senders` | 1,117,890 | 4.9% | 1,388,961 | 1.6% |
+| `validate header` | 244,993 | 1.1% | 389,208 | 0.4% |
+| `block execution` | 3,241,916 | 14.3% | 34,510,228 | 38.5% |
+| `validate block post-execution` | 276,886 | 1.2% | 1,055,287 | 1.2% |
+| `compute state root` | 3,608,264 | 15.9% | 10,122,839 | 11.3% |
+| untracked remainder | 1,852,763 | 8.2% | 4,960,482 | 5.5% |
+| total | 22,628,475 | 100% | 89,571,134 | 100% |
+
+The three phases that only touch the witness (`deserialize inputs`,
+`initialize witness db`, `compute state root`) are 70.2% of block 20600066
+and 52.8% of block 18884864. `block execution` also contains the trie reads
+listed in section 1, so the witness share is a lower bound. The remainder is
+code outside every label: chain-spec construction and `install_crypto` in
+`bin/client/src/main.rs`, header sealing before the first phase, the header
+derivation and `commit` after the last one, and the drop of the input and
+tries at the end of `execute`. `precompile-ecrecover` (38,126 and 74,911
+cycles) is nested inside `block execution` and not additive.
+
+Cycle counts are not bit-stable across host runs, and that is worth knowing
+before anyone reads a 0.01% change as signal. The three 20600066 runs above
+span 1,321 cycles (0.006%) and 1,037 prover gas (0.004%) for the same
+witness (`cache/input/1/20600066.bin`, sha256 `ea1f2b5b…` in every
+`run.txt`). The stdin files differ though they have the same size:
+`EthereumState.storage_tries` is a `HashMap`, the host's hasher is randomly
+seeded per process, and bincode writes the map in iteration order, so each
+host run ships the storage tries in a different order and the guest builds
+its own map in that order. The guest itself is deterministic (its RNG is a
+fixed-seed PRNG, `sp1-zkvm/src/syscalls/sys.rs`). For the evaluator this
+means: fix the client input by hash, run the execute more than once per
+block (the policy already says two), and treat differences at this scale as
+noise. The acceptance threshold is 5%, three orders of magnitude above it.
 
 What the columns cannot tell apart: trie reads happen inside `block
 execution`. A creator that needs finer attribution has two upstream tools,

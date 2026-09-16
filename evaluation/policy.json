@@ -34,7 +34,7 @@
   },
   "performance": {
     "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode",
-    "metricIsDeterministic": true,
+    "metricIsDeterministic": "given the stdin bytes; across host runs the stdin differs in HashMap order and PGU moved by 0.004% over three runs of the same client input (apparatus/INTERFACES.md section 7), so the client input is fixed by hash and the per-block value is the median of the executions",
     "holdoutBlocks": 10,
     "executionsPerVariantPerBlock": 2,
     "plannedExecutions": 40,
@@ -44,7 +44,7 @@
     "maximumRegressionPercentPerBlock": 10,
     "secondaryReported": [
       "total cycles",
-      "per-phase cycles from report.csv",
+      "per-phase cycles from report.csv (cycle-tracking build variant, diagnostics only; see apparatus/prover/README.md)",
       "host preparation wall time",
       "network proof latency and PROVE cost for the three real proofs"
     ],

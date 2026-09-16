@@ -34,6 +34,34 @@ proving onto GitHub-hosted runners; see `apparatus/SETUP_PLAN.md`.
 | on-chain check | Arbitrum Sepolia gateway `0x397A5f7f…`, verifyProof passes, controls revert |
 | assistance | operator-built apparatus; no creator agent involved yet |
 
+## Apparatus step 2: interface survey
+
+`apparatus/INTERFACES.md`. Seam: `rsp_mpt::StateTries` plus the construction
+path wired like the upstream `arena` feature; `allowedSourcePaths` and
+`integrationInterface` drafted into `demand/spec.json`. The
+`execution-witness` host backend is not available on the pinned RPC
+provider, so `proofs` is fixed. The `arena` feature is the seeded
+existing-capability entry for the registry snapshot.
+
+Per-phase cycles from the `cycle-tracking` build (same guest ELF and vkey as
+the standard build; runs 35060320613 and 35060327373):
+
+| phase | 20600066 | 18884864 |
+| --- | ---: | ---: |
+| deserialize inputs | 30.4% | 22.3% |
+| initialize witness db | 23.9% | 19.2% |
+| recover senders | 4.9% | 1.6% |
+| validate header | 1.1% | 0.4% |
+| block execution | 14.3% | 38.5% |
+| validate block post-execution | 1.2% | 1.2% |
+| compute state root | 15.9% | 11.3% |
+| untracked | 8.2% | 5.5% |
+| total cycles | 22,628,475 | 89,571,134 |
+
+Witness-only phases: 70.2% and 52.8%. Cycle totals jitter by about 0.01%
+across host runs of the same client input (stdin map order); noted in
+`evaluation/policy.json`.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)

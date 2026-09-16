@@ -1,0 +1,71 @@
+[2m2026-09-16T05:38:41.096485Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-16T05:40:06.545316Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m lemma-prove [3mvariant[0m[2m=[0m"cycle-tracking" [3mexecutor[0m[2m=[0m"sp1 portable interpreter (profiling feature)" [3mvkey[0m[2m=[0m0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+[2m2026-09-16T05:40:06.746721Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Saved stdin to run/stdin/20600066.bin
+[2m2026-09-16T05:40:06.800360Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴deserialize inputs
+[2m2026-09-16T05:40:06.938820Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴6,876,142 cycles
+[2m2026-09-16T05:40:06.940463Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴initialize witness db
+[2m2026-09-16T05:40:07.052023Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴5,409,621 cycles
+[2m2026-09-16T05:40:07.052232Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴recover senders
+[2m2026-09-16T05:40:07.300605Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴1,117,890 cycles
+[2m2026-09-16T05:40:07.300659Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴validate header
+[2m2026-09-16T05:40:07.305636Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴244,993 cycles
+[2m2026-09-16T05:40:07.305674Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴block execution
+stderr: WARNING: Using insecure random number generator.
+[2m2026-09-16T05:40:07.361761Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m │ ┌╴precompile-ecrecover
+[2m2026-09-16T05:40:07.371942Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m │ └╴38,126 cycles
+[2m2026-09-16T05:40:07.381831Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴3,241,916 cycles
+[2m2026-09-16T05:40:07.381867Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴validate block post-execution
+[2m2026-09-16T05:40:07.387342Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴276,886 cycles
+[2m2026-09-16T05:40:07.387386Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m ┌╴compute state root
+[2m2026-09-16T05:40:07.460575Z[0m [32m INFO[0m [2msp1_core_executor::minimal::write[0m[2m:[0m └╴3,608,264 cycles
+[2m2026-09-16T05:40:07.905380Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Execution successful [3mexecuted_block_hash[0m[2m=[0m0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a [3mduration[0m[2m=[0m1.158601183s
+
+Execution report:
+gas: 28809494
+opcode counts (22628475 total instructions):
+    4616221 addi
+    2399169 lbu
+    2308898 ld
+    2188427 sd
+    1445090 sll
+    1296463 or
+    1252236 sb
+    1051066 beq
+    1004230 and
+     903414 add
+     841745 bne
+     675020 srl
+     624574 jalr
+     400467 auipc
+     310114 bltu
+     286332 sub
+     249027 lui
+     193530 bgeu
+     185218 xor
+     149280 jal
+      81589 mul
+      37286 sltu
+      26503 ecall
+      24057 sw
+      18420 addw
+      17311 sh
+      13554 mulhu
+       9424 srlw
+       6756 lw
+       2935 bge
+       2677 lb
+       2523 lwu
+       2313 blt
+        770 sra
+        604 lh
+        426 slt
+        420 lhu
+        328 divu
+         58 sllw
+syscall counts (26202 total syscall instructions):
+    14336 secp256k1_double
+     7115 secp256k1_add
+     4725 keccak_permute
+       13 sha_compress
+       13 sha_extend
+

@@ -1,13 +1,13 @@
 {
   "pinnedAt": "2026-09-15",
-  "status": "baseline reproduced 2026-09-16: block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia",
+  "status": "step 1 closed 2026-09-16 (block 20600066 executed, compressed-proved, Groth16-wrapped, verified on Arbitrum Sepolia); step 2 interface survey in INTERFACES.md with per-phase cycles from the cycle-tracking build",
   "rsp": {
     "repo": "https://github.com/succinctlabs/rsp",
     "commit": "2013b56184f9770bd12d1027495eebd1a0b81745",
     "tag": "reth-2.2.0-sp1-6.8.0",
     "rustChannel": "1.94.0",
     "hostBinary": "bin/host",
-    "clientProgram": "bin/client-eth",
+    "clientProgram": "bin/client (package rsp-client)",
     "proofModeWhenProve": "Compressed",
     "stateBackends": [
       "proofs",
@@ -17,7 +17,13 @@
     "existingCapabilities": [
       "arena feature: alternative arena-based MPT backend (unaudited), host and guest"
     ],
-    "wrapper": "apparatus/prover (lemma-prove), injected as workspace member bin/lemma-prove at build"
+    "wrapper": "apparatus/prover (lemma-prove), injected as workspace member bin/lemma-prove at build",
+    "interfaceSurvey": "apparatus/INTERFACES.md",
+    "stateBackendAvailability": {
+      "proofs": "used for every run (eth_getProof on the pinned archive provider)",
+      "execution-witness": "not available: the pinned RPC provider rejects debug_executionWitness (checked 2026-09-16)"
+    },
+    "integrationSeam": "rsp_mpt::StateTries (crates/mpt/src/lib.rs:442) wired as the upstream arena feature is; see INTERFACES.md sections 2 and 6"
   },
   "sp1": {
     "sdkVersion": "6.8.0",
@@ -30,7 +36,11 @@
     "proverBackend": "cpu on GitHub-hosted x86_64 runner",
     "note": "See SETUP_PLAN.md revision 4.",
     "fallback": "network if credits appear; cuda if a GPU appears",
-    "circuitVersion": "v6.1.0"
+    "circuitVersion": "v6.1.0",
+    "hostBuildVariants": {
+      "standard": "no features; SP1 native x86_64 executor; the only build used for proofs, PGU and timing",
+      "cycle-tracking": "rsp/cycle-tracking + lemma-prove/cycle-tracking (= sp1-sdk/profiling); SP1 portable interpreter; per-phase cycle labels only"
+    }
   },
   "upstreamDeps": {
     "reth": "v2.2.0 (git tag)",
@@ -105,6 +115,57 @@
       "shrinkWrapSeconds": 1216,
       "groth16Seconds": 233
     },
-    "note": "timings are on a shared 4 vCPU GitHub runner with swap; they are records, not benchmarks"
+    "note": "timings are on a shared 4 vCPU GitHub runner with swap; they are records, not benchmarks",
+    "guestElfSha256": "db0e3298c8a9078c1e0c3e3c7a2d13898282e6326f53290845623e7751ac6a17",
+    "buildRun": {
+      "run": 35058733285,
+      "standard": {
+        "lemmaProveSha256": "155ca79efd704d5090aff0bfc33e958e8a66853c0f1292d67bcca42ee58872e7",
+        "rspSha256": "8caba8000a31f83dd3f41b9c3c9fe28ce00bbb0a9bb7ff2fc1a32cb4b4c84f8d"
+      },
+      "cycle-tracking": {
+        "lemmaProveSha256": "264a88cedd5eb5c30f67864d524eb652b450053d88e2dbe352d021d497d8b098",
+        "rspSha256": "1f82dfcf793bf6526cc7b752adf20a9f373308cabb2ba4e080fcd009836cd398"
+      },
+      "note": "same guest ELF in both variants; cycle-tracking binaries byte-identical to the earlier build run 35058394157"
+    },
+    "clientInputSha256": "ea1f2b5b11638292c0d82d4f851aa6cf18bacdff4937e9f9a88dd49589aa1a0d",
+    "phaseCycles": {
+      "run": 35060320613,
+      "variant": "cycle-tracking",
+      "totalCycles": 22628475,
+      "proverGas": 28809494,
+      "deserialize inputs": 6876142,
+      "initialize witness db": 5409621,
+      "recover senders": 1117890,
+      "validate header": 244993,
+      "block execution": 3241916,
+      "validate block post-execution": 276886,
+      "compute state root": 3608264,
+      "untracked": 1852763,
+      "nested precompile-ecrecover": 38126
+    },
+    "cycleJitter": "same client input, three host runs: 22629796 / 22629474 / 22628475 cycles and 28810531 / 28810305 / 28809494 PGU; cause is HashMap serialization order in the stdin, see INTERFACES.md section 7"
+  },
+  "developmentProfiles": {
+    "18884864": {
+      "run": 35060327373,
+      "variant": "cycle-tracking",
+      "gasUsed": 4266500,
+      "txCount": 30,
+      "totalCycles": 89571134,
+      "proverGas": 108529300,
+      "clientInputSha256": "e49a1e2bf1aaf92607d78d3d852ecc26d9d34f854ddf3384e1228688c797ab5c",
+      "deserialize inputs": 19962490,
+      "initialize witness db": 17181639,
+      "recover senders": 1388961,
+      "validate header": 389208,
+      "block execution": 34510228,
+      "validate block post-execution": 1055287,
+      "compute state root": 10122839,
+      "untracked": 4960482,
+      "nested precompile-ecrecover": 74911,
+      "note": "execute only; 89.6M cycles does not fit one runner job for proving"
+    }
   }
 }

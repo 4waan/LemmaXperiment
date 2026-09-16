@@ -1,0 +1,11 @@
+{
+  "block": 20600066,
+  "cycle_tracker": {},
+  "execution_seconds": 1.379596668,
+  "executor": "sp1 default (native on x86_64 linux)",
+  "invocation_tracker": {},
+  "prover_gas": 28810305,
+  "total_instruction_count": 22629474,
+  "total_syscall_count": 26202,
+  "variant": "standard"
+}

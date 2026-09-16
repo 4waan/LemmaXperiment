@@ -1,0 +1,9 @@
+block: 18884864
+state_backend: proofs
+variant: cycle-tracking
+mode: execute
+vkey: 0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba
+wall_seconds: 102
+runner: 4 vcpu 15 GB
+lemma_prove_sha256: 264a88cedd5eb5c30f67864d524eb652b450053d88e2dbe352d021d497d8b098
+witness: cache/input/1/18884864.bin sha256=e49a1e2bf1aaf92607d78d3d852ecc26d9d34f854ddf3384e1228688c797ab5c

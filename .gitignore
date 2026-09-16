@@ -2,3 +2,6 @@
 *.bin
 *.proof
 !evaluation/fixtures/blocks/**/*.bin
+evaluation/holdout/sealed/
+presalt.hex
+!evaluation/holdout/revealed/presalt.hex

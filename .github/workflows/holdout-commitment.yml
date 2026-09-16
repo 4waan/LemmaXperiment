@@ -1,0 +1,45 @@
+name: holdout-commitment
+
+# Public timestamp for the holdout commitment (evaluation/holdout/RULE.md
+# section 2). Every push that touches the commitment records the hashes of the
+# committed files and the mainnet chain head as seen from a public endpoint,
+# with no credential. In the precommit phase the head must still be below the
+# beacon block, which is what makes the beacon hash unpredictable at the time
+# the preSalt hash became public. Nothing here is secret and nothing here
+# derives the blocks.
+
+on:
+  push:
+    paths:
+      - evaluation/holdout/**
+      - .github/workflows/holdout-commitment.yml
+  workflow_dispatch:
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record hashes and chain head
+        run: |
+          set -euo pipefail
+          echo "recorded_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "commit: $GITHUB_SHA"
+          sha256sum evaluation/holdout/commitment.json evaluation/holdout/RULE.md evaluation/holdout/holdout.py
+          echo "== commitment.json"
+          cat evaluation/holdout/commitment.json
+          head=$(curl -sS --max-time 30 -X POST -H 'content-type: application/json' \
+            --data '{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["latest",false]}' \
+            https://ethereum-rpc.publicnode.com)
+          number=$(( $(echo "$head" | jq -r .result.number) ))
+          echo "chain_head: $number hash $(echo "$head" | jq -r .result.hash) timestamp $(( $(echo "$head" | jq -r .result.timestamp) ))"
+          phase=$(jq -r .phase evaluation/holdout/commitment.json)
+          beacon=$(jq -r .precommit.beaconBlock evaluation/holdout/commitment.json)
+          echo "phase: $phase"
+          echo "beacon_block: $beacon"
+          if [ "$phase" = precommit ]; then
+            [ "$number" -lt "$beacon" ] || { echo "beacon block $beacon already exists at precommit time (head $number): the precommit is void, draw a new set"; exit 1; }
+            echo "precommit recorded $((beacon - number)) blocks before the beacon block"
+          fi

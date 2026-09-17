@@ -41,6 +41,7 @@ export function createTools(ctx) {
         declined: null,
     };
     const counts = ctx.budget.dispatches;
+    if (ctx.restore) restoreState(state, ctx.restore);
 
     function checkDispatch(kind) {
         if (!ctx.dispatchEnabled) throw new Error("workflow dispatch is disabled in this run (control or smoke run)");
@@ -277,6 +278,28 @@ export function createTools(ctx) {
     ];
     const server = createSdkMcpServer({name: "lemma", version: "0.1.0", tools});
     return {server, state, toolNames: tools.map((t) => `mcp__lemma__${t.name}`), handlers: Object.fromEntries(tools.map((t) => [t.name, t.handler]))};
+}
+
+/** Rebuilds the enforcement state from a run's actions.jsonl so a resumed
+ * session keeps its counts, its publications and its terminal-action lock. */
+export function restoreState(state, entries) {
+    for (const e of entries) {
+        const d = e.data ?? {};
+        switch (e.kind) {
+            case "disposition": state.disposition = d.disposition; break;
+            case "hypothesis": state.hypothesisHash = d.sha256; break;
+            case "publish": state.published.push({commit: d.commit, digest: d.digest, files: d.files, at: d.at}); break;
+            case "dispatch":
+                state.dispatches[d.kind] = (state.dispatches[d.kind] ?? 0) + 1;
+                state.runs.push({kind: d.kind, runId: d.runId, inputs: d.inputs, at: e.at});
+                if (d.kind === "build" && d.inputs && !["standard", "arena", "cycle-tracking"].includes(d.inputs.variant)) state.revisions.add(d.inputs.overlay_ref);
+                break;
+            case "submission": state.submission = d; break;
+            case "decline": state.declined = d; break;
+            default: break;
+        }
+    }
+    return state;
 }
 
 function walk(dir, visit) {

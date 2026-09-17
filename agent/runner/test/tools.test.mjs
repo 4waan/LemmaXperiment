@@ -122,3 +122,22 @@ test("tools: submit needs disposition, hypothesis, manifest and the controller; 
     r = await t.decline_demand({commit: pub2.commit});
     assert.match(textOf(r), /terminal action was already taken/);
 });
+
+test("tools: state restores from the run log", async () => {
+    const {restoreState} = await import("../lib/tools.mjs");
+    const state = {disposition: null, hypothesisHash: null, published: [], dispatches: {build: 0, execute: 0, fixtures: 0, formal: 0}, revisions: new Set(), runs: [], submission: null, declined: null};
+    restoreState(state, [
+        {kind: "disposition", data: {disposition: "create"}},
+        {kind: "hypothesis", data: {sha256: "abc"}},
+        {kind: "publish", data: {commit: "c1", digest: "0xd", files: ["candidate/x"], at: "t"}},
+        {kind: "dispatch", data: {kind: "build", runId: 7, inputs: {overlay_ref: "c1", variant: "lemma-cache"}}, at: "t"},
+        {kind: "dispatch", data: {kind: "build", runId: 8, inputs: {overlay_ref: "c1", variant: "standard"}}, at: "t"},
+        {kind: "tool_call", data: {}},
+    ]);
+    assert.equal(state.disposition, "create");
+    assert.equal(state.hypothesisHash, "abc");
+    assert.equal(state.published.length, 1);
+    assert.equal(state.dispatches.build, 2);
+    assert.deepEqual([...state.revisions], ["c1"]);
+    assert.equal(state.runs.length, 2);
+});

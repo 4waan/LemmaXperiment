@@ -57,9 +57,13 @@ node run.mjs status          demand state, posting clock, hours left, budgets
 node run.mjs dry-run         workspace + manifest + tool policy, no model
 node run.mjs smoke           a few Haiku turns exercising the tools and the denials (dispatch off)
 node run.mjs start           the creation run (claude-opus-5, demand/budget.json limits)
+node run.mjs resume <runId>  after a crash or a laptop sleep: same workspace, state rebuilt from the log, model session resumed, remaining budget and wall time
 node run.mjs control A1|A3   disposition-only control runs (demand/registry-snapshot.json)
 npm test                     canonical json, log chain, scrubbing, controller, workspace, tool rules
 ```
+
+Run the creation run under `caffeinate -dims` so the laptop does not sleep
+through it; a resumed run appends to the same hash chain.
 
 ## Run log fields
 

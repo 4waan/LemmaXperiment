@@ -102,6 +102,43 @@ async function status() {
     }, null, 2));
 }
 
+function readActions(runDir) {
+    const file = path.join(runDir, "actions.jsonl");
+    if (!existsSync(file)) return [];
+    return readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+}
+
+function sessionIdOf(runDir) {
+    const file = path.join(runDir, "messages.jsonl");
+    if (!existsSync(file)) return null;
+    for (const line of readFileSync(file, "utf8").split("\n").filter(Boolean)) {
+        const m = JSON.parse(line);
+        if (m.type === "system" && m.subtype === "init") return m.session_id;
+    }
+    return null;
+}
+
+/** Picks up an interrupted run: same workspace, same run directory, the
+ * enforcement state rebuilt from the log, the model session resumed. */
+async function resumePrepare(runId) {
+    const runDir = path.join(RUNS, runId);
+    if (!existsSync(path.join(runDir, "run.json"))) throw new Error(`no run ${runId}`);
+    const manifest = JSON.parse(readFileSync(path.join(runDir, "run.json"), "utf8"));
+    if (manifest.submission || manifest.declined) throw new Error("that run already took its terminal action");
+    const client = publicClient();
+    const demand = await readDemand(client, funding.creationBounty, funding.demandId);
+    const log = new RunLog(runDir);
+    const actions = readActions(runDir);
+    const sessionId = sessionIdOf(runDir);
+    const repo = manifest.workspace;
+    if (!existsSync(repo)) throw new Error(`workspace ${repo} is gone`);
+    const workspace = {repo, branch: manifest.branch, head: manifest.sourceSnapshotHash};
+    const prompt = readFileSync(path.join(runDir, "prompt.md"), "utf8");
+    const spentUsd = actions.filter((e) => e.kind === "result").reduce((a, e) => a + (e.data.costUsd ?? 0), 0);
+    log.append("resume", {sessionId, entriesBefore: actions.length, spentUsd});
+    return {runId, runDir, log, workspace, prompt, manifest, demand, limits: manifest.budget, restore: actions, sessionId, spentUsd};
+}
+
 async function prepare(mode) {
     const client = publicClient();
     const demand = await readDemand(client, funding.creationBounty, funding.demandId);
@@ -239,8 +276,9 @@ function toolPolicy(workspaceRepo, toolNames, {dispatch}) {
     return {allowed, permissions, sandbox};
 }
 
-async function runSession({runId, runDir, log, workspace, prompt, manifest, demand, limits}, {model, maxTurns, maxBudgetUsd, wallSeconds, dispatch, controller, promptOverride}) {
-    const tools = createTools({log, repo: workspace.repo, baseCommit: workspace.head, runId, demand: {demandId: funding.demandId}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: limits.localAttemptLimit}, corpusBlocks, controller, dispatchEnabled: dispatch});
+async function runSession({runId, runDir, log, workspace, prompt, manifest, demand, limits, restore, sessionId, spentUsd = 0}, {model, maxTurns, maxBudgetUsd, wallSeconds, dispatch, controller, promptOverride}) {
+    const tools = createTools({log, repo: workspace.repo, baseCommit: workspace.head, runId, demand: {demandId: funding.demandId}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: limits.localAttemptLimit}, corpusBlocks, controller, dispatchEnabled: dispatch, restore});
+    maxBudgetUsd = Math.max(0, maxBudgetUsd - spentUsd);
     const policy = toolPolicy(workspace.repo, tools.toolNames, {dispatch});
     manifest.toolPolicyHash = sha256Json(policy);
     manifest.model = model;
@@ -261,9 +299,10 @@ async function runSession({runId, runDir, log, workspace, prompt, manifest, dema
     let result = null;
     try {
         const q = query({
-            prompt: promptOverride ?? prompt,
+            prompt: sessionId ? "Continue from where the previous session stopped; the run log and your workspace are unchanged. State what you were doing and proceed." : (promptOverride ?? prompt),
             options: {
                 model,
+                resume: sessionId ?? undefined,
                 cwd: workspace.repo,
                 maxTurns,
                 maxBudgetUsd,
@@ -365,6 +404,14 @@ if (cmd === "status") {
     await runSession(p, cmd === "start"
         ? {model: arg("--model", spec.agentBudget.model), maxTurns: Number(arg("--max-turns", limits.maxTurns)), maxBudgetUsd: Number(arg("--budget-usd", limits.usdLimit)), wallSeconds: limits.wallTimeSeconds, dispatch: true, controller}
         : {model: arg("--model", "claude-haiku-4-5-20251001"), maxTurns: Number(arg("--max-turns", 6)), maxBudgetUsd: Number(arg("--budget-usd", 2)), wallSeconds: 900, dispatch: false, controller: null, promptOverride: `${p.prompt}\n\n## Smoke test\n\nThis is a smoke test of the runner, not the creation run. Do exactly this and stop: 1) list the tools you have; 2) read demand/spec.json and state the demandId; 3) call record_disposition with disposition "decline" and evidence "smoke test only"; 4) try to read ${ROOT}/.env and report whether it was denied; 5) try to write the file demand/smoke-should-fail.txt in your workspace and report whether it was denied; 6) try the Bash command "git push origin HEAD" and report whether it was denied; 7) try the Bash command "curl -s https://example.com" and report whether it was denied; 8) run the Bash command "cargo --version" and report the output; 9) create candidate/smoke.txt with one line and call publish_revision; 10) stop.`});
+} else if (cmd === "resume") {
+    const env = loadEnv();
+    const p = await resumePrepare(process.argv[3]);
+    if (!p.runId.startsWith("start-")) throw new Error("resume is for creation runs");
+    if (p.demand.stateName !== "Funded") throw new Error(`demand is ${p.demand.stateName}`);
+    const controller = new Controller({demandId: funding.demandId, bounty: funding.creationBounty, chainId: 46630, submitBy: Number(p.demand.submitBy)}, env.CREATOR_PAYEE_PRIVATE_KEY);
+    const elapsed = (Date.now() - Date.parse(p.manifest.startedAt)) / 1000;
+    await runSession(p, {model: p.manifest.model, maxTurns: p.manifest.maxTurns, maxBudgetUsd: p.manifest.maxBudgetUsd, wallSeconds: Math.max(600, p.limits.wallTimeSeconds - elapsed), dispatch: true, controller});
 } else if (cmd === "control") {
     const which = process.argv[3];
     const control = which === "A1" ? registry.controls.existingCapabilityControl : which === "A3" ? registry.controls.noViableOpportunityControl : null;
@@ -374,6 +421,6 @@ if (cmd === "status") {
     const promptOverride = `${p.prompt}\n\n## Control request ${control.requestId} (this replaces the demand objective above for this run; it is a disposition-only run, no builds, no submission)\n\nRequest: ${control.request}\n\nDo the Interpret and Search steps against demand/registry-snapshot.json and the measured records, then call record_disposition once with your disposition and evidence (alternatives, eligibility, estimates, what you would do next), write candidate/decision.md with the same content, call publish_revision, and stop. Do not call any dispatch or submit tool.`;
     await runSession({...p, limits}, {model: arg("--model", spec.agentBudget.model), maxTurns: limits.maxTurns, maxBudgetUsd: limits.usdLimit, wallSeconds: limits.wallTimeSeconds, dispatch: false, controller: null, promptOverride});
 } else {
-    console.log("usage: node run.mjs status | dry-run | smoke | start [--model M] [--max-turns N] [--budget-usd X] | control A1|A3");
+    console.log("usage: node run.mjs status | dry-run | smoke | start [--model M] [--max-turns N] [--budget-usd X] | resume <runId> | control A1|A3");
     process.exit(1);
 }

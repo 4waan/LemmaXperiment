@@ -1,4 +1,4 @@
-	Command being timed: "dist/lemma-prove --block-number 23945771 --chain-id 1 --rpc-url https://eth-mainnet.g.alchemy.com/v2/alch_KoZ0rO5AwqEF4wtatXYOw --stdin-dir run/stdin --cache-dir cache --state-backend proofs --out-dir run/out --report-path run/report.csv"
+	Command being timed: "dist/lemma-prove --block-number 23945771 --chain-id 1 --rpc-url https://eth-mainnet.g.alchemy.com/v2/<redacted> --stdin-dir run/stdin --cache-dir cache --state-backend proofs --out-dir run/out --report-path run/report.csv"
 	User time (seconds): 361.20
 	System time (seconds): 12.05
 	Percent of CPU this job got: 117%

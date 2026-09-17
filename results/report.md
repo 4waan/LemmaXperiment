@@ -143,10 +143,14 @@ Sepolia ETH through the rollup's delayed inbox. Deployed and source-verified:
 `SP1VerifierGroth16` v6.1.0 `0x2d67d20E…` (accepts the real step 1 proof,
 rejects a mutated one), `ModuleRegistry` `0x92695F85…`, `CreationBounty`
 `0x2C920C76…`, `UsageEscrow` `0xC5cf8351…`; 37 Foundry tests including the
-solvency invariant. Demand funded: id `0x5aa24f98…`, tx `0x8f1e3be9…`,
-block 120638142, 0.05 testnet ETH, spec hash `0x51541fd6…`, policy hash
-`0x4d586005…`, holdout commitment `0xe60d6ced…`; submitBy 2026-09-21T05:00Z,
-evaluateBy 2026-09-26T05:00Z. Payment mechanics, testnet.
+solvency invariant. Demand funded: id `0x37e1283d…`, tx `0xbcda340f…`,
+block 120640994, 0.05 testnet ETH, spec 1.1 hash `0xd4e95ab0…`, policy 1.2
+hash `0xf9230c55…`, holdout commitment `0xe60d6ced…`; submitBy
+2026-09-21T05:00Z, evaluateBy 2026-09-26T05:00Z. A first demand
+(`0x5aa24f98…`) funded under policy 1.1 was declined and refunded within
+the hour: that policy's execute workflow had put the archive endpoint on
+the command line and a provider key reached three run records and three
+artifacts (scrubbed, deleted, key rotated). Payment mechanics, testnet.
 
 ## Disposition
 

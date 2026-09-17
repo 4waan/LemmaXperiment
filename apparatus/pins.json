@@ -258,8 +258,9 @@
     "deploymentEvidence": "contracts/deployments/46630-lemma.json (I-V5)",
     "funding": {
       "file": "demand/funding.json",
-      "demandId": "0x5aa24f989335d1795c40c561af98d83f666a4f65d9ddd17ce42f4caf4e5158b2",
-      "tx": "0x8f1e3be9d3fb4137134ab511f961440e929bd9e623825d5f987f65f5570e6fda",
+      "demandId": "0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1",
+      "tx": "0xbcda340f146bb0f01e5e9ae4ddf4630c834d2d4502d1836121ecb8d73bc02932",
+      "supersededDemand": "0x5aa24f98... declined and refunded (credential fix, policy 1.2)",
       "bridge": "0.15 Sepolia ETH through the delayed inbox 0xF2939afA86F6f933A3CE17fCAB007907B6b0B7a4, Sepolia tx 0xec11e55c8ff2a2672302e6bc9451d2ed58dc26182feabec407f3ff446d4ce742"
     }
   },

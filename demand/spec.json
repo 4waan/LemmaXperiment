@@ -1,7 +1,7 @@
 {
-  "demandId": "0x5aa24f989335d1795c40c561af98d83f666a4f65d9ddd17ce42f4caf4e5158b2",
-  "specificationVersion": "1.0",
-  "specificationHash": "0x51541fd651e658f209c7f2fd7abab7ef3bde0bc311d07479f083fcb289e45b98",
+  "demandId": "0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1",
+  "specificationVersion": "1.1",
+  "specificationHash": "0xd4e95ab0f16ffb19e63967873fc0fd78d82e0b12ef7028f9d0a2ff17fe83fa52",
   "buyer": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
   "assignedCreatorPayee": "0xC18925708Fe771D56A31b31429c53CE99aB70a91",
   "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
@@ -51,7 +51,7 @@
     "sha256": "6b082a004a53244a87fc2c344670194046a72442add7829cb242bdeadbc687e2",
     "note": "recorded before any execution; disjoint from development by membership and from holdout set 1 by the frozen exclusion margin (reuse/input.py)"
   },
-  "evaluationPolicyHash": "4d586005a5bd138465bce92e30eda621e2f716c8f0529d82a94805c32fe14674",
+  "evaluationPolicyHash": "f9230c559fda993f4c8468f42b6b688b114f1fcaa261f080eae2c4fdc38e1de3",
   "correctnessPolicyHash": "b398124529042e23a9fa31acc108ebfbc31d823a875ddb29fe0e9c2650e0046c",
   "formalScopePolicyHash": "840e425e653b48705be28d17e030f5a951e58896eafed7a5a45c57a5f7d052f7",
   "acceptanceCriteria": {
@@ -194,6 +194,14 @@
       "changes": [
         "step 7: settlement contracts and the SP1VerifierGroth16 v6.1.0 deployed and source-verified on Robinhood Chain testnet (contracts/deployments/46630-lemma.json); absolute submitBy and evaluateBy from the budget rules; specificationHash = keccak256 of the canonical JSON with demandId and specificationHash null (demand/spec_hash.py); demandId assigned by CreationBounty.fundDemand",
         "frozen at funding: any change is a new specificationVersion and a new demand"
+      ]
+    },
+    {
+      "version": "1.1",
+      "date": "2026-09-17",
+      "changes": [
+        "evaluationPolicyHash from policy 1.2: the execute workflow no longer puts the archive endpoint on the command line and scrubs time.txt (a provider key had reached three run records and artifacts under 1.1; rotated, scrubbed, deleted). No rule changed",
+        "demand 0x5aa24f98... funded under 1.0 was declined by the creator key before any creator work and refunded; this version is funded as a new demand (demand/funding.json)"
       ]
     }
   ]

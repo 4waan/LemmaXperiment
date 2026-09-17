@@ -46,3 +46,11 @@ warn  no RPC_1/RPC_URL
 warn  RPC_421614 unset
 warn  unresolved pins: proverBackend, hardware.executionHost, hardware.provingHost
 ```
+
+## Environment variables the scripts read
+
+Names only; values live in the gitignored `.env` on the laptop and, for the
+archive endpoint, in the repository secret `RPC_1`: `RPC_1`, `RPC_421614`,
+`SP1_PROVER`, `SPONSOR_PRIVATE_KEY`, `EVALUATOR_PRIVATE_KEY`,
+`CREATOR_PAYEE_PRIVATE_KEY`, `CREATOR_PAYEE_ADDRESS`, `WORKER_PRIVATE_KEY`.
+The evaluator key never leaves the laptop.

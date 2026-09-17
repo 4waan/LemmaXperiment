@@ -1,5 +1,5 @@
 {
-  "policyVersion": "1.1",
+  "policyVersion": "1.2",
   "frozenAt": "2026-09-17",
   "scope": "Evaluation of one candidate for the demand in demand/spec.json (EXPERIMENT.md sections 4 step 5 and 7). Every rule below is mechanical unless it names a reviewer. Changing any value after funding requires a new policy version, a new hash and a new demand version.",
   "hashing": {
@@ -11,7 +11,7 @@
     "canonicalJson": "ROBINHOOD_CHAIN_PROD.md section 3.2: keccak256 for values that go onchain, sha256 for files that stay offchain; the holdout commitment is the sha256 of the sealed manifest bytes, stored onchain verbatim as bytes32"
   },
   "evaluatorImage": {
-    "hash": "b0cee076baf541ca5ecb7c96c1455da3887dd6dacd0ed3bd5ce33ef882a13222",
+    "hash": "538cf5188b6e8a125d4fbfcb2b5bb718952789df2042ea15bed7ccf9957010ca",
     "definition": "The evaluator is a set of workflow files and scripts in this repository run on GitHub-hosted runners, plus binaries built from the pinned RSP commit by those workflows. The image hash covers the files; the binaries are content-addressed by sha256 in apparatus/pins.json and every run record (run.txt, build-record.txt). The OS image is GitHub's rolling ubuntu-24.04 and is recorded per job (ImageOS, ImageVersion) rather than pinned. apparatus/pins.json is the operator's growing record and is not part of the image; its rsp.commit must equal evaluatorImage.rspCommit, which freeze.py --check verifies.",
     "files": [
       ".github/workflows/apparatus-build.yml",
@@ -250,6 +250,14 @@
       "changes": [
         "correctness.blockIntegration and performance.inputs: a variant that changes the witness type runs the corpus from RPC (same block and node set), not from the committed pointer-format input; 1.0 wording would have made an encoding-changing candidate fail by construction",
         "performance.limits.budget: pointer to demand/budget.json (step 6)"
+      ]
+    },
+    {
+      "version": "1.2",
+      "date": "2026-09-17",
+      "changes": [
+        "apparatus-execute.yml: the archive endpoint is passed only through the RPC_1 environment variable (the pinned cli reads RPC_{chain_id}), never on the command line, and time.txt is scrubbed of provider keys before it enters the artifact. Cause: GNU time's 'Command being timed' line had carried the endpoint with its key into three committed run records and three artifacts; the key is rotated, the records scrubbed, the artifacts deleted. No evaluation rule changed",
+        "the demand funded under policy 1.1 (demandId 0x5aa24f98...) was declined by the creator key before any creator work and refunded; the demand is refunded under this version (demand/funding.json)"
       ]
     }
   ]

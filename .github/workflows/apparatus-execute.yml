@@ -120,7 +120,11 @@ jobs:
         # its output goes through tee; without it a crashed run still writes
         # a run record. In fixture and replay mode the host gets no RPC URL
         # and no RPC_1 variable, so the only possible input is the checked
-        # file. GNU time records the peak resident set of the whole run.
+        # file. In rpc mode the host reads RPC_1 from the environment (the
+        # pinned cli falls back to RPC_{chain_id}); the URL is never on the
+        # command line, so neither GNU time's record nor any argv listing can
+        # carry the credential, and time.txt is scrubbed of provider keys
+        # anyway before it enters the artifact.
         env:
           RPC_1: ${{ inputs.input_source == 'rpc' && secrets.RPC_1 || '' }}
         run: |
@@ -128,7 +132,7 @@ jobs:
           mkdir -p run cache
           command -v /usr/bin/time >/dev/null || sudo apt-get install -y -qq time >/dev/null
           if [ "${{ inputs.input_source }}" = rpc ]; then
-            input_args="--rpc-url $RPC_1 --stdin-dir run/stdin"
+            input_args="--stdin-dir run/stdin"
           elif [ "${{ inputs.input_source }}" = replay ]; then
             unset RPC_1
             input_args="--stdin-file run/stdin/${{ inputs.block }}.bin"
@@ -142,6 +146,7 @@ jobs:
             --cache-dir cache --state-backend ${{ inputs.state_backend }} \
             --out-dir run/out --report-path run/report.csv 2>&1 | tee run/stdout.log
           end=$(date +%s)
+          sed -i -E 's#(/v2/)[A-Za-z0-9_-]{16,}#\1<redacted>#g; s#(RPC_1=)[^ ]+#\1<redacted>#g' run/time.txt
           mkdir -p run/input
           [ -d cache/input ] && cp -r cache/input/. run/input/ || true
           {

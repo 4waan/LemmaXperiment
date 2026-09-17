@@ -93,6 +93,9 @@ sha256 is a ledger field).
 ## Funded demand
 
 `demand/funding.json`: demandId
-`0x5aa24f989335d1795c40c561af98d83f666a4f65d9ddd17ce42f4caf4e5158b2`,
-tx `0x8f1e3be9…`, block 120638142, 0.05 testnet ETH escrowed, submitBy
-2026-09-21T05:00Z, evaluateBy 2026-09-26T05:00Z.
+`0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1`,
+tx `0xbcda340f…`, block 120640994, 0.05 testnet ETH escrowed, submitBy
+2026-09-21T05:00Z, evaluateBy 2026-09-26T05:00Z. A first demand
+(`0x5aa24f98…`, tx `0x8f1e3be9…`) was declined and refunded the same day
+because the execute workflow it was funded under leaked a provider key into
+run records; see `demand/funding.json` `superseded`.

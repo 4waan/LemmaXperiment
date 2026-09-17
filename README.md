@@ -45,3 +45,14 @@ separate environment; only their commitment is recorded here.
 Each stage directory has a README stating what it consumes, what it produces and
 what must be true before the next stage starts. A stage that cannot run records
 a blocker in `results/report.md` instead of a simulated result.
+
+## Secrets
+
+`.env` (gitignored) holds every credential; the repository secret `RPC_1`
+holds the archive endpoint for workflows. `.gitleaks.toml` carries the
+project's detection rules, `.githooks/pre-commit` blocks a commit that stages
+one (`git config core.hooksPath .githooks` after cloning),
+`.github/workflows/secret-scan.yml` scans the whole history on every push,
+and GitHub push protection is on. Skills under `.claude/skills/` say what to
+do before job output is copied into the tree. History: `apparatus/FAILURES.md`
+#11.

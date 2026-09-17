@@ -1,0 +1,46 @@
+# gitleaks configuration for LemmaXperiment (secret-scan skill, .claude/skills).
+# Extends the default rules with the credentials this project actually holds:
+# archive-provider RPC keys inside URLs and EVM private keys. Program keys,
+# code hashes and sha256 digests are hex strings that look like secrets and
+# are not; they are allowlisted by the words that label them.
+
+title = "LemmaXperiment"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "alchemy-api-key"
+description = "Alchemy API key, bare or inside an endpoint URL"
+regex = '''(?:alchemy\.com/v2/|\balch_)[A-Za-z0-9_-]{16,}'''
+keywords = ["alchemy", "alch_"]
+
+[[rules]]
+id = "rpc-endpoint-with-key"
+description = "JSON-RPC endpoint URL carrying a provider key in its path"
+regex = '''https?://[a-z0-9.-]+\.(?:g\.alchemy\.com|infura\.io|quiknode\.pro|chainstack\.com|blastapi\.io|ankr\.com|getblock\.io)/(?:v[0-9]/)?[A-Za-z0-9_-]{16,}'''
+keywords = ["alchemy", "infura", "quiknode", "chainstack", "blastapi", "ankr", "getblock"]
+
+[[rules]]
+id = "evm-private-key"
+description = "EVM private key next to a label naming it"
+regex = '''(?i)(?:private[_-]?key|privkey|secret[_-]?key|mnemonic)[A-Za-z0-9_]*\s*[=:]\s*["']?(?:0x)?[0-9a-fA-F]{64}\b'''
+keywords = ["private_key", "privatekey", "private-key", "privkey", "secret_key", "mnemonic"]
+
+[allowlist]
+description = "Hex values that are public by construction"
+regexTarget = "line"
+regexes = [
+  '''(?i)(vkey|guestkey|guestprogramkey|programvkey|verifierhash|codehash|commitment|sha256|hash|digest|root|txhash|blockhash|stateroot)\b''',
+  '''(?i)"(vkey|guestKey|guestElfSha256|.*Sha256|.*Hash|.*Root|salt|preSalt|beacon)"\s*:''',
+]
+paths = [
+  '''evaluation/fixtures/trie/fixtures\.json''',
+  '''contracts/test/fixtures/.*''',
+  '''contracts/lib/.*''',
+]
+# The one known historical leak: three time.txt run records in this commit
+# carried the archive endpoint with its key (apparatus/FAILURES.md #11). The
+# key was rotated and the files redacted in 6ce9652; the old bytes stay in
+# history and are skipped here so the scan reports only new findings.
+commits = ["b9c71a52cf4da32262a85a71b175248b3c29b8f9"]

@@ -41,7 +41,8 @@
       "standard": "no features; SP1 native x86_64 executor; the only build used for proofs, PGU and timing",
       "cycle-tracking": "rsp/cycle-tracking + lemma-prove/cycle-tracking (= sp1-sdk/profiling); SP1 portable interpreter; per-phase cycle labels only",
       "arena": "rsp/arena + lemma-prove/arena (forwarded to the guest by build.rs): the upstream arena MPT backend in host and guest, different guest ELF and vkey; the registered existing capability and the evaluation counterfactual C",
-      "stdinReplay": "lemma-prove --stdin-file (step 5): executes a saved stdin through the executor's validation path; byte-identical input gives identical cycles and PGU (runs 35122638658/35122892653 arena, 35124206362/35124461684 standard)"
+      "stdinReplay": "lemma-prove --stdin-file (step 5): executes a saved stdin through the executor's validation path; byte-identical input gives identical cycles and PGU (runs 35122638658/35122892653 arena, 35124206362/35124461684 standard)",
+      "settlement": "lemma-prove --guest settlement executes evaluator-owned lemma-client, which preserves the pinned execution and commits the nine UsageEscrow words; candidate features are forwarded to this guest"
     }
   },
   "upstreamDeps": {
@@ -330,6 +331,41 @@
         "guestElfSha256": "9f4ebe673e904980fce13d6f264640829d521cc04cd31dbab4e027ef39f06bc3",
         "vkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4"
       }
+    },
+    "settlementGuest": {
+      "sourceCommit": "a75327feb7b687536048cac58f51337373d946cf",
+      "buildRun": 35199800802,
+      "reproducibilityRuns": {
+        "standard": 35214656190,
+        "arena": 35214941153
+      },
+      "reproduced": "standard and arena lock files, host binaries, rsp-client guests and lemma-client settlement guests are byte identical to build 35199800802; build timestamps are the only build-record difference",
+      "cargoLockSha256": "15d67402aa54bf39b3d55dc7020d8a654d5a98cdcb9640dce0e5f9cd7b6fcdf3",
+      "standard": {
+        "lemmaProveSha256": "f3d737df1c7e1fb6ea59f746fe56ca8fd4e972e368fe89290a08f57cc56bd8db",
+        "guestElfSha256": "8d286ddb9bd722fd8b62be783cfa63a6fc4d1feace898f746e006b499d4050da",
+        "vkey": "0x00a0dfd443319ecea73931d90eb057f94cb4fa55ea009c9153c000c602bb5a99",
+        "executionRun": 35214165784,
+        "replayRun": 35215551415,
+        "stdinSha256": "df350da237af0b5ef081d24b19fa47d51e92148ce6ce498a925f939f117c64af",
+        "totalCycles": 22635950,
+        "proverGas": 28818054,
+        "replayResult": "byte-identical stdin reproduced the vkey, public values, cycle count and PGU exactly"
+      },
+      "cycleTracking": {
+        "lemmaProveSha256": "f1d8659e22b0feab8cab2252e3cd0e80f608fa5c774f0692551868cb310cbb47",
+        "guestElfSha256": "8d286ddb9bd722fd8b62be783cfa63a6fc4d1feace898f746e006b499d4050da"
+      },
+      "arena": {
+        "lemmaProveSha256": "2845369eeae63863d260a379bc6e6936e536a31aa43300befaf115abbdfe7757",
+        "guestElfSha256": "6242718756c2d442a3b81da6500d1cad816b443daca95fabac2d0609725b082c",
+        "vkey": "0x00cc32d6bdbbe0368aaf0754fbf56247c73445b20de325575da6f978e86682c9",
+        "executionRun": 35214368051,
+        "totalCycles": 14027266,
+        "proverGas": 20609383
+      },
+      "publicValues": "both execution runs committed the same 288 bytes: chain 46630, deployed UsageEscrow, demand 0x37e1283d..., source domain, block 20600066, its block hash, parent root, computed root and success",
+      "artifactScan": "gitleaks found only the labeled public vkey line in the standard, arena and replay run.txt files; no credential was present"
     }
   },
   "developmentProfiles": {

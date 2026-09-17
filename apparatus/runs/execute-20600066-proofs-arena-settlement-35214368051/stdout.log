@@ -1,0 +1,64 @@
+[2m2026-09-17T11:11:34.117329Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-17T11:12:36.510674Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m lemma-prove [3mvariant[0m[2m=[0m"arena" [3mexecutor[0m[2m=[0m"sp1 default (native on x86_64 linux)" [3mguest[0m[2m=[0msettlement [3mvkey[0m[2m=[0m0x00cc32d6bdbbe0368aaf0754fbf56247c73445b20de325575da6f978e86682c9
+[2m2026-09-17T11:12:36.510722Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m fetching the current block and the previous block
+[2m2026-09-17T11:12:36.917186Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m setting up the database for the block executor
+[2m2026-09-17T11:12:36.917220Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m executing the block with rpc db: block_number=20600066, transaction_count=27
+[2m2026-09-17T11:12:44.391902Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m validating the block post execution
+[2m2026-09-17T11:12:44.391997Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m accumulating the logs bloom
+[2m2026-09-17T11:12:44.392044Z[0m [32m INFO[0m [2mrsp_rpc_db::basic[0m[2m:[0m fetching storage proofs
+[2m2026-09-17T11:12:50.270878Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m verifying the state root
+[2m2026-09-17T11:12:50.272233Z[0m [32m INFO[0m [2mrsp_rpc_db::basic[0m[2m:[0m fetching 1 ancestor headers
+[2m2026-09-17T11:12:50.314651Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m successfully executed block: block_number=20600066, block_hash=0x70d9841c78505cf9def6cf38cd72b284083fea5f8c907d870263cf83f1ab7c4a, state_root=0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6
+[2m2026-09-17T11:12:50.316702Z[0m [32m INFO[0m [2mrsp_host_executor::host_executor[0m[2m:[0m successfully generated client input
+[2m2026-09-17T11:12:50.545272Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Saved stdin to run/stdin/20600066.bin
+[2m2026-09-17T11:12:51.281826Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m settlement guest executed [3mcomputed_state_root[0m[2m=[0m0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6 [3mcycles[0m[2m=[0m14027266
+
+Execution report:
+gas: 20609383
+opcode counts (14027266 total instructions):
+    3181650 addi
+    1883688 lbu
+    1373394 ld
+    1306846 sd
+     994822 bne
+     938012 sll
+     859133 or
+     484899 sb
+     451590 beq
+     432382 add
+     390507 and
+     332677 jalr
+     257399 bltu
+     199309 srl
+     170566 auipc
+     134963 sub
+     125618 bgeu
+     114993 xor
+      72476 jal
+      52944 lui
+      40493 sw
+      36442 sltu
+      31259 lw
+      28250 mul
+      26494 ecall
+      26265 addw
+      18911 lb
+      18513 blt
+      13927 mulhu
+      13353 lwu
+       9457 srlw
+       1796 sh
+       1656 bge
+        837 sra
+        548 lh
+        436 lhu
+        426 slt
+        298 divu
+         27 sraw
+         10 sllw
+syscall counts (26229 total syscall instructions):
+    14336 secp256k1_double
+     7115 secp256k1_add
+     4768 keccak_permute
+        5 sha_compress
+        5 sha_extend

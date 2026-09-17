@@ -11,7 +11,7 @@
     "canonicalJson": "ROBINHOOD_CHAIN_PROD.md section 3.2: keccak256 for values that go onchain, sha256 for files that stay offchain; the holdout commitment is the sha256 of the sealed manifest bytes, stored onchain verbatim as bytes32"
   },
   "evaluatorImage": {
-    "hash": "538cf5188b6e8a125d4fbfcb2b5bb718952789df2042ea15bed7ccf9957010ca",
+    "hash": "5023524769085f06b2e85708c9f34a1de9ba832c32420e477e5400ff9dee38ee",
     "definition": "The evaluator is a set of workflow files and scripts in this repository run on GitHub-hosted runners, plus binaries built from the pinned RSP commit by those workflows. The image hash covers the files; the binaries are content-addressed by sha256 in apparatus/pins.json and every run record (run.txt, build-record.txt). The OS image is GitHub's rolling ubuntu-24.04 and is recorded per job (ImageOS, ImageVersion) rather than pinned. apparatus/pins.json is the operator's growing record and is not part of the image; its rsp.commit must equal evaluatorImage.rspCommit, which freeze.py --check verifies.",
     "files": [
       ".github/workflows/apparatus-build.yml",
@@ -43,15 +43,24 @@
       "evaluation/toolchain.json"
     ],
     "binaries": {
-      "guestElfSha256": "db0e3298c8a9078c1e0c3e3c7a2d13898282e6326f53290845623e7751ac6a17",
-      "vkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba",
-      "lemmaProveStandardSha256": "43d0a468836c10e187ddc19552d7ac568bc6818181a674a18f7eab32b83cf5da",
-      "lemmaProveCycleTrackingSha256": "49f83bc5f68efe9fd8a5f3c7da349684882fa9214e581fb7c1ed728b5881dce0",
-      "lemmaProveArenaSha256": "68dbb045557773843041387c9fb50b9850d0549fbe6fc31aee72915079cee47e",
-      "arenaGuestElfSha256": "9f4ebe673e904980fce13d6f264640829d521cc04cd31dbab4e027ef39f06bc3",
-      "arenaVkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4",
-      "cargoLockSha256": "c71a7deb85028393f6a1a5f0479e6e6196f02984cbab0841573d14b2a4ca11e2",
-      "reproduced": "all three wrapper binaries and both guest ELFs byte-identical across builds 35120130617 and 35122594072 (apparatus/prover at commit 5ec4df3); the pre-step-5 wrapper (155ca79e standard, 264a88ce cycle-tracking) carried the same guest ELF and vkey across five builds"
+      "buildRun": 35199800802,
+      "rspGuestElfSha256": "db0e3298c8a9078c1e0c3e3c7a2d13898282e6326f53290845623e7751ac6a17",
+      "rspVkey": "0x00b22d4bb5487743bd048fde7fdbd7b048b37bc93bafce13610f2d633465bfba",
+      "settlementGuestElfSha256": "8d286ddb9bd722fd8b62be783cfa63a6fc4d1feace898f746e006b499d4050da",
+      "settlementVkey": "0x00a0dfd443319ecea73931d90eb057f94cb4fa55ea009c9153c000c602bb5a99",
+      "lemmaProveStandardSha256": "f3d737df1c7e1fb6ea59f746fe56ca8fd4e972e368fe89290a08f57cc56bd8db",
+      "lemmaProveCycleTrackingSha256": "f1d8659e22b0feab8cab2252e3cd0e80f608fa5c774f0692551868cb310cbb47",
+      "lemmaProveArenaSha256": "2845369eeae63863d260a379bc6e6936e536a31aa43300befaf115abbdfe7757",
+      "arenaRspGuestElfSha256": "9f4ebe673e904980fce13d6f264640829d521cc04cd31dbab4e027ef39f06bc3",
+      "arenaRspVkey": "0x00139a3ef972e5e9145bf6e75a8daaeeccf7ee3ccd34881ed7cbd7ac6d74cda4",
+      "arenaSettlementGuestElfSha256": "6242718756c2d442a3b81da6500d1cad816b443daca95fabac2d0609725b082c",
+      "arenaSettlementVkey": "0x00cc32d6bdbbe0368aaf0754fbf56247c73445b20de325575da6f978e86682c9",
+      "cargoLockSha256": "15d67402aa54bf39b3d55dc7020d8a654d5a98cdcb9640dce0e5f9cd7b6fcdf3",
+      "validationRuns": {
+        "standard": 35214165784,
+        "arena": 35214368051
+      },
+      "validation": "both settlement guests committed the same expected nine-word statement for development block 20600066 under the frozen chain, market and demand context"
     },
     "runner": "GitHub-hosted ubuntu-24.04, x86_64, 4 vCPU, 16 GB RAM, 14 GB free disk; no GPU; SP1 cpu prover",
     "provenance": "Every run keeps the exact command, binary hashes, stdin sha256 and runner image in its artifact (run.txt) and the operator copies it under apparatus/runs/<id>/; workflow run ids are cited in the report",

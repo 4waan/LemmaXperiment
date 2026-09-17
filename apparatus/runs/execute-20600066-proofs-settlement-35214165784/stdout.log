@@ -1,0 +1,53 @@
+[2m2026-09-17T11:09:15.618556Z[0m [32m INFO[0m [2msp1_sdk::cpu[0m[2m:[0m initializing cpu prover
+[2m2026-09-17T11:10:50.113989Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m lemma-prove [3mvariant[0m[2m=[0m"standard" [3mexecutor[0m[2m=[0m"sp1 default (native on x86_64 linux)" [3mguest[0m[2m=[0msettlement [3mvkey[0m[2m=[0m0x00a0dfd443319ecea73931d90eb057f94cb4fa55ea009c9153c000c602bb5a99
+[2m2026-09-17T11:10:50.602297Z[0m [32m INFO[0m [2mrsp_host_executor::full_executor[0m[2m:[0m Saved stdin to run/stdin/20600066.bin
+[2m2026-09-17T11:10:51.988018Z[0m [32m INFO[0m [2mlemma_prove[0m[2m:[0m settlement guest executed [3mcomputed_state_root[0m[2m=[0m0xda4644b0cdc9c8414dfc6def794d0b4b8518903c6811d36dadbb0b267b4136c6 [3mcycles[0m[2m=[0m22635950
+
+Execution report:
+gas: 28818054
+opcode counts (22635950 total instructions):
+    4617339 addi
+    2399971 lbu
+    2310320 ld
+    2188755 sd
+    1445924 sll
+    1296831 or
+    1252592 sb
+    1051239 beq
+    1004471 and
+     904050 add
+     841991 bne
+     675308 srl
+     624509 jalr
+     400549 auipc
+     310003 bltu
+     286411 sub
+     249333 lui
+     193507 bgeu
+     185603 xor
+     149541 jal
+      81699 mul
+      37300 sltu
+      26454 ecall
+      23991 sw
+      18425 addw
+      17324 sh
+      13559 mulhu
+       9340 srlw
+       6716 lw
+       2938 bge
+       2677 lb
+       2392 lwu
+       2311 blt
+        770 sra
+        607 lh
+        436 lhu
+        426 slt
+        328 divu
+         10 sllw
+syscall counts (26191 total syscall instructions):
+    14336 secp256k1_double
+     7115 secp256k1_add
+     4730 keccak_permute
+        5 sha_compress
+        5 sha_extend

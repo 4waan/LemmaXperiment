@@ -90,7 +90,7 @@
     "rule": "measured plan plus margin, relative to the funding block timestamp; absolute Unix values are written into demand/spec.json and the fundDemand call at funding (step 7)",
     "submitBy": {"afterFundingSeconds": 345600, "derivation": "72 h creator wall budget + 24 h for the runner's confirmation wait, queueing and the submission transaction"},
     "evaluateBy": {"afterSubmitSeconds": 432000, "derivation": "about 2 elapsed days of sequential runner work + 2 h review + one full retry of the longest stage (a 6 h proof) + margin, rounded up to 5 days"},
-    "calendarCheck": "funding on 2026-09-18 gives submitBy 2026-09-22 and evaluateBy 2026-09-27, inside the ROBINHOOD_CHAIN_PROD.md plan (G3 to 23 September, G4 to 28 September) and before the 4 October buildathon deadline"
+    "calendarCheck": "funding around 2026-09-17T12:00:00Z gives submitBy 2026-09-21T12:00:00Z and evaluateBy 2026-09-26T12:00:00Z, inside the ROBINHOOD_CHAIN_PROD.md plan and before the 4 October buildathon deadline"
   },
 
   "sponsorAmounts": {

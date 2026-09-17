@@ -1,0 +1,23 @@
+	Command being timed: "dist/lemma-prove --block-number 20600066 --chain-id 1 --stdin-file run/stdin/20600066.bin --guest settlement --job-chain-id 46630 --job-market 0xC5cf835118B0476d5c938E7788959ca98E627ea7 --job-id 0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1 --cache-dir cache --state-backend proofs --out-dir run/out --report-path run/report.csv"
+	User time (seconds): 349.62
+	System time (seconds): 1.41
+	Percent of CPU this job got: 367%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:35.50
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7539724
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 302562
+	Voluntary context switches: 3119
+	Involuntary context switches: 55600
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 5728
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

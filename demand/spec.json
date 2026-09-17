@@ -1,13 +1,13 @@
 {
   "demandId": null,
   "specificationVersion": "1.2",
-  "specificationHash": null,
+  "specificationHash": "0x5af5aed60431fb36ffd36ccb36f04ab86173e6b029476cb99a850fc023cd2649",
   "buyer": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
   "assignedCreatorPayee": "0xC18925708Fe771D56A31b31429c53CE99aB70a91",
   "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
   "objective": "Improve state-witness processing in the pinned Ethereum block-proving pipeline. Preserve accepted computation and proof security settings. Deliver a reusable module with a machine-checked optimization property and documented integration. Meet the frozen prover-gas (PGU) acceptance gate on the sealed holdout set. Latency and cost are measured and reported separately; neither is a gate.",
   "baselineCommit": "2013b56184f9770bd12d1027495eebd1a0b81745",
-  "dependencyLockHash": "c71a7deb85028393f6a1a5f0479e6e6196f02984cbab0841573d14b2a4ca11e2",
+  "dependencyLockHash": "15d67402aa54bf39b3d55dc7020d8a654d5a98cdcb9640dce0e5f9cd7b6fcdf3",
   "toolchainManifestHash": "089c520c372367733bd660f94dd3c14c837532a2f11b1e43c358ad5a296d69b1",
   "integrationTarget": {
     "pipeline": "RSP/SP1",
@@ -51,9 +51,9 @@
     "sha256": "6b082a004a53244a87fc2c344670194046a72442add7829cb242bdeadbc687e2",
     "note": "recorded before any execution; disjoint from development by membership and from holdout set 1 by the frozen exclusion margin (reuse/input.py)"
   },
-  "evaluationPolicyHash": null,
-  "correctnessPolicyHash": null,
-  "formalScopePolicyHash": null,
+  "evaluationPolicyHash": "3c664f353051479abba9eadf8149078dea3e65d74a5582ee39dd615e2d779b51",
+  "correctnessPolicyHash": "6949bc21dd56d1b6efc6156d298d66323b0193bead2f829a5875d11997a1f50b",
+  "formalScopePolicyHash": "840e425e653b48705be28d17e030f5a951e58896eafed7a5a45c57a5f7d052f7",
   "acceptanceCriteria": {
     "preserveResultsAndSecurity": true,
     "leanTheoremRequired": true,
@@ -144,15 +144,15 @@
   "localAttemptLimit": 3,
   "holdoutSubmissionLimit": 1,
   "submitBy": {
-    "unix": 1789966800,
-    "utc": "2026-09-21T05:00:00Z",
-    "anchor": "planned funding time 2026-09-17T05:00:00Z (1789621200) + 345600 s; the funding transaction lands minutes after the anchor",
+    "unix": 1789992000,
+    "utc": "2026-09-21T12:00:00Z",
+    "anchor": "planned funding time 2026-09-17T12:00:00Z (1789646400) + 345600 s; the funding transaction lands minutes around the anchor",
     "rule": "funding block timestamp + 345600 s (4 days: 72 h creator wall budget + 24 h runner confirmation wait, queueing and submission); absolute value written at funding",
     "requires": "evaluateBy > submitBy (ROBINHOOD_CHAIN_PROD.md I-S10)"
   },
   "evaluateBy": {
-    "unix": 1790398800,
-    "utc": "2026-09-26T05:00:00Z",
+    "unix": 1790424000,
+    "utc": "2026-09-26T12:00:00Z",
     "rule": "submitBy + 432000 s (5 days: about 2 elapsed days of sequential runner work, 2 h review, one full retry of a 6 h proof, margin); absolute value written at funding"
   },
   "revisionHistory": [
@@ -209,6 +209,7 @@
       "date": "2026-09-17",
       "changes": [
         "evaluationPolicyHash from policy 1.3: evaluator-owned lemma-client commits the deployed UsageEscrow's nine-word statement and candidate features are measured through that settlement guest",
+        "dependencyLockHash from evaluator build 35199800802 includes the settlement guest and its pinned dependencies",
         "the demand funded under specification 1.1 is superseded before creator work because its registered rsp-client key could not satisfy the deployed UsageEscrow public-values layout; this version will be funded as a new demand"
       ]
     }

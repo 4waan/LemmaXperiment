@@ -28,7 +28,8 @@ function fail(message) {
 }
 
 export function createTools(ctx) {
-    // ctx: {log, repo, baseCommit, runId, demand, budget, corpusBlocks, controller, dispatchEnabled, gh?}
+    // ctx: {log, repo, baseCommit, runId, demand, settlement, budget,
+    //       corpusBlocks, controller, dispatchEnabled, gh?}
     const gh = ctx.gh ?? ghClient;
     const state = {
         disposition: null,
@@ -128,7 +129,7 @@ export function createTools(ctx) {
         ),
         tool(
             "dispatch_execute",
-            "Execute one public development block in the SP1 executor (apparatus-execute.yml): PGU, cycles, report.csv. block must be a corpus block. input_source fixture (offline, standard-format inputs) or replay (a saved stdin from replay_run) or rpc (corpus blocks only). build_run selects which apparatus-build artifact to run (required for candidate variants).",
+            "Execute one public development block with the settlement-bound guest (apparatus-execute.yml): PGU, cycles, report.csv and its derived guest key. block must be a corpus block. Use rpc for the first execution and replay for the saved settlement stdin. build_run selects which apparatus-build artifact to run (required for candidate variants).",
             {
                 block: z.number().int(),
                 variant: z.string().regex(VARIANTS),
@@ -140,6 +141,7 @@ export function createTools(ctx) {
             async (args) => {
                 try {
                     if (!ctx.corpusBlocks.includes(args.block)) throw new Error(`block ${args.block} is not in the public development corpus ${ctx.corpusBlocks.join(", ")}`);
+                    if (args.input_source === "fixture") throw new Error("the settlement guest needs a job context, so use rpc for the first run or replay for its saved stdin");
                     if (args.input_source === "replay" && !(args.replay_run && args.replay_sha256)) throw new Error("replay needs replay_run and replay_sha256");
                     const inputs = {
                         block: String(args.block),
@@ -149,6 +151,9 @@ export function createTools(ctx) {
                         replay_run: args.replay_run ? String(args.replay_run) : "",
                         replay_sha256: args.replay_sha256 ?? "",
                         build_run: args.build_run ? String(args.build_run) : "",
+                        guest: "settlement",
+                        job_market: ctx.settlement.market,
+                        job_id: ctx.demand.demandId,
                     };
                     return text(await doDispatch("execute", inputs));
                 } catch (e) {

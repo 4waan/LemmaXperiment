@@ -39,7 +39,7 @@ function fakeGh() {
 
 function ctxFor(repo, {dispatch = false, controller = null, gh = fakeGh()} = {}) {
     const log = new RunLog(mkdtempSync(path.join(tmpdir(), "log-")));
-    return {log, repo, baseCommit: git(repo, ["rev-parse", "HEAD"]), runId: "test", demand: {demandId: "0x" + "aa".repeat(32)}, budget: {dispatches: {"apparatus-build": 2, "apparatus-execute": 2, "apparatus-fixtures": 1, "evaluation-formal": 1}, localAttemptLimit: 1}, corpusBlocks: [20600066, 18884864, 23945771], controller, dispatchEnabled: dispatch, gh};
+    return {log, repo, baseCommit: git(repo, ["rev-parse", "HEAD"]), runId: "test", demand: {demandId: "0x" + "aa".repeat(32)}, settlement: {market: "0x" + "bb".repeat(20)}, budget: {dispatches: {"apparatus-build": 2, "apparatus-execute": 2, "apparatus-fixtures": 1, "evaluation-formal": 1}, localAttemptLimit: 1}, corpusBlocks: [20600066, 18884864, 23945771], controller, dispatchEnabled: dispatch, gh};
 }
 
 const textOf = (r) => r.content[0].text;
@@ -81,9 +81,23 @@ test("tools: order, corpus, publication and budget checks", async () => {
     r = await t.dispatch_execute({block: 20600066, variant: "lemma-cache", input_source: "replay"});
     assert.match(textOf(r), /replay needs/);
     r = await t.dispatch_execute({block: 20600066, variant: "lemma-cache", input_source: "fixture", build_run: 100});
+    assert.match(textOf(r), /settlement guest needs a job context/);
+    r = await t.dispatch_execute({block: 20600066, variant: "lemma-cache", input_source: "rpc", build_run: 100});
     assert.equal(JSON.parse(textOf(r)).remaining, 1);
-    await t.dispatch_execute({block: 18884864, variant: "standard", input_source: "fixture"});
-    r = await t.dispatch_execute({block: 18884864, variant: "standard", input_source: "fixture"});
+    assert.deepEqual(gh.calls.at(-1).inputs, {
+        block: "20600066",
+        state_backend: "proofs",
+        variant: "lemma-cache",
+        input_source: "rpc",
+        replay_run: "",
+        replay_sha256: "",
+        build_run: "100",
+        guest: "settlement",
+        job_market: "0x" + "bb".repeat(20),
+        job_id: "0x" + "aa".repeat(32),
+    });
+    await t.dispatch_execute({block: 18884864, variant: "standard", input_source: "rpc"});
+    r = await t.dispatch_execute({block: 18884864, variant: "standard", input_source: "rpc"});
     assert.match(textOf(r), /budget: execute dispatches exhausted/);
     // a second candidate commit exceeds localAttemptLimit 1
     writeFileSync(path.join(repo, "candidate", "lib.rs"), "fn g(){}");

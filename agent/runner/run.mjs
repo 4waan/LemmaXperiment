@@ -58,6 +58,28 @@ const pins = json("apparatus/pins.json");
 const registry = json("demand/registry-snapshot.json");
 const corpusBlocks = corpus.blocks.map((b) => b.number);
 
+function hex(value) {
+    return String(value ?? "").toLowerCase().replace(/^0x/, "");
+}
+
+function assertDemandBinding(demand) {
+    const checks = [
+        ["demandId", spec.demandId, funding.demandId],
+        ["specificationHash", spec.specificationHash, funding.specificationHash],
+        ["evaluationPolicyHash", spec.evaluationPolicyHash, funding.evaluationPolicyHash],
+        ["onchain specificationHash", demand.specHash, funding.specificationHash],
+        ["onchain evaluationPolicyHash", demand.policyHash, funding.evaluationPolicyHash],
+        ["onchain holdoutCommitment", demand.holdoutCommitment, funding.holdoutCommitment],
+        ["onchain creatorPayee", demand.creatorPayee, funding.creatorPayee],
+        ["onchain evaluatorSigner", demand.evaluatorSigner, funding.evaluatorSigner],
+    ];
+    for (const [name, actual, expected] of checks) {
+        if (!actual || hex(actual) !== hex(expected)) throw new Error(`${name} is not bound to demand/funding.json`);
+    }
+    if (demand.contributorFee !== BigInt(funding.contributorFeeWei)) throw new Error("onchain contributorFee differs from demand/funding.json");
+    if (demand.submitBy !== BigInt(funding.submitBy) || demand.evaluateBy !== BigInt(funding.evaluateBy)) throw new Error("onchain deadlines differ from demand/funding.json");
+}
+
 function fill(template, values) {
     return template.replace(/\{\{(\w+)\}\}/g, (_, k) => (values[k] === undefined ? `<${k}>` : String(values[k])));
 }
@@ -84,6 +106,7 @@ function buildPrompt() {
 async function status() {
     const client = publicClient();
     const d = await readDemand(client, funding.creationBounty, funding.demandId);
+    assertDemandBinding(d);
     const batch = await batchContaining(client, funding.block);
     const now = Math.floor(Date.now() / 1000);
     console.log(JSON.stringify({
@@ -127,6 +150,7 @@ async function resumePrepare(runId) {
     if (manifest.submission || manifest.declined) throw new Error("that run already took its terminal action");
     const client = publicClient();
     const demand = await readDemand(client, funding.creationBounty, funding.demandId);
+    assertDemandBinding(demand);
     const log = new RunLog(runDir);
     const actions = readActions(runDir);
     const sessionId = sessionIdOf(runDir);
@@ -142,6 +166,7 @@ async function resumePrepare(runId) {
 async function prepare(mode) {
     const client = publicClient();
     const demand = await readDemand(client, funding.creationBounty, funding.demandId);
+    assertDemandBinding(demand);
     const batch = await batchContaining(client, funding.block);
     const now = Math.floor(Date.now() / 1000);
     if (mode === "start") {
@@ -277,7 +302,7 @@ function toolPolicy(workspaceRepo, toolNames, {dispatch}) {
 }
 
 async function runSession({runId, runDir, log, workspace, prompt, manifest, demand, limits, restore, sessionId, spentUsd = 0}, {model, maxTurns, maxBudgetUsd, wallSeconds, dispatch, controller, promptOverride}) {
-    const tools = createTools({log, repo: workspace.repo, baseCommit: workspace.head, runId, demand: {demandId: funding.demandId}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: limits.localAttemptLimit}, corpusBlocks, controller, dispatchEnabled: dispatch, restore});
+    const tools = createTools({log, repo: workspace.repo, baseCommit: workspace.head, runId, demand: {demandId: funding.demandId}, settlement: {market: spec.settlement.contracts.UsageEscrow}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: limits.localAttemptLimit}, corpusBlocks, controller, dispatchEnabled: dispatch, restore});
     maxBudgetUsd = Math.max(0, maxBudgetUsd - spentUsd);
     const policy = toolPolicy(workspace.repo, tools.toolNames, {dispatch});
     manifest.toolPolicyHash = sha256Json(policy);
@@ -386,7 +411,7 @@ if (cmd === "status") {
     await status();
 } else if (cmd === "dry-run") {
     const p = await prepare("dry-run");
-    const tools = createTools({log: p.log, repo: p.workspace.repo, baseCommit: p.workspace.head, runId: p.runId, demand: {demandId: funding.demandId}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: p.limits.localAttemptLimit}, corpusBlocks, controller: null, dispatchEnabled: false});
+    const tools = createTools({log: p.log, repo: p.workspace.repo, baseCommit: p.workspace.head, runId: p.runId, demand: {demandId: funding.demandId}, settlement: {market: spec.settlement.contracts.UsageEscrow}, budget: {dispatches: budget.creatorComputeBudget.dispatches, localAttemptLimit: p.limits.localAttemptLimit}, corpusBlocks, controller: null, dispatchEnabled: false});
     const policy = toolPolicy(p.workspace.repo, tools.toolNames, {dispatch: true});
     p.manifest.toolPolicyHash = sha256Json(policy);
     p.log.writeJson("run.json", p.manifest);

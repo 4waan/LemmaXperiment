@@ -1,7 +1,7 @@
 {
-  "demandId": "0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1",
-  "specificationVersion": "1.1",
-  "specificationHash": "0xd4e95ab0f16ffb19e63967873fc0fd78d82e0b12ef7028f9d0a2ff17fe83fa52",
+  "demandId": null,
+  "specificationVersion": "1.2",
+  "specificationHash": null,
   "buyer": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
   "assignedCreatorPayee": "0xC18925708Fe771D56A31b31429c53CE99aB70a91",
   "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
@@ -37,7 +37,7 @@
     "Cargo.toml (workspace members and workspace.dependencies entries for a new crate only, reviewed)",
     "Cargo.lock (the resulting lock, reviewed against the manifest's dependencyVersions)"
   ],
-  "integrationInterface": "Implement rsp_mpt::StateTries (crates/mpt/src/lib.rs:442 at the pin) for the new representation and wire its construction exactly as the upstream `arena` feature is wired (guest: io.rs, executor.rs, bin/client; host: host_executor.rs encoding from EthereumState, full_executor.rs stdin), behind one cargo feature declared on bin/host and bin/client and forwarded to the guest by bin/host/build.rs. The unchanged lemma-prove wrapper built with that feature is the integration; the evaluator derives the guest key from its own build. See apparatus/INTERFACES.md sections 2, 5 and 6.",
+  "integrationInterface": "Implement rsp_mpt::StateTries (crates/mpt/src/lib.rs:442 at the pin) for the new representation and wire its construction exactly as the upstream `arena` feature is wired (guest: io.rs, executor.rs, bin/client; host: host_executor.rs encoding from EthereumState, full_executor.rs stdin), behind one cargo feature declared on bin/host and bin/client and forwarded by the evaluator wrapper to both rsp-client and the evaluator-owned lemma-client settlement guest. The candidate does not edit the settlement wrapper. The evaluator derives the settlement guest key from its own build and that key is the accepted version's guestProgramKey. See apparatus/INTERFACES.md sections 2, 5 and 6.",
   "publicDevelopmentCorpusHash": "0797e833d261e873cc830e8fecaadd79156c27b51dff422073275b78ccfa06aa",
   "publicDevelopmentBlocks": [
     20600066,
@@ -51,9 +51,9 @@
     "sha256": "6b082a004a53244a87fc2c344670194046a72442add7829cb242bdeadbc687e2",
     "note": "recorded before any execution; disjoint from development by membership and from holdout set 1 by the frozen exclusion margin (reuse/input.py)"
   },
-  "evaluationPolicyHash": "f9230c559fda993f4c8468f42b6b688b114f1fcaa261f080eae2c4fdc38e1de3",
-  "correctnessPolicyHash": "b398124529042e23a9fa31acc108ebfbc31d823a875ddb29fe0e9c2650e0046c",
-  "formalScopePolicyHash": "840e425e653b48705be28d17e030f5a951e58896eafed7a5a45c57a5f7d052f7",
+  "evaluationPolicyHash": null,
+  "correctnessPolicyHash": null,
+  "formalScopePolicyHash": null,
   "acceptanceCriteria": {
     "preserveResultsAndSecurity": true,
     "leanTheoremRequired": true,
@@ -83,7 +83,7 @@
   },
   "candidateBundle": {
     "layout": "one commit of this repository holding candidate/ (module, adapter, tests, build recipe, manifest.json) and formal/; RSP changes as an overlay under candidate/rsp/ mirroring the pinned tree, applied by evaluation/overlay.py within allowedSourcePaths",
-    "featureName": "the candidate declares one cargo feature on bin/host and bin/client (forwarded to the guest by bin/host/build.rs) and names it in manifest.json; apparatus-build.yml builds variant=<that name> with overlay_ref=<that commit>",
+    "featureName": "the candidate declares one cargo feature on bin/host and bin/client (forwarded by the evaluator wrapper to rsp-client and lemma-client) and names it in manifest.json; apparatus-build.yml builds variant=<that name> with overlay_ref=<that commit>",
     "artifactDigest": "sha256 tree hash over candidate/ and formal/ at that commit (sorted `<path> <sha256>` lines), submitted onchain and recomputed by the evaluator"
   },
   "creationBounty": {
@@ -140,7 +140,7 @@
     "controlRuns": {"usdLimit": 20, "maxTurns": 150, "wallTimeSeconds": 7200},
     "scenarioUsd": 210
   },
-  "computeBudget": {"file": "demand/budget.json creatorComputeBudget", "dispatches": {"apparatus-build": 8, "apparatus-execute": 60, "apparatus-fixtures": 6, "evaluation-formal": 6, "apparatus-prove": 0, "apparatus-wrap": 0}, "executeInputs": "fixture or replay; RPC-backed executions only for the three corpus blocks", "runnerHoursEstimate": 10, "usd": 0},
+  "computeBudget": {"file": "demand/budget.json creatorComputeBudget", "dispatches": {"apparatus-build": 8, "apparatus-execute": 60, "apparatus-fixtures": 6, "evaluation-formal": 6, "apparatus-prove": 0, "apparatus-wrap": 0}, "executeInputs": "RPC for the first settlement-guest execution or replay of its saved stdin; RPC-backed executions only for the three corpus blocks", "runnerHoursEstimate": 10, "usd": 0},
   "localAttemptLimit": 3,
   "holdoutSubmissionLimit": 1,
   "submitBy": {
@@ -202,6 +202,14 @@
       "changes": [
         "evaluationPolicyHash from policy 1.2: the execute workflow no longer puts the archive endpoint on the command line and scrubs time.txt (a provider key had reached three run records and artifacts under 1.1; rotated, scrubbed, deleted). No rule changed",
         "demand 0x5aa24f98... funded under 1.0 was declined by the creator key before any creator work and refunded; this version is funded as a new demand (demand/funding.json)"
+      ]
+    },
+    {
+      "version": "1.2",
+      "date": "2026-09-17",
+      "changes": [
+        "evaluationPolicyHash from policy 1.3: evaluator-owned lemma-client commits the deployed UsageEscrow's nine-word statement and candidate features are measured through that settlement guest",
+        "the demand funded under specification 1.1 is superseded before creator work because its registered rsp-client key could not satisfy the deployed UsageEscrow public-values layout; this version will be funded as a new demand"
       ]
     }
   ]

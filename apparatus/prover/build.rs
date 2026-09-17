@@ -11,6 +11,18 @@ fn main() {
     } else {
         Vec::new()
     };
-    build_program_with_args("../client", BuildArgs { features: features.clone(), ..Default::default() });
-    build_program_with_args("../lemma-client", BuildArgs { features, ..Default::default() });
+    build_program_with_args(
+        "../client",
+        BuildArgs {
+            features: features.clone(),
+            ..Default::default()
+        },
+    );
+    build_program_with_args(
+        "../lemma-client",
+        BuildArgs {
+            features,
+            ..Default::default()
+        },
+    );
 }

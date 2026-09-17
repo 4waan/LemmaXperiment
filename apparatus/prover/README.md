@@ -1,15 +1,31 @@
 # lemma-prove
 
-A thin wrapper over the pinned RSP host. The guest ELF, executor crates and
-CSV report are the pinned upstream ones; this binary only adds `--stdin-dir`,
-`--out-dir`, `--proof-mode` and `--stdin-file`, because the upstream CLI
-discards proof bytes, does not expose the executor's stdin dump and cannot
-execute a saved stdin again.
+A thin wrapper over the pinned RSP host. The executor crates and measured
+guest are the pinned upstream ones. This binary adds `--stdin-dir`,
+`--out-dir`, `--proof-mode`, `--stdin-file` and `--guest settlement`, because
+the upstream CLI discards proof bytes, does not expose the executor's stdin
+dump, cannot execute a saved stdin again and does not commit the reuse escrow
+context.
 
 It is not built standalone. `apparatus-build.yml` copies this directory into
 the pinned RSP checkout as `bin/lemma-prove`, copies `bin/host/src/cli.rs` and
 `bin/host/src/execute.rs` next to it, appends the member to the workspace,
 and builds. The build record lists the workspace edit and both binary hashes.
+
+## Settlement guest
+
+`--guest settlement` selects the evaluator-owned `lemma-client`. It executes
+the same pinned RSP client and preserves every upstream validation, then
+commits the nine static ABI words consumed by `UsageEscrow`: settlement chain,
+market, job ID, source domain, block number, block hash, parent state root,
+computed state root and success. The dynamic context is supplied with
+`--job-chain-id`, `--job-market` and `--job-id` and is part of the saved stdin.
+
+Candidate backend features are forwarded to both `rsp-client` and
+`lemma-client`. Evaluation measures and proves the settlement guest, and the
+accepted version records its independently derived key. The upstream guest
+key remains diagnostic because its block-header public values cannot settle a
+reuse job.
 
 Outputs per block under `--out-dir`:
 
@@ -48,8 +64,8 @@ The arena host writes its input cache without the witness (`parent_state` is
 shares the actions cache and cannot load the committed corpus inputs: it
 runs from RPC, or replays a stdin it produced.
 
-Standard and cycle-tracking share the guest ELF (the feature is host-side),
-so `vkey.txt` must match between them and so must
+Standard and cycle-tracking share each corresponding guest ELF (the feature
+is host-side), so `vkey.txt` must match between them and so must
 `total_instruction_count` and `prover_gas`. What differs: SP1 6.8.0
 only parses the guest's `cycle-tracker-report-*` lines under its `profiling`
 feature (`sp1-core-executor/src/minimal/write.rs`), and that feature also

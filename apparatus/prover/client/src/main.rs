@@ -11,9 +11,7 @@
 sp1_zkvm::entrypoint!(main);
 
 use rsp_client_executor::{
-    executor::{EthClientExecutor, DESERIALZE_INPUTS},
-    io::EthClientExecutorInput,
-    utils::profile_report,
+    executor::EthClientExecutor, io::EthClientExecutorInput, utils::profile_report,
 };
 use std::sync::Arc;
 
@@ -37,7 +35,7 @@ fn push_word_u64(out: &mut Vec<u8>, v: u64) {
 }
 
 pub fn main() {
-    let input = profile_report!(DESERIALZE_INPUTS, {
+    let input = profile_report!(rsp_client_executor::executor::DESERIALZE_INPUTS, {
         #[cfg(not(feature = "arena"))]
         {
             let input = sp1_zkvm::io::read_vec();

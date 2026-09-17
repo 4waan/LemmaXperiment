@@ -1,5 +1,5 @@
-//! lemma-prove: the pinned RSP host with four additions, none of which touch
-//! the guest or the executor crates: `--stdin-dir` (exposes the executor's
+//! lemma-prove: the pinned RSP host with evaluator-owned additions that do not
+//! change the RSP executor crates: `--stdin-dir` (exposes the executor's
 //! existing stdin dump), `--out-dir` (saves proof, vkey, timings),
 //! `--proof-mode` (compressed, groth16 or plonk instead of hardcoded
 //! compressed), `--stdin-file` (execute a saved stdin again, byte for byte,
@@ -16,14 +16,16 @@ use either::Either;
 use execute::PersistExecutionReport;
 use reth_ethereum_primitives::EthPrimitives;
 use rsp_client_executor::io::EthClientExecutorInput;
+use rsp_host_executor::ExecutionHooks;
 use rsp_host_executor::{
     build_executor, create_eth_block_execution_strategy_factory, BlockExecutor,
     EthExecutorComponents,
 };
-use rsp_host_executor::ExecutionHooks;
 use rsp_provider::create_provider;
 use save::SaveArtifacts;
-use sp1_sdk::{env::EnvProver, include_elf, HashableKey, Prover, ProvingKey, SP1ProofMode, SP1Stdin};
+use sp1_sdk::{
+    env::EnvProver, include_elf, HashableKey, Prover, ProvingKey, SP1ProofMode, SP1Stdin,
+};
 use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt,
 };
@@ -69,7 +71,10 @@ struct Args {
     job_chain_id: u64,
     #[clap(long, default_value = "0x0000000000000000000000000000000000000000")]
     job_market: String,
-    #[clap(long, default_value = "0x0000000000000000000000000000000000000000000000000000000000000000")]
+    #[clap(
+        long,
+        default_value = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    )]
     job_id: String,
 }
 
@@ -81,10 +86,17 @@ struct JobContext {
     job_id: [u8; 32],
 }
 
+/// keccak256("ethereum-mainnet-block-execution.v1"), UsageEscrow.SOURCE_DOMAIN.
+const SOURCE_DOMAIN: [u8; 32] = [
+    0x9b, 0x2c, 0x85, 0x38, 0x32, 0x8b, 0x41, 0xd0, 0x86, 0x28, 0x77, 0xf0, 0xc2, 0xd5, 0xbb, 0xc4,
+    0x31, 0xbd, 0xb3, 0xca, 0x61, 0xb4, 0x42, 0xf6, 0x16, 0x03, 0xc4, 0x0e, 0x99, 0xaa, 0x65, 0x80,
+];
+
 fn parse_hex<const N: usize>(s: &str, what: &str) -> eyre::Result<[u8; N]> {
     let raw = hex::decode(s.trim_start_matches("0x"))?;
-    let arr: [u8; N] =
-        raw.try_into().map_err(|_| eyre::eyre!("{what} must be {N} bytes of hex"))?;
+    let arr: [u8; N] = raw
+        .try_into()
+        .map_err(|_| eyre::eyre!("{what} must be {N} bytes of hex"))?;
     Ok(arr)
 }
 
@@ -141,7 +153,10 @@ async fn main() -> eyre::Result<()> {
     };
     let block_execution_strategy_factory =
         create_eth_block_execution_strategy_factory(&config.genesis, config.custom_beneficiary);
-    let provider = config.rpc_url.as_ref().map(|url| create_provider(url.clone()));
+    let provider = config
+        .rpc_url
+        .as_ref()
+        .map(|url| create_provider(url.clone()));
 
     let executor = build_executor::<EthExecutorComponents<_>, _>(
         elf,
@@ -182,13 +197,18 @@ async fn main() -> eyre::Result<()> {
         let (client_input, stdin) = if let Some(path) = args.stdin_file.as_ref() {
             eyre::ensure!(!args.host.prove, "--stdin-file is execute only");
             let stdin: SP1Stdin = bincode::deserialize(&std::fs::read(path)?)?;
-            let first = stdin.buffer.first().ok_or_else(|| eyre::eyre!("empty stdin"))?;
+            let first = stdin
+                .buffer
+                .first()
+                .ok_or_else(|| eyre::eyre!("empty stdin"))?;
             let client_input: EthClientExecutorInput = bincode::deserialize(first)?;
             (client_input, stdin)
         } else {
             let full = match &executor {
                 Either::Left(full) => full,
-                Either::Right(_) => eyre::bail!("the settlement guest needs the RPC provider or --stdin-file"),
+                Either::Right(_) => {
+                    eyre::bail!("the settlement guest needs the RPC provider or --stdin-file")
+                }
             };
             let client_input = full.fetch_client_input(block_number).await?;
             let mut stdin = executor.build_stdin(&client_input)?;
@@ -204,29 +224,71 @@ async fn main() -> eyre::Result<()> {
         let client = executor.client();
         let guest_elf = executor.pk().elf().clone();
         let start = Instant::now();
-        let (public_values, report) =
-            client.execute(guest_elf, stdin.clone()).await.map_err(|err| eyre::eyre!("{err}"))?;
+        let (public_values, report) = client
+            .execute(guest_elf, stdin.clone())
+            .await
+            .map_err(|err| eyre::eyre!("{err}"))?;
         let duration = start.elapsed();
         let pv = public_values.as_slice();
-        eyre::ensure!(pv.len() == 9 * 32, "settlement guest committed {} bytes, expected 288", pv.len());
+        eyre::ensure!(
+            pv.len() == 9 * 32,
+            "settlement guest committed {} bytes, expected 288",
+            pv.len()
+        );
         let word = |i: usize| &pv[i * 32..(i + 1) * 32];
         let expect_block_hash = client_input.current_block.header.hash_slow();
         let parent_root = client_input.parent_header().state_root;
-        eyre::ensure!(u64::from_be_bytes(word(0)[24..].try_into()?) == ctx.settlement_chain_id, "chain id mismatch in public values");
-        eyre::ensure!(&word(1)[12..] == &ctx.market[..], "market mismatch in public values");
-        eyre::ensure!(word(2) == &ctx.job_id[..], "job id mismatch in public values");
-        eyre::ensure!(u64::from_be_bytes(word(4)[24..].try_into()?) == block_number, "block number mismatch in public values");
-        eyre::ensure!(word(5) == expect_block_hash.as_slice(), "block hash mismatch in public values");
-        eyre::ensure!(word(6) == parent_root.as_slice(), "parent state root mismatch in public values");
-        eyre::ensure!(word(8)[31] == 1, "success flag not set");
+        let expected_state_root = client_input.current_block.header.state_root;
+        let mut chain_word = [0u8; 32];
+        chain_word[24..].copy_from_slice(&ctx.settlement_chain_id.to_be_bytes());
+        let mut market_word = [0u8; 32];
+        market_word[12..].copy_from_slice(&ctx.market);
+        let mut block_word = [0u8; 32];
+        block_word[24..].copy_from_slice(&block_number.to_be_bytes());
+        let mut success_word = [0u8; 32];
+        success_word[31] = 1;
+        eyre::ensure!(word(0) == chain_word, "chain id mismatch in public values");
+        eyre::ensure!(word(1) == market_word, "market mismatch in public values");
+        eyre::ensure!(
+            word(2) == &ctx.job_id[..],
+            "job id mismatch in public values"
+        );
+        eyre::ensure!(
+            word(3) == SOURCE_DOMAIN,
+            "source domain mismatch in public values"
+        );
+        eyre::ensure!(
+            word(4) == block_word,
+            "block number mismatch in public values"
+        );
+        eyre::ensure!(
+            word(5) == expect_block_hash.as_slice(),
+            "block hash mismatch in public values"
+        );
+        eyre::ensure!(
+            word(6) == parent_root.as_slice(),
+            "parent state root mismatch in public values"
+        );
+        eyre::ensure!(
+            word(7) == expected_state_root.as_slice(),
+            "computed state root mismatch in public values"
+        );
+        eyre::ensure!(word(8) == success_word, "success flag not set");
         let computed_state_root = format!("0x{}", hex::encode(word(7)));
-        std::fs::write(args.out_dir.join(format!("{block_number}.public-values.hex")), hex::encode(pv))?;
+        std::fs::write(
+            args.out_dir
+                .join(format!("{block_number}.public-values.hex")),
+            hex::encode(pv),
+        )?;
         tracing::info!(%computed_state_root, cycles = report.total_instruction_count(), "settlement guest executed");
-        hooks.on_execution_end::<EthPrimitives>(&client_input.current_block, &report, duration).await?;
+        hooks
+            .on_execution_end::<EthPrimitives>(&client_input.current_block, &report, duration)
+            .await?;
         if args.host.prove {
             let mode = config_prove_mode(&args.proof_mode)?;
-            let (proof_bytes, proving_duration) =
-                executor.prove_only(block_number, stdin, mode, &hooks).await?;
+            let (proof_bytes, proving_duration) = executor
+                .prove_only(block_number, stdin, mode, &hooks)
+                .await?;
             hooks
                 .on_proving_end(
                     block_number,
@@ -248,7 +310,10 @@ async fn main() -> eyre::Result<()> {
         // as the second item, which the guest reads on its own.
         eyre::ensure!(!args.host.prove, "--stdin-file is execute only");
         let stdin: SP1Stdin = bincode::deserialize(&std::fs::read(path)?)?;
-        let first = stdin.buffer.first().ok_or_else(|| eyre::eyre!("empty stdin"))?;
+        let first = stdin
+            .buffer
+            .first()
+            .ok_or_else(|| eyre::eyre!("empty stdin"))?;
         let client_input: EthClientExecutorInput = bincode::deserialize(first)?;
         eyre::ensure!(
             client_input.current_block.header.number == block_number,

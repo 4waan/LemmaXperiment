@@ -5,7 +5,7 @@ Owner: evaluator. Separate environment, separate signing identity
 
 ## Files
 
-- `policy.json`: the frozen rules (version 1.0): evaluator image, reproduction
+- `policy.json`: the frozen rules (version 1.3): evaluator image, reproduction
   and limits, correctness, formal scope, performance metric and acceptance,
   verdict and signature. Its keccak256 over canonical JSON is
   `evaluationPolicyHash` in `demand/spec.json`; `freeze.py` writes and
@@ -45,7 +45,8 @@ Owner: evaluator. Separate environment, separate signing identity
    outside `allowedSourcePaths`; the pinned RSP commit is never changed.
    The evaluator's `vkey.txt` must equal the manifest's guest key; the
    build's `Cargo.lock` diff against the baseline lock must be the declared
-   dependencies only.
+   dependencies only. The accepted `guestProgramKey` is independently derived
+   from the evaluator-owned settlement guest, not the diagnostic rsp-client.
 2. Correctness: `apparatus-fixtures.yml` on the candidate backend (expected
    outcomes come from py-trie, not from A) through an adapter arm the
    evaluator writes and publishes; forged-handle and capacity families

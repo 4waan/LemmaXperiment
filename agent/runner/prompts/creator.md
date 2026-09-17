@@ -20,7 +20,9 @@ Acceptance (evaluation/policy.json, policy hash {{evaluationPolicyHash}}):
   holdout blocks, measured against BOTH the upstream default backend (A)
   and the upstream arena backend (C); the smaller saving is gated. Bootstrap
   interval above zero, no block regressing more than 10%.
-- The evaluator builds your bundle from scratch and derives the guest key.
+- The evaluator builds your bundle from scratch and derives the key of the
+  settlement-bound guest. Record that key as `guestProgramKey`; the measured
+  RSP guest key is diagnostic and cannot settle a reuse job.
 
 Integration interface: {{integrationInterface}}
 
@@ -59,8 +61,8 @@ C. Hypothesis: before implementing, call `record_hypothesis` with the
 D. Build: at most {{localAttemptLimit}} candidate revisions built through
    `dispatch_build`. Use `publish_revision` to commit and push candidate/ and
    formal/, then `dispatch_build` (variant = your cargo feature name),
-   `dispatch_execute` on corpus blocks (fixture mode for A, rpc or replay for
-   an encoding-changing candidate), `dispatch_fixtures`, `dispatch_formal`,
+   `dispatch_execute` on corpus blocks (RPC for the first settlement-guest
+   execution, replay for the saved stdin), `dispatch_fixtures`, `dispatch_formal`,
    `workflow_status`, `fetch_run`. Local checks: `cargo check` in
    `upstream/rsp` with your overlay copied in, `lake build` in `formal/`.
    Keep failed revisions in git history; never rewrite it.

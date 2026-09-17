@@ -1,5 +1,5 @@
 {
-  "policyVersion": "1.2",
+  "policyVersion": "1.3",
   "frozenAt": "2026-09-17",
   "scope": "Evaluation of one candidate for the demand in demand/spec.json (EXPERIMENT.md sections 4 step 5 and 7). Every rule below is mechanical unless it names a reviewer. Changing any value after funding requires a new policy version, a new hash and a new demand version.",
   "hashing": {
@@ -23,6 +23,8 @@
       ".github/workflows/holdout-commitment.yml",
       "apparatus/prover/Cargo.toml",
       "apparatus/prover/build.rs",
+      "apparatus/prover/client/Cargo.toml",
+      "apparatus/prover/client/src/main.rs",
       "apparatus/prover/src/main.rs",
       "apparatus/prover/src/save.rs",
       "apparatus/prover/src/wrap.rs",
@@ -58,8 +60,8 @@
   "reproduction": {
     "candidateBundle": "one commit of this repository holding candidate/ (module, adapter, tests, build recipe, manifest.json) and formal/; the RSP changes travel as an overlay under candidate/rsp/ mirroring the pinned tree",
     "artifactDigest": "sha256 tree hash over candidate/ and formal/ at that commit (sorted `<path> <sha256>` lines), equal to the digest submitted onchain",
-    "build": "apparatus-build.yml dispatched with overlay_ref = the candidate commit and variant = the candidate's cargo feature; evaluation/overlay.py refuses any overlay file outside demand/spec.json allowedSourcePaths before anything is copied; the pinned RSP commit is never changed; the wrapper declares the feature the way bin/host declares its own and forwards it to the guest",
-    "guestKeyDerivation": "the evaluator's own build writes vkey.txt; it must equal the manifest's guestProgramKey, and the evaluator never accepts a key supplied by the candidate",
+    "build": "apparatus-build.yml dispatched with overlay_ref = the candidate commit and variant = the candidate's cargo feature; evaluation/overlay.py refuses any overlay file outside demand/spec.json allowedSourcePaths before anything is copied; the pinned RSP commit is never changed; the wrapper declares the feature the way bin/host declares its own and forwards it to both the measured rsp-client guest and the evaluator-owned settlement guest",
+    "guestKeyDerivation": "the evaluator executes the evaluator-owned settlement guest from its own build and writes vkey.txt; that key must equal the manifest's guestProgramKey. The measured rsp-client key is diagnostic and cannot register the reuse version. The evaluator never accepts a key supplied by the candidate",
     "dependencies": "the build record keeps the resulting Cargo.lock and its sha256; its diff against the baseline build's lock must consist only of the crates the manifest declares (dependencyVersions, dependencyLicenses), reviewed by the evaluator",
     "networkAccess": "hosted runners have unrestricted egress and no policy can enforce a filter there; mitigation: the build fetches only what Cargo.lock names, build scripts inside the overlay are read by the evaluator before the build runs, and the run record lists every overlay file with its sha256",
     "buildTimeoutSeconds": 14400,
@@ -99,7 +101,7 @@
       ]
     },
     "supportedRange": "Cancun era (19426587 to 22431083); see demand/spec.json integrationTarget.supportedFork",
-    "blockIntegration": "A (standard), B (candidate) and C (arena) execute every development-corpus block and must reach the manifest's stateRoot with identical public values. A runs from the committed client input; a variant whose host cannot load the pointer-format input (C at the pin, and B if it changes the witness type) runs from RPC, which encodes the same block and node set (apparatus/prover/README.md)",
+    "blockIntegration": "A (standard), B (candidate) and C (arena) execute every development-corpus block through the settlement guest and must reach the manifest's stateRoot with identical nine-word public values under the same evaluation context. The first execution is RPC-backed because the committed rsp-client fixture lacks the settlement job context; the replay uses the exact saved settlement stdin. RPC encodes the same block and node set for each variant (apparatus/prover/README.md)",
     "harnessAdapter": "the candidate's StateTries backend is run through evaluation/harness with an adapter arm the evaluator writes from the candidate's documented construction (compatibilityManifest); the adapter is published with the report and its harness sha256 recorded",
     "candidateSpecificFamilies": "forged handles and capacity boundaries are instantiated by the evaluator from the same cases against the candidate's own witness encoding and cap setting (evaluation/fixtures/README.md)"
   },
@@ -121,11 +123,11 @@
     "reviewer": "a person, the operator, not the creator model and not a model instance the creator controls; the review note states whether the theorem addresses the implemented optimization, whether any hypothesis assumes the result, and what the model omits; it is hashed into the report and signed with the verdict"
   },
   "performance": {
-    "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode (sp1-sdk ExecutionReport gas), standard build variant",
+    "primaryMetric": "prover gas units (PGU) per holdout block from SP1 execute mode (sp1-sdk ExecutionReport gas), using the settlement guest so the registered executable includes the fixed reuse-binding overhead",
     "variants": {
-      "A": "upstream default MPT backend (lemma-prove standard); the funded baseline",
-      "B": "the candidate, built from its overlay with its feature",
-      "C": "upstream arena MPT backend (lemma-prove arena); the registered existing capability and the counterfactual (ROBINHOOD_CHAIN_PROD.md I-E9); unaudited upstream code, labeled as such"
+      "A": "upstream default MPT backend in the settlement guest (lemma-prove standard); the funded baseline",
+      "B": "the settlement guest built with the candidate overlay and feature",
+      "C": "upstream arena MPT backend in the settlement guest (lemma-prove arena); the registered existing capability and the counterfactual (ROBINHOOD_CHAIN_PROD.md I-E9); unaudited upstream code, labeled as such"
     },
     "counterfactualRule": "per block the reported saving is the smaller of the improvement against A and the improvement against C; the gate applies to that smaller value. If C fails a block where A passes, that block's saving is measured against A only and the C failure is reported",
     "holdoutBlocks": 10,
@@ -140,10 +142,10 @@
       "oneEvaluationPerSet": true
     },
     "executionsPerVariantPerBlock": 2,
-    "inputs": "one RPC-backed run per block and variant produces the stdin (apparatus-execute input_source=rpc, witness fetched inside the evaluator job after the candidate's final submission); the second execution replays that exact stdin (input_source=replay, sha256 checked), so both executions of a pair share one input byte for byte and their PGU must be identical (I-E8). Across variants the stdins differ in encoding and in host serialization order; they encode the same block and the same witness node set, and the report records every stdin sha256",
+    "inputs": "one RPC-backed settlement-guest run per block and variant produces the stdin (apparatus-execute input_source=rpc, guest=settlement, witness fetched inside the evaluator job after the candidate's final submission); the second execution replays that exact stdin (input_source=replay, sha256 checked), so both executions of a pair share one input byte for byte and their PGU must be identical (I-E8). The evaluation context is settlementChainId 46630, the deployed UsageEscrow address and jobId equal to the funded demandId; it is not submitted as an escrow job. Across variants the stdins differ in witness encoding and host serialization order but carry the same block, node set and job context. The report records every stdin sha256",
     "plannedExecutions": 60,
     "plannedRealProofs": 3,
-    "realProofs": "one compressed proof each of A and B on the smallest holdout block by gasUsed if its A cycle count is under 30M (about 5.5M cycles per hour on the runner), otherwise on development block 20600066 and labeled so; the third proof is the reuse job. Proofs verify against the vkey the evaluator derived; PGU stays the gate",
+    "realProofs": "one compressed settlement-guest proof each of A and B on the smallest holdout block by gasUsed if its A cycle count is under 30M (about 5.5M cycles per hour on the runner), otherwise on development block 20600066 and labeled so; the third proof is the fresh reuse job with its actual job context. Proofs verify against the settlement vkey the evaluator derived; PGU stays the gate",
     "metricIsDeterministic": "given the stdin bytes; across host runs the stdin differs in HashMap order and PGU moved by 0.004% over three runs of the same client input (apparatus/INTERFACES.md section 7), so the client input is fixed by hash and the per-block value is the median of the executions",
     "minimumMedianPguImprovementPercent": 5,
     "bootstrapConfidence": 0.95,
@@ -258,6 +260,15 @@
       "changes": [
         "apparatus-execute.yml: the archive endpoint is passed only through the RPC_1 environment variable (the pinned cli reads RPC_{chain_id}), never on the command line, and time.txt is scrubbed of provider keys before it enters the artifact. Cause: GNU time's 'Command being timed' line had carried the endpoint with its key into three committed run records and three artifacts; the key is rotated, the records scrubbed, the artifacts deleted. No evaluation rule changed",
         "the demand funded under policy 1.1 (demandId 0x5aa24f98...) was declined by the creator key before any creator work and refunded; the demand is refunded under this version (demand/funding.json)"
+      ]
+    },
+    {
+      "version": "1.3",
+      "date": "2026-09-17",
+      "changes": [
+        "the evaluator-owned lemma-client now preserves the pinned RSP execution checks and commits the nine UsageEscrow words, including the dynamic chain, market and job context; candidate features are forwarded to both guests",
+        "correctness, performance and real-proof runs use the settlement guest so the evaluated and registered key is the executable that can settle the fresh reuse job; the old rsp-client key remains diagnostic",
+        "the second funded demand is superseded before creator work because its frozen evaluator image did not contain this settlement guest"
       ]
     }
   ]

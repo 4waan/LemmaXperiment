@@ -54,7 +54,7 @@
 
   "creatorComputeBudget": {
     "dispatches": {"apparatus-build": 8, "apparatus-execute": 60, "apparatus-fixtures": 6, "evaluation-formal": 6, "apparatus-prove": 0, "apparatus-wrap": 0},
-    "executeInputs": "fixture (the committed corpus) or replay; RPC-backed executions only for the three corpus blocks, none for other blocks, so the creator never fetches state outside the public corpus",
+    "executeInputs": "RPC for the first settlement-guest execution or replay of its saved stdin; RPC-backed executions are limited to the three public corpus blocks, so the creator never fetches state outside the public corpus",
     "runnerHoursEstimate": 10,
     "usd": 0,
     "note": "public repository minutes are free; the binding limits are the 6 h job cap, one RPC job at a time and the dispatch counts, enforced by the runner's tool allowlist"

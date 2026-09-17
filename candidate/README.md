@@ -32,6 +32,10 @@ licenseReference, agreedUsageTerms
 agentRunManifestHash, humanInterventionLogHash
 ```
 
+`guestProgramKey` is the evaluator-derived key of the settlement guest built
+with the candidate feature. The rsp-client key is diagnostic and cannot settle
+the reuse escrow.
+
 ## States
 
 - candidate: submitted, not yet evaluated

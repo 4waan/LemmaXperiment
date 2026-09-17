@@ -115,6 +115,11 @@ jobs:
           cp apparatus/prover/src/*.rs rsp/bin/lemma-prove/src/
           cp rsp/bin/host/src/cli.rs rsp/bin/host/src/execute.rs rsp/bin/lemma-prove/src/
           sed -i 's|    "bin/host",|    "bin/host",\n    "bin/lemma-prove",|' rsp/Cargo.toml
+          # The settlement guest next to the pinned guest, with the pinned guest's lock file.
+          mkdir -p rsp/bin/lemma-client/src
+          cp apparatus/prover/client/Cargo.toml rsp/bin/lemma-client/
+          cp apparatus/prover/client/src/main.rs rsp/bin/lemma-client/src/
+          cp rsp/bin/client/Cargo.lock rsp/bin/lemma-client/Cargo.lock
           case "$VARIANT" in
             standard|cycle-tracking|arena) ;;
             *)
@@ -152,9 +157,10 @@ jobs:
             echo "rsp_sha256: $(sha256sum dist/rsp | cut -d' ' -f1)"
             echo "lemma_prove_sha256: $(sha256sum dist/lemma-prove | cut -d' ' -f1)"
             echo "lemma_wrap_sha256: $(sha256sum dist/lemma-wrap | cut -d' ' -f1)"
-            # The guest ELF sp1-build produced for bin/client; standard and
-            # cycle-tracking must agree, arena differs by construction.
-            find rsp -path '*/elf-compilation/*' -type f -name rsp-client -exec sh -c 'for f; do echo "guest_elf: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
+            # The guest ELFs sp1-build produced: rsp-client (bin/client, the
+            # measured guest) and lemma-client (the settlement guest). Standard
+            # and cycle-tracking must agree, arena differs by construction.
+            find rsp -path '*/elf-compilation/*' -type f \( -name rsp-client -o -name lemma-client \) -exec sh -c 'for f; do echo "guest_elf: $f sha256=$(sha256sum "$f" | cut -d" " -f1)"; done' _ {} +
           } | tee dist/build-record.txt
           cp rsp/Cargo.lock dist/Cargo.lock
           df -h / | tail -1

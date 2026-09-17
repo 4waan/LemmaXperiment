@@ -36,6 +36,9 @@ revm-bytecode.workspace = true
 sp1-sdk.workspace = true
 sp1-core-executor.workspace = true
 strum = "0.27"
+either = "1.13.0"
+reth-ethereum-primitives.workspace = true
+serde = { version = "1.0", features = ["derive"] }
 
 # lemma-wrap only. Pinned to the exact versions in the RSP Cargo.lock.
 sp1-prover = "=6.8.0"

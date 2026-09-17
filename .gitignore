@@ -7,3 +7,5 @@ presalt.hex
 !evaluation/holdout/revealed/presalt.hex
 contracts/out/
 contracts/cache/
+agent/runner/node_modules/
+agent/runner/workspaces/

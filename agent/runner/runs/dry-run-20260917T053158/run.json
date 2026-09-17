@@ -1,0 +1,34 @@
+{
+  "runId": "dry-run-20260917T053158",
+  "mode": "dry-run",
+  "demandId": "0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1",
+  "specificationHash": "0xd4e95ab0f16ffb19e63967873fc0fd78d82e0b12ef7028f9d0a2ff17fe83fa52",
+  "evaluationPolicyHash": "f9230c559fda993f4c8468f42b6b688b114f1fcaa261f080eae2c4fdc38e1de3",
+  "sourceSnapshotHash": "31af04baa9975799d9fd6c8c7d1c221475eb0ed7",
+  "registrySnapshotHash": "726121906c463dde163e69c19d09d4fe5be040841d8a870c6923d7c1152ea5be",
+  "initialPromptHash": "228ac0d4c49d1d2f235259c371d1091d9277de657999211d4088c60f0afe6b38",
+  "toolPolicyHash": "2829858df17288568fc3f0ec9e03ba15bbf21b246b8f1475aa230d2406f3778c",
+  "budget": {
+    "usdLimit": 300,
+    "tokenLimit": 400000000,
+    "tokenLimitDefinition": "sum of input, cache-write, cache-read and output tokens reported by the API over every turn of the main run",
+    "outputTokenLimit": 4000000,
+    "maxTurns": 3000,
+    "wallTimeSeconds": 259200,
+    "localAttemptLimit": 3,
+    "holdoutSubmissionLimit": 1
+  },
+  "dispatches": {
+    "apparatus-build": 8,
+    "apparatus-execute": 60,
+    "apparatus-fixtures": 6,
+    "evaluation-formal": 6,
+    "apparatus-prove": 0,
+    "apparatus-wrap": 0
+  },
+  "fundingBlock": 120640994,
+  "postedInBatch": 46855,
+  "workspace": "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/dry-run-20260917T053158/repo",
+  "branch": "creator/dry-run-20260917T053158",
+  "startedAt": "2026-09-17T05:32:03.829Z"
+}

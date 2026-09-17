@@ -1,0 +1,69 @@
+{
+  "runId": "smoke-20260917T053431",
+  "mode": "smoke",
+  "demandId": "0x37e1283d7a9faaba2e1a4b3e91dd3ee6aef5a720a5aa3a48229b4552e1eec0c1",
+  "specificationHash": "0xd4e95ab0f16ffb19e63967873fc0fd78d82e0b12ef7028f9d0a2ff17fe83fa52",
+  "evaluationPolicyHash": "f9230c559fda993f4c8468f42b6b688b114f1fcaa261f080eae2c4fdc38e1de3",
+  "sourceSnapshotHash": "31af04baa9975799d9fd6c8c7d1c221475eb0ed7",
+  "registrySnapshotHash": "726121906c463dde163e69c19d09d4fe5be040841d8a870c6923d7c1152ea5be",
+  "initialPromptHash": "228ac0d4c49d1d2f235259c371d1091d9277de657999211d4088c60f0afe6b38",
+  "toolPolicyHash": "6099665f1058258b6f6bebc73349b53dd06ca64ddae7e8f58a83278670b72a09",
+  "budget": {
+    "usdLimit": 300,
+    "tokenLimit": 400000000,
+    "tokenLimitDefinition": "sum of input, cache-write, cache-read and output tokens reported by the API over every turn of the main run",
+    "outputTokenLimit": 4000000,
+    "maxTurns": 3000,
+    "wallTimeSeconds": 259200,
+    "localAttemptLimit": 3,
+    "holdoutSubmissionLimit": 1
+  },
+  "dispatches": {
+    "build": 0,
+    "execute": 0,
+    "fixtures": 0,
+    "formal": 0
+  },
+  "fundingBlock": 120640994,
+  "postedInBatch": 46855,
+  "workspace": "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo",
+  "branch": "creator/smoke-20260917T053431",
+  "startedAt": "2026-09-17T05:34:34.790Z",
+  "model": "claude-haiku-4-5-20251001",
+  "maxTurns": 14,
+  "maxBudgetUsd": 2,
+  "endedAt": "2026-09-17T05:35:15.563Z",
+  "usage": {
+    "turns": 25,
+    "inputTokens": 214,
+    "outputTokens": 46,
+    "cacheRead": 652425,
+    "cacheWrite": 126348,
+    "costUsd": 0.1035141
+  },
+  "result": {
+    "subtype": "success",
+    "numTurns": 12,
+    "costUsd": 0.1035141,
+    "durationMs": 38607,
+    "isError": false
+  },
+  "disposition": "decline",
+  "hypothesisHash": null,
+  "revisions": [],
+  "published": [
+    {
+      "commit": "3838f389d5285ae6743ab50e3578a8b4949fff78",
+      "digest": "0xaa8e4aed553be090a2b521290d054fd0415e092c3a1c0dc806d997225928b951",
+      "files": [
+        "candidate/smoke.txt"
+      ],
+      "at": "2026-09-17T05:35:08.341Z"
+    }
+  ],
+  "runs": [],
+  "submission": null,
+  "declined": null,
+  "humanInterventions": [],
+  "assistanceLevel": "unassisted within the supplied environment (edit this file if that changed)"
+}

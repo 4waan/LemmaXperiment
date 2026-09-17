@@ -1,0 +1,123 @@
+{
+  "allowed": [
+    "Read",
+    "Glob",
+    "Grep",
+    "TodoWrite",
+    "mcp__lemma__record_disposition",
+    "mcp__lemma__record_hypothesis",
+    "mcp__lemma__publish_revision"
+  ],
+  "permissions": {
+    "allow": [
+      "Edit(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/candidate/**)",
+      "Edit(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/formal/**)",
+      "Write(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/candidate/**)",
+      "Write(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/formal/**)",
+      "Bash(cargo check:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo tree:*)",
+      "Bash(cargo metadata:*)",
+      "Bash(lake:*)",
+      "Bash(lean:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-files:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)",
+      "Bash(sha256sum:*)",
+      "Bash(shasum:*)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(diff:*)",
+      "Bash(jq:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(tr:*)",
+      "Bash(xargs:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)"
+    ],
+    "deny": [
+      "Read(//Users/awaansiddiqui/.lemma-evaluator/**)",
+      "Read(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/.env)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(~/.claude/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.lemma-evaluator/**)",
+      "Read(//Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/runs/**)",
+      "Edit(**/demand/**)",
+      "Edit(**/evaluation/**)",
+      "Edit(**/apparatus/**)",
+      "Edit(**/.github/**)",
+      "Write(**/demand/**)",
+      "Write(**/evaluation/**)",
+      "Write(**/apparatus/**)",
+      "Write(**/.github/**)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "Bash(gh:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(cast:*)",
+      "Bash(forge:*)",
+      "Bash(ssh:*)",
+      "Bash(sudo:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "WebFetch",
+      "WebSearch"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": false,
+    "autoAllowBashIfSandboxed": false,
+    "network": {
+      "allowedDomains": [
+        "crates.io",
+        "static.crates.io",
+        "index.crates.io",
+        "github.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com",
+        "releases.lean-lang.org",
+        "elan.lean-lang.org"
+      ]
+    },
+    "filesystem": {
+      "allowWrite": [
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/candidate",
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/formal",
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/runs",
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/workspaces/smoke-20260917T053431/repo/upstream",
+        "/tmp",
+        "/Users/awaansiddiqui/.cargo",
+        "/Users/awaansiddiqui/.elan"
+      ],
+      "denyRead": [
+        "/Users/awaansiddiqui/.lemma-evaluator",
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/.env",
+        "/Users/awaansiddiqui/.config/gh",
+        "/Users/awaansiddiqui/.ssh",
+        "/Users/awaansiddiqui/Arbitrum2026/LemmaXperiment/agent/runner/runs"
+      ]
+    }
+  }
+}

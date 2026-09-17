@@ -1,0 +1,17 @@
+{
+  "name": "lemma-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Demand-to-agent runner: funded trigger, restricted workspace, budgeted creator session, run log, restricted transaction controller (EXPERIMENT.md sections 5 and 13; ROBINHOOD_CHAIN_PROD.md B2, B7, C2 to C4).",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "status": "node run.mjs status",
+    "dry-run": "node run.mjs dry-run"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.274",
+    "viem": "2.56.6"
+  }
+}

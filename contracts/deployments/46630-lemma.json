@@ -1,0 +1,78 @@
+{
+  "chainId": 46630,
+  "creationBounty": "0x2C920C76751fCBf080f0443e6A85813A5B3f798E",
+  "creationBountyCodeHash": "0xd1f4021e2364936e1a178b94b9710f996c9baf3950b7c1933ae8ab862ac39fc5",
+  "creationBountyDomainSeparator": "0xb95037d20370a9fcd802ca9c53f81382ec9bc8cb2891528c4a1b98cf04b0b96d",
+  "deployedAtBlock": 120637211,
+  "deployedAtTimestamp": 1789619733,
+  "deployer": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
+  "firstNonce": 0,
+  "moduleRegistry": "0x92695F85f4e595C413C766eE3d4AF4568C1D5188",
+  "moduleRegistryCodeHash": "0xdfa4cac2e1c6f5ea08017286b9c84a52171b1a3f0da7e0a8225aaacf74e37626",
+  "network": "robinhood-chain-testnet",
+  "note": "testnet deployment; verifier is the unmodified sp1-contracts v6.1.0 SP1VerifierGroth16; source verification ids added after forge verify-contract",
+  "pauser": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
+  "sp1VerifierCodeHash": "0x3f62d0f25380761f535cf07d0e7079c6beed2654ca0e9345b87ccdb413e0d30b",
+  "sp1VerifierGroth16": "0x2d67d20E250A439a826c77C432E5E9C481e8cB9E",
+  "sp1VerifierHash": "0x4388a21c687fdd5f218d7e3d13190cac4c5355818d3605fd5fb811df468ee696",
+  "sp1VerifierVersion": "v6.1.0",
+  "usageEscrow": "0xC5cf835118B0476d5c938E7788959ca98E627ea7",
+  "usageEscrowCodeHash": "0x7670890609535ee04133075f1178dd1cae55d3f1697a25faf3b856cdc5845ea9",
+  "transactions": {
+    "SP1Verifier": {
+      "address": "0x2d67d20e250a439a826c77c432e5e9c481e8cb9e",
+      "txHash": "0x82ddba4ef1aad73bbc49d8b5e9fa237dc33862870f2513d135b594f3c5ef53dc",
+      "block": 120637211,
+      "gasUsed": 1667010,
+      "effectiveGasPrice": 10000000,
+      "status": 1
+    },
+    "ModuleRegistry": {
+      "address": "0x92695f85f4e595c413c766ee3d4af4568c1d5188",
+      "txHash": "0xa6671e1d427535499bc091bf668eacbf8e19316b0ef0211d31923d6f61d9f3e2",
+      "block": 120637212,
+      "gasUsed": 1603279,
+      "effectiveGasPrice": 10000000,
+      "status": 1
+    },
+    "CreationBounty": {
+      "address": "0x2c920c76751fcbf080f0443e6a85813a5b3f798e",
+      "txHash": "0xaf57f0bdc1dc63fdddb17c6f40f1f3966b97e1ba3f4f79d08f1d29681efbbecd",
+      "block": 120637212,
+      "gasUsed": 441211,
+      "effectiveGasPrice": 10000000,
+      "status": 1
+    },
+    "UsageEscrow": {
+      "address": "0xc5cf835118b0476d5c938e7788959ca98e627ea7",
+      "txHash": "0xfe0c0da5550f6c6d83437efbfaf0a1b3f0a6f6d8856584c1dab1eb207d533da5",
+      "block": 120637212,
+      "gasUsed": 1764236,
+      "effectiveGasPrice": 10000000,
+      "status": 1
+    }
+  },
+  "broadcastFile": "contracts/broadcast/Deploy.s.sol/46630/run-latest.json",
+  "sourceVerification": {
+    "explorer": "https://explorer.testnet.chain.robinhood.com",
+    "verifier": "blockscout, forge verify-contract, solc v0.8.20+commit.a1b79de6, optimizer 200 runs, evm shanghai",
+    "guids": {
+      "SP1Verifier": "2d67d20e250a439a826c77c432e5e9c481e8cb9e6aab6e57",
+      "ModuleRegistry": "92695f85f4e595c413c766ee3d4af4568c1d51886aab6e58",
+      "CreationBounty": "2c920c76751fcbf080f0443e6a85813a5b3f798e6aab6e5a",
+      "UsageEscrow": "c5cf835118b0476d5c938e7788959ca98e627ea76aab6e5b"
+    },
+    "status": "all four Pass - Verified on 2026-09-17"
+  },
+  "verifierChecks": {
+    "realProof": "eth_call verifyProof(vkey 0x00b22d4b..., 765-byte public values, 356-byte proof of mainnet block 20600066) returned without revert",
+    "mutatedProof": "last proof byte flipped: revert 0x7fcdd1f4 (ProofInvalid), the same result the Arbitrum Sepolia gateway gave in apparatus step 1",
+    "verifierHash": "0x4388a21c687fdd5f218d7e3d13190cac4c5355818d3605fd5fb811df468ee696",
+    "vendoredSources": {
+      "tag": "sp1-contracts v6.1.0 (commit 2ac5ecbbe473421a963d67e55f182e9a36576f7c)",
+      "ISP1Verifier.sol": "9e918032a5aa799c1319b14b013154d6a40ca6e5f2267c9f540560abd7fd7689",
+      "Groth16Verifier.sol": "d5e777120d9f675aefcc8c0c8786d4043acb8e063646e60818564b44fb2ec457",
+      "SP1VerifierGroth16.sol": "48e1db5baca3b102242ebd88280b3689a088076688146cd0d98876f5dacb76d0"
+    }
+  }
+}

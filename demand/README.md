@@ -13,6 +13,10 @@ Owner: buyer / operator. Frozen before the bounty is funded.
 - `budget.json`: measured run costs, the list-price proof model, the creator,
   compute and evaluation budgets and the deadline rules (step 6). The spec
   carries the limits; this file carries their provenance.
+- `spec_hash.py`: `specificationHash` = keccak256 of the canonical JSON of
+  `spec.json` with `demandId` and `specificationHash` null; `--check`.
+- `funding.json`: the funding transaction, demandId, escrowed amount and the
+  confirmation policy for the runner (step 7).
 
 ## Produced by
 

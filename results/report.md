@@ -136,6 +136,18 @@ runner hours over 2 days, operator-paid. Deadlines: submitBy = funding + 4
 days, evaluateBy = submitBy + 5 days. Sponsor amounts: bounty 0.05 testnet
 ETH, usage fee 0.002 + 0.02, labeled mechanics only.
 
+## Apparatus step 7: contracts and funding
+
+2026-09-17, Robinhood Chain testnet (46630). Sponsor funded by bridging 0.15
+Sepolia ETH through the rollup's delayed inbox. Deployed and source-verified:
+`SP1VerifierGroth16` v6.1.0 `0x2d67d20E…` (accepts the real step 1 proof,
+rejects a mutated one), `ModuleRegistry` `0x92695F85…`, `CreationBounty`
+`0x2C920C76…`, `UsageEscrow` `0xC5cf8351…`; 37 Foundry tests including the
+solvency invariant. Demand funded: id `0x5aa24f98…`, tx `0x8f1e3be9…`,
+block 120638142, 0.05 testnet ETH, spec hash `0x51541fd6…`, policy hash
+`0x4d586005…`, holdout commitment `0xe60d6ced…`; submitBy 2026-09-21T05:00Z,
+evaluateBy 2026-09-26T05:00Z. Payment mechanics, testnet.
+
 ## Disposition
 
 Agent disposition: TBD (reuse / compose / create / decline)

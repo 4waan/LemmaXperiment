@@ -1,0 +1,29 @@
+{
+  "schema": "lemma-funding/1",
+  "chainId": 46630,
+  "creationBounty": "0x2C920C76751fCBf080f0443e6A85813A5B3f798E",
+  "demandId": "0x5aa24f989335d1795c40c561af98d83f666a4f65d9ddd17ce42f4caf4e5158b2",
+  "txHash": "0x8f1e3be9d3fb4137134ab511f961440e929bd9e623825d5f987f65f5570e6fda",
+  "block": 120638142,
+  "blockTimestamp": 1789619939,
+  "blockTimestampUtc": "2026-09-17T04:38:59Z",
+  "sponsor": "0x5Bc82B99A1F6daa847c1aa7AB397043DfB810A4c",
+  "bountyWei": 50000000000000000,
+  "specificationHash": "0x51541fd651e658f209c7f2fd7abab7ef3bde0bc311d07479f083fcb289e45b98",
+  "evaluationPolicyHash": "0x4d586005a5bd138465bce92e30eda621e2f716c8f0529d82a94805c32fe14674",
+  "holdoutCommitment": "0xe60d6cedd068915cba662170dc310b4d5f35e227feec35233dd60a71b389b362",
+  "evaluatorSigner": "0x71A15b55313737472e455F17eF79e117038ECa9E",
+  "creatorPayee": "0xC18925708Fe771D56A31b31429c53CE99aB70a91",
+  "contributorFeeWei": 2000000000000000,
+  "submitBy": 1789966800,
+  "evaluateBy": 1790398800,
+  "event": "DemandFunded topic0 0xe3ace8505e5a8322d3f28b2b030175cb07ba4cdfba91f17fd1c3f115b481a17c",
+  "gasUsed": 291097,
+  "confirmationPolicy": "the creation runner starts only after this block is posted to Ethereum Sepolia (NodeInterface 0xC8 findBatchContainingBlock succeeds), ROBINHOOD_CHAIN_PROD.md I-V2; testnet ETH, payment mechanics demonstrated",
+  "l1Posting": null,
+  "deadlineNote": "the spec's anchor sentence planned funding at 05:00:00Z; the transaction landed at 04:38:59Z, so submitBy is 4 d 21 min and evaluateBy 9 d 21 min after funding. The spec text is frozen by its hash and is left as written",
+  "gasTransfers": {
+    "creatorPayee": "0.005 testnet ETH for submitCandidate",
+    "worker": "0.01 testnet ETH for the reuse job"
+  }
+}

@@ -21,7 +21,11 @@
   "evaluateBy": 1790510400,
   "deadlineNote": "submitBy is 96.93 h after funding and evaluateBy 216.93 h; the spec's 4 + 5 day rule was applied to the planned 12:00Z anchor",
   "confirmationPolicy": "the creation runner starts only after this block is posted to Ethereum Sepolia (NodeInterface 0xC8 findBatchContainingBlock succeeds), ROBINHOOD_CHAIN_PROD.md I-V2; testnet ETH, payment mechanics demonstrated",
-  "l1Posting": null,
+  "l1Posting": {
+    "batch": 47096,
+    "checkedAt": "2026-09-18T11:09:18Z",
+    "method": "NodeInterface.findBatchContainingBlock on Robinhood Chain testnet"
+  },
   "gasTransfers": {
     "creatorPayee": "0.005 testnet ETH for submitCandidate",
     "worker": "0.01 testnet ETH for the reuse job"

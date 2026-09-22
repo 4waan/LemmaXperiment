@@ -1,5 +1,7 @@
 # A cheaper build path: reuse decisions and integration resources
 
+Update, September 17, 2026: concrete source snapshots and verification commands are now available in [the fetched reuse kit](../vendor/reuse-kit/README.md). Eight repositories are pinned there. Current Fangorn source includes encryption and settlement-related clients, superseding the availability statement in section 4 for that pin. Full integration remains untested.
+
 Checked September 16, 2026. This supplements [TOOLING.md](TOOLING.md), [the production plan](ROBINHOOD_CHAIN_PROD.md) and [asset certification](ASSET_SCOPE_AND_CERTIFICATION.md). Recommendations below prioritize the existing Experiment 01, not a replacement experiment. No dependencies were installed, accounts funded or deployments made during this research.
 
 ## 1. Decision
